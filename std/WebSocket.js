@@ -6,9 +6,7 @@ const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 const Signals = imports.signals;
 
-imports.searchPath.push('..');
-
-const {promiseTask} = imports.util;
+const {promiseTask} = imports.troll.util;
 
 var WebSocket = class WebSocket {
     constructor(url, protocols = []) {
@@ -119,7 +117,5 @@ var WebSocket = class WebSocket {
         this.disconnect(id);
         this.eventListeners.delete(fn);
     }
-
-
 };
 Signals.addSignalMethods(WebSocket.prototype);

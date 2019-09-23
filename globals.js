@@ -1,10 +1,8 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-imports.searchPath.push('.');
-
-const {base64, encoding, timers} = imports.std;
-const {fetch} = imports.std.fetch;
-const {WebSocket} = imports.std.WebSocket;
-const {console} = imports.std.console;
+const {base64, encoding, timers} = imports.troll.std;
+const {fetch} = imports.troll.std.fetch;
+const {WebSocket} = imports.troll.std.WebSocket;
+const {console} = imports.troll.std.console;
 
 Object.assign(window, base64, encoding, timers, {fetch, console, WebSocket});

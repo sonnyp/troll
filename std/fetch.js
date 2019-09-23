@@ -5,9 +5,7 @@
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 
-imports.searchPath.push('..');
-
-const {promiseTask} = imports.util;
+const {promiseTask} = imports.troll.util;
 
 async function fetch(url, options = {}) {
     const session = new Soup.Session();
@@ -58,4 +56,3 @@ async function fetch(url, options = {}) {
         },
     };
 }
-

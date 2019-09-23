@@ -18,7 +18,7 @@ ws.addEventListener('error', err => {
 
 function onMessage(msg) {
     console.log(msg.data);
-    ws.removeEventListener('message', onMessage)
+    ws.removeEventListener('message', onMessage);
     // ws.close();
 }
 

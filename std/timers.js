@@ -8,11 +8,10 @@ function setTimeout(func, delay, ...args) {
     if (typeof delay !== 'number' || delay < 0)
         delay = 0;
 
-    let id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+    return GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
         func(...args);
         return false;
     });
-    return id;
 }
 
 function clearTimeout(id) {
