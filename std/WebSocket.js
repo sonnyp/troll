@@ -12,6 +12,7 @@ var WebSocket = class WebSocket {
     constructor(url, protocols = []) {
         this.eventListeners = new WeakMap();
         this._connection = null;
+        this.readyState = 0;
 
         if (typeof protocols === 'string')
             protocols = [protocols];
@@ -74,10 +75,12 @@ var WebSocket = class WebSocket {
     }
 
     close() {
+        this.readyState = 2;
         this._connection.close(Soup.WebsocketCloseCode.NORMAL, null);
     }
 
     _onopen() {
+        this.readyState = 1;
         if (typeof this.onopen === 'function')
             this.onopen();
 
@@ -92,6 +95,7 @@ var WebSocket = class WebSocket {
     }
 
     _onclose() {
+        this.readyState = 3;
         if (typeof this.onclose === 'function')
             this.onclose();
 
