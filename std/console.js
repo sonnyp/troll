@@ -8,7 +8,7 @@
 
 function printable(arg) {
     if (typeof arg === 'object')
-        return JSON.stringify(arg);
+        return JSON.stringify(arg, null, 2);
     else
         return arg.toString();
 }
