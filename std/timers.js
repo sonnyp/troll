@@ -1,10 +1,8 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported setTimeout, clearTimeout, setInterval, clearInterval */
-
 const {GLib} = imports.gi;
 
-function setTimeout(func, delay, ...args) {
+export function setTimeout(func, delay, ...args) {
     if (typeof delay !== 'number' || delay < 0)
         delay = 0;
 
@@ -14,11 +12,11 @@ function setTimeout(func, delay, ...args) {
     });
 }
 
-function clearTimeout(id) {
+export function clearTimeout(id) {
     return GLib.source_remove(id);
 }
 
-function setInterval(func, delay, ...args) {
+export function setInterval(func, delay, ...args) {
     if (typeof delay !== 'number' || delay < 0)
         delay = 0;
 
@@ -28,6 +26,6 @@ function setInterval(func, delay, ...args) {
     });
 }
 
-function clearInterval(id) {
+export function clearInterval(id) {
     return GLib.source_remove(id);
 }

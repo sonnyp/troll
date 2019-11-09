@@ -1,8 +1,6 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported promiseTask, once */
-
-function promiseTask(object, method, finish, ...args) {
+export function promiseTask(object, method, finish, ...args) {
     return new Promise((resolve, reject) => {
         object[method](...args, (self, asyncResult) => {
             try {
@@ -14,7 +12,7 @@ function promiseTask(object, method, finish, ...args) {
     });
 }
 
-function once(object, signal, errorSignal) {
+export function once(object, signal, errorSignal) {
   return new Promise((resolve, reject) => {
     const handlerId = object.connect(signal, handler);
     let errorHandlerId;

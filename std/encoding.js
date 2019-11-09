@@ -1,10 +1,8 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported TextEncoder, TextDecoder */
-
 const byteArray = imports._byteArrayNative;
 
-class TextEncoder {
+export class TextEncoder {
     constructor() {
         this.encoding = 'utf-8';
     }
@@ -14,7 +12,7 @@ class TextEncoder {
     }
 }
 
-class TextDecoder {
+export class TextDecoder {
     constructor() {
         this.encoding = 'utf-8';
     }

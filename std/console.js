@@ -1,7 +1,5 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported console */
-
 /*
  * https://console.spec.whatwg.org/
  */
@@ -13,7 +11,7 @@ function printable(arg) {
         return arg.toString();
 }
 
-var console = {
+const console = {
     log(...args) {
         print(args.map(printable).join(' '));
 
@@ -26,3 +24,5 @@ var console = {
 
     },
 };
+
+export default console

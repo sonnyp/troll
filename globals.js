@@ -1,8 +1,22 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-const {base64, encoding, timers} = imports.troll.std;
-const {fetch} = imports.troll.std.fetch;
-const {WebSocket} = imports.troll.std.WebSocket;
-const {console} = imports.troll.std.console;
+import {atob, btoa} from './std/base64'
+import {TextEncoder, TextDecoder} from './std/encoding'
+import {setTimeout, setInterval, clearTimeout, clearInterval} from './std/timers'
+import fetch from './std/fetch'
+import WebSocket from './std/WebSocket'
+import console from './std/console'
 
-Object.assign(window, base64, encoding, timers, {fetch, console, WebSocket});
+Object.assign(window, {
+  atob,
+  btoa,
+  TextEncoder,
+  TextDecoder,
+  setTimeout,
+  setInterval,
+  clearTimeout,
+  clearInterval,
+  fetch,
+  console,
+  WebSocket
+});

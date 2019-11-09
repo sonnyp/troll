@@ -1,13 +1,11 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported fetch */
-
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 
-const {promiseTask} = imports.troll.util;
+import {promiseTask} from '../util'
 
-async function fetch(url, options = {}) {
+export default async function fetch(url, options = {}) {
     const session = new Soup.Session();
     const method = options.method || 'GET';
     const message = new Soup.Message({

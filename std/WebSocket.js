@@ -1,14 +1,12 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-/* exported WebSocket */
-
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 const Signals = imports.signals;
 
-const {promiseTask} = imports.troll.util;
+import {promiseTask} from '../util'
 
-var WebSocket = class WebSocket {
+export default class WebSocket {
     constructor(url, protocols = []) {
         this.eventListeners = new WeakMap();
         this._connection = null;
