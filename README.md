@@ -4,17 +4,17 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 
 ## Status
 
-- atob [src]('./std/base64')
-- btoa [src]('./std/base64')
-- console [src]('./std/console')
-- TextDecoder [src]('./std/encoding')
-- TextEncoder [src]('./std/encoding')
-- fetch [src]('./std/fetch')
-- setTimeout [src]('./std/timers')
-- clearTimeout [src]('./std/timers')
-- setInterval [src]('./std/timers')
-- clearInterval [src]('./std/timers')
-- WebSocket [src]('./std/WebSocket')
+- atob [src](std/base64.js)
+- btoa [src](std/base64.js)
+- console [src](std/console.js)
+- TextDecoder [src](std/encoding.js)
+- TextEncoder [src](std/encoding.js)
+- fetch [src](std/fetch.js)
+- setTimeout [src](std/timers.js)
+- clearTimeout [src](std/timers.js)
+- setInterval [src](std/timers.js)
+- clearInterval [src](std/timers.js)
+- WebSocket [src](std/WebSocket.js)
 
 ## Goals
 
