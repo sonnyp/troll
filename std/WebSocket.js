@@ -1,10 +1,10 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
+import {promiseTask} from '../util'
+
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 const Signals = imports.signals;
-
-import {promiseTask} from '../util'
 
 export default class WebSocket {
     constructor(url, protocols = []) {

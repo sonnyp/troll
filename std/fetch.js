@@ -1,9 +1,9 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
+import {promiseTask} from '../util'
+
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
-
-import {promiseTask} from '../util'
 
 export default async function fetch(url, options = {}) {
     const session = new Soup.Session();
