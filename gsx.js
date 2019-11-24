@@ -4,11 +4,10 @@ const { EllipsizeMode } = imports.gi.Pango;
 
 const Fragment = Symbol("Fragment");
 
-function createElement(name, attrs, ...children) {
+function h(name, attrs, ...children) {
   if (name === Fragment) {
     return children;
   }
-  // console.log(children);
 
   let Widget;
   if (typeof name === "string") {
@@ -41,9 +40,10 @@ function createElement(name, attrs, ...children) {
   const widget = new Widget(attrs);
 
   for (const signal in signals) {
-    widget.connect(signal, signals[signal]);
+    const handler = (self, ...args) => {signals[signal](...args)}
+    widget.connect(signal, handler);
   }
-  signals = null;
+  // signals = null;
 
   for (const prop in bindings) {
     const [target, targetProp, map] = bindings[prop];
@@ -67,4 +67,6 @@ function createElement(name, attrs, ...children) {
 }
 
 export { Align, Orientation, EllipsizeMode, Fragment, h };
-export default h;
+export default {
+  h, Fragment
+}
