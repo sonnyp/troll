@@ -4,17 +4,23 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 
 ## Status
 
-- atob [src](std/base64.js)
-- btoa [src](std/base64.js)
-- console [src](std/console.js)
-- TextDecoder [src](std/encoding.js)
-- TextEncoder [src](std/encoding.js)
-- fetch [src](std/fetch.js)
-- setTimeout [src](std/timers.js)
-- clearTimeout [src](std/timers.js)
-- setInterval [src](std/timers.js)
-- clearInterval [src](std/timers.js)
 - WebSocket [src](std/WebSocket.js)
+- fetch [src](std/fetch.js)
+- console
+  - log [src](std/console.js)
+  - error [src](std/console.js)
+  - debug [src](std/console.js)
+- base64
+  - atob [src](std/base64.js)
+  - btoa [src](std/base64.js)
+- encoding
+  - TextDecoder [src](std/encoding.js)
+  - TextEncoder [src](std/encoding.js)
+- timers
+  - setTimeout [src](std/timers.js)
+  - clearTimeout [src](std/timers.js)
+  - setInterval [src](std/timers.js)
+  - clearInterval [src](std/timers.js)
 
 ## Goals
 
@@ -31,47 +37,45 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 You can register all globals with
 
 ```js
-import 'troll/globals'
+import "troll/globals";
 
 // window.fetch
 // window.WebSocket
 // ...
 ```
 
-
 ## promiseTask(target, method, finish[, ...args])
 
-* `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
-* `method` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
-* `finish` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
-* `args` an array of arguments to pass to `method`
-* Returns: [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
+- `method` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+- `finish` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+- `args` an array of arguments to pass to `method`
+- Returns: [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
 Run a Gio async operation and return a promise that resolve with the result of finish method or rejects.
 
 Examples
 
 ```js
-import {promiseTask} from 'troll/util'
+import { promiseTask } from "troll/util";
 
 const { File } = imports.gi.Gio;
 
 (async () => {
-  const file = File.new_for_path('/tmp/foobar')
+  const file = File.new_for_path("/tmp/foobar");
 
   // see https://developer.gnome.org/gio/stable/GFile.html#g-file-replace-readwrite-async
-  const stream = await promisetask(file, 'readwrite_async', 'readwrite_finish')
-  log(stream)
-})().catch(logError)
+  const stream = await promisetask(file, "readwrite_async", "readwrite_finish");
+  log(stream);
+})().catch(logError);
 ```
-
 
 ## once(target, signal[, errorSignal])
 
-* `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
-* `signal` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
-* `errorSignal` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
-* Returns: [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
+- `signal` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+- `errorSignal` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+- Returns: [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
 Register a signal handler and remove it as soon as the signal is emitted. See also [connect](https://developer.gnome.org/gobject/stable/gobject-Signals.html#g-signal-connect).
 
@@ -82,11 +86,74 @@ If `errorSignal` is specified, an handler for it will be registered and the prom
 Examples
 
 ```js
-import {once} from 'troll/util'
+import { once } from "troll/util";
 
 (async () => {
-  const Button = new Gtk.Button ({label: "Click Me"});
-  await once(Button, 'clicked')
-  console.log('clicked!')
-})().catch(logError)
+  const Button = new Gtk.Button({ label: "Click Me" });
+  await once(Button, "clicked");
+  console.log("clicked!");
+})().catch(logError);
+```
+
+## gsx
+
+gsx is a small function to write Gtk.
+
+You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) like so:
+
+```js
+import gsx from "./troll/gsx";
+
+/** @jsx gsx */
+
+function Button() {
+  return (
+    <button connect-clicked={() => openDir(gid)} halign={Align.END}>
+      <image icon-name="folder-open-symbolic" pixel-size={48} />
+    </button>
+  );
+}
+```
+
+or without babel
+
+```js
+import gsx, { Align } from "./troll/gsx";
+
+function Button() {
+  return gsx(
+    "button",
+    {
+      "connect-clicked": () => log("clicked"),
+      halign: Align.END
+    },
+    gsx("image", {
+      "icon-name": "folder-open-synbolic",
+      "pixel-size": 48
+    })
+  );
+}
+```
+
+both are equivalent to
+
+```js
+const Gtk = imports.gi.Gtk;
+const { Align } = Gtk;
+
+function Button() {
+  const image = new Gtk.Image({
+    "icon-name": "folder-open-synbolic",
+    "pixel-size": 48
+  });
+
+  const button = new Gtk.Button({
+    halign: Align.END
+  });
+  button.connect("signal", () => {
+    log("clicked!");
+  });
+
+  button.add(image);
+}
 ```
