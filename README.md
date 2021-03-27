@@ -2,6 +2,10 @@
 
 troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gnome.org/GNOME/gjs) and some helpers to make working with GLib easier.
 
+See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for context.
+
+Requires gjs 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/master/doc/ESModules.md).
+
 ## Status
 
 - WebSocket [src](std/WebSocket.js)
@@ -37,10 +41,10 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 You can register all globals with
 
 ```js
-import "troll/globals";
+import "./troll/globals.js";
 
-// window.fetch
-// window.WebSocket
+// globalThis.fetch
+// globalThis.WebSocket
 // ...
 ```
 
@@ -57,12 +61,11 @@ Run a Gio async operation and return a promise that resolve with the result of f
 Examples
 
 ```js
-import { promiseTask } from "troll/util";
-
-const { File } = imports.gi.Gio;
+import { promiseTask } from "./troll/util.js";
+import Gio from 'gi://Gio'
 
 (async () => {
-  const file = File.new_for_path("/tmp/foobar");
+  const file = Gio.File.new_for_path("/tmp/foobar");
 
   // see https://developer.gnome.org/gio/stable/GFile.html#g-file-replace-readwrite-async
   const stream = await promisetask(file, "readwrite_async", "readwrite_finish");
@@ -86,7 +89,7 @@ If `errorSignal` is specified, an handler for it will be registered and the prom
 Examples
 
 ```js
-import { once } from "troll/util";
+import { once } from "./troll/util.js";
 
 (async () => {
   const Button = new Gtk.Button({ label: "Click Me" });
@@ -102,7 +105,7 @@ gsx is a small function to write Gtk.
 You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) like so:
 
 ```js
-import gsx from "./troll/gsx";
+import gsx from "./troll/gsx.js";
 
 /** @jsx gsx */
 
@@ -118,7 +121,7 @@ function Button() {
 or without babel
 
 ```js
-import gsx, { Align } from "./troll/gsx";
+import gsx, { Align } from "./troll/gsx.js";
 
 function Button() {
   return gsx(

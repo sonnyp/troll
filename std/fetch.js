@@ -1,8 +1,8 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-import {promiseTask} from '../util'
+import {promiseTask} from '../util.js'
+import Soup from 'gi://Soup'
 
-const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
 
 export default async function fetch(url, options = {}) {
