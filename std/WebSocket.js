@@ -1,123 +1,116 @@
-// -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
+import { promiseTask } from "../util.js";
 
-import {promiseTask} from '../util.js'
-
-const {Soup} = imports.gi;
+const { Soup } = imports.gi;
 const ByteArray = imports.byteArray;
 const Signals = imports.signals;
 
 export default class WebSocket {
-    constructor(url, protocols = []) {
-        this.eventListeners = new WeakMap();
-        this._connection = null;
-        this.readyState = 0;
+  constructor(url, protocols = []) {
+    this.eventListeners = new WeakMap();
+    this._connection = null;
+    this.readyState = 0;
 
-        if (typeof protocols === 'string')
-            protocols = [protocols];
+    if (typeof protocols === "string") protocols = [protocols];
 
-        this._start(url, protocols);
+    this._start(url, protocols);
+  }
+
+  async _start(url, protocols) {
+    const session = new Soup.Session();
+    const message = new Soup.Message({
+      method: "GET",
+      uri: Soup.URI.new(url),
+    });
+
+    let connection;
+
+    try {
+      connection = await promiseTask(
+        session,
+        "websocket_connect_async",
+        "websocket_connect_finish",
+        message,
+        "origin",
+        protocols,
+        null,
+      );
+    } catch (err) {
+      this.onerror(err);
+      return;
     }
 
-    async _start(url, protocols) {
-        const session = new Soup.Session();
-        const message = new Soup.Message({
-            method: 'GET',
-            uri: Soup.URI.new(url),
-        });
+    this._onconnection(connection);
+  }
 
-        let connection;
+  _onconnection(connection) {
+    this._connection = connection;
 
-        try {
-            connection = await promiseTask(
-                session,
-                'websocket_connect_async',
-                'websocket_connect_finish',
-                message,
-                'origin',
-                protocols,
-                null
-            );
-        } catch (err) {
-            this.onerror(err);
-            return;
-        }
+    this._onopen();
 
-        this._onconnection(connection);
-    }
+    connection.connect("closed", () => {
+      this._onclose();
+    });
 
-    _onconnection(connection) {
-        this._connection = connection;
+    connection.connect("error", (self, err) => {
+      this._onerror(err);
+    });
 
-        this._onopen();
+    connection.connect("message", (self, type, message) => {
+      if (type === Soup.WebsocketDataType.TEXT) {
+        const data = ByteArray.toString(ByteArray.fromGBytes(message));
+        this._onmessage({ data });
+      } else {
+        this._onmessage({ data: message });
+      }
+    });
+  }
 
-        connection.connect('closed', () => {
-            this._onclose();
-        });
+  send(data) {
+    this._connection.send_text(data);
+  }
 
-        connection.connect('error', (self, err) => {
-            this._onerror(err);
-        });
+  close() {
+    this.readyState = 2;
+    this._connection.close(Soup.WebsocketCloseCode.NORMAL, null);
+  }
 
-        connection.connect('message', (self, type, message) => {
-            if (type === Soup.WebsocketDataType.TEXT) {
-                const data = ByteArray.toString(ByteArray.fromGBytes(message));
-                this._onmessage({data});
-            } else {
-                this._onmessage({data: message});
-            }
-        });
-    }
+  _onopen() {
+    this.readyState = 1;
+    if (typeof this.onopen === "function") this.onopen();
 
-    send(data) {
-        this._connection.send_text(data);
-    }
+    this.emit("open");
+  }
 
-    close() {
-        this.readyState = 2;
-        this._connection.close(Soup.WebsocketCloseCode.NORMAL, null);
-    }
+  _onmessage(message) {
+    if (typeof this.onmessage === "function") this.onmessage(message);
 
-    _onopen() {
-        this.readyState = 1;
-        if (typeof this.onopen === 'function')
-            this.onopen();
+    this.emit("message", message);
+  }
 
-        this.emit('open');
-    }
+  _onclose() {
+    this.readyState = 3;
+    if (typeof this.onclose === "function") this.onclose();
 
-    _onmessage(message) {
-        if (typeof this.onmessage === 'function')
-            this.onmessage(message);
+    this.emit("close");
+  }
 
-        this.emit('message', message);
-    }
+  _onerror(error) {
+    if (typeof this.onerror === "function") this.onerror(error);
 
-    _onclose() {
-        this.readyState = 3;
-        if (typeof this.onclose === 'function')
-            this.onclose();
+    this.emit("error", error);
+  }
 
-        this.emit('close');
-    }
+  addEventListener(name, fn) {
+    const id = this.connect(name, (self, ...args) => {
+      fn(...args);
+    });
+    this.eventListeners.set(fn, id);
+  }
 
-    _onerror(error) {
-        if (typeof this.onerror === 'function')
-            this.onerror(error);
-
-        this.emit('error', error);
-    }
-
-    addEventListener(name, fn) {
-        const id = this.connect(name, (self, ...args) => {
-            fn(...args);
-        });
-        this.eventListeners.set(fn, id);
-    }
-
-    removeEventListener(name, fn) {
-        const id = this.eventListeners.get(fn);
-        this.disconnect(id);
-        this.eventListeners.delete(fn);
-    }
-};
+  removeEventListener(name, fn) {
+    const id = this.eventListeners.get(fn);
+    this.disconnect(id);
+    this.eventListeners.delete(fn);
+  }
+}
 Signals.addSignalMethods(WebSocket.prototype);

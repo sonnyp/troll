@@ -1,15 +1,13 @@
-// -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
-
 export function promiseTask(object, method, finish, ...args) {
-    return new Promise((resolve, reject) => {
-        object[method](...args, (self, asyncResult) => {
-            try {
-                resolve(object[finish](asyncResult));
-            } catch (err) {
-                reject(err);
-            }
-        });
+  return new Promise((resolve, reject) => {
+    object[method](...args, (self, asyncResult) => {
+      try {
+        resolve(object[finish](asyncResult));
+      } catch (err) {
+        reject(err);
+      }
     });
+  });
 }
 
 export function once(object, signal, errorSignal) {
@@ -31,4 +29,4 @@ export function once(object, signal, errorSignal) {
       return resolve(params);
     }
   });
-};
+}

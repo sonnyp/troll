@@ -16,7 +16,7 @@ function h(name, attrs, ...children) {
     Widget = name;
   }
 
-  let signals = Object.create(null);
+  const signals = Object.create(null);
   let bindings = Object.create(null);
   if (!attrs) {
     attrs = Object.create(null);
@@ -40,7 +40,9 @@ function h(name, attrs, ...children) {
   const widget = new Widget(attrs);
 
   for (const signal in signals) {
-    const handler = (self, ...args) => {signals[signal](...args)}
+    const handler = (self, ...args) => {
+      signals[signal](...args);
+    };
     widget.connect(signal, handler);
   }
   // signals = null;
@@ -53,7 +55,7 @@ function h(name, attrs, ...children) {
 
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
-      children[i].forEach(child => widget.add(child));
+      children[i].forEach((child) => widget.add(child));
     } else {
       widget.add(children[i]);
     }
@@ -68,5 +70,6 @@ function h(name, attrs, ...children) {
 
 export { Align, Orientation, EllipsizeMode, Fragment, h };
 export default {
-  h, Fragment
-}
+  h,
+  Fragment,
+};
