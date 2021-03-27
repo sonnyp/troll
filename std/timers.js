@@ -1,6 +1,6 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-const {GLib} = imports.gi;
+import GLib from 'gi://GLib'
 
 export function setTimeout(func, delay, ...args) {
     if (typeof delay !== 'number' || delay < 0)

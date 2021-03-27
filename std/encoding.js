@@ -1,6 +1,6 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-const byteArray = imports._byteArrayNative;
+const byteArray = imports.byteArray;
 
 export class TextEncoder {
     constructor() {

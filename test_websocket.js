@@ -1,10 +1,7 @@
-imports.searchPath.push('.');
+import './globals.js'
+import GLib from 'gi://GLib'
 
-// eslint-disable-next-line no-unused-expressions
-imports.globals;
-
-// const {WebSocket} = imports.WebSocket;
-const loop = imports.gi.GLib.MainLoop.new(null, false);
+const loop = GLib.MainLoop.new(null, false);
 const ws = new WebSocket('wss://echo.websocket.org');
 
 ws.addEventListener('open', () => {
@@ -19,7 +16,7 @@ ws.addEventListener('error', err => {
 function onMessage(msg) {
     console.log(msg.data);
     ws.removeEventListener('message', onMessage);
-    // ws.close();
+    ws.close();
 }
 
 ws.addEventListener('message', onMessage);

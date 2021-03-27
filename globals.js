@@ -1,11 +1,11 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-import {atob, btoa} from './std/base64'
-import {TextEncoder, TextDecoder} from './std/encoding'
-import {setTimeout, setInterval, clearTimeout, clearInterval} from './std/timers'
-import fetch from './std/fetch'
-import WebSocket from './std/WebSocket'
-import console from './std/console'
+import {atob, btoa} from './std/base64.js'
+import {TextEncoder, TextDecoder} from './std/encoding.js'
+import {setTimeout, setInterval, clearTimeout, clearInterval} from './std/timers.js'
+import fetch from './std/fetch.js'
+import WebSocket from './std/WebSocket.js'
+import console from './std/console.js'
 
 Object.assign(window, {
   atob,

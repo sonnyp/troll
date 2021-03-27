@@ -1,6 +1,6 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-import {promiseTask} from '../util'
+import {promiseTask} from '../util.js'
 
 const {Soup} = imports.gi;
 const ByteArray = imports.byteArray;
