@@ -10,21 +10,16 @@ Requires gjs 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/m
 
 - WebSocket [src](std/WebSocket.js)
 - fetch [src](std/fetch.js)
-- console
-  - log [src](std/console.js)
-  - error [src](std/console.js)
-  - debug [src](std/console.js)
 - base64
   - atob [src](std/base64.js)
   - btoa [src](std/base64.js)
-- encoding
-  - TextDecoder [src](std/encoding.js)
-  - TextEncoder [src](std/encoding.js)
 - timers
   - setTimeout [src](std/timers.js)
   - clearTimeout [src](std/timers.js)
   - setInterval [src](std/timers.js)
   - clearInterval [src](std/timers.js)
+- ~~console~~ builtin gjs 1.70
+- ~~TextDecoder/TextEncoder~~ builtin gjs 1.70
 
 ## Goals
 
@@ -62,7 +57,7 @@ Examples
 
 ```js
 import { promiseTask } from "./troll/util.js";
-import Gio from 'gi://Gio'
+import Gio from "gi://Gio";
 
 (async () => {
   const file = Gio.File.new_for_path("/tmp/foobar");
@@ -128,11 +123,11 @@ function Button() {
     "button",
     {
       "connect-clicked": () => log("clicked"),
-      halign: Align.END
+      halign: Align.END,
     },
     gsx("image", {
       "icon-name": "folder-open-synbolic",
-      "pixel-size": 48
+      "pixel-size": 48,
     })
   );
 }
@@ -147,11 +142,11 @@ const { Align } = Gtk;
 function Button() {
   const image = new Gtk.Image({
     "icon-name": "folder-open-synbolic",
-    "pixel-size": 48
+    "pixel-size": 48,
   });
 
   const button = new Gtk.Button({
-    halign: Align.END
+    halign: Align.END,
   });
   button.connect("signal", () => {
     log("clicked!");
