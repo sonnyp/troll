@@ -13,11 +13,7 @@ Requires gjs 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/m
 - base64
   - atob [src](std/base64.js)
   - btoa [src](std/base64.js)
-- timers
-  - setTimeout [src](std/timers.js)
-  - clearTimeout [src](std/timers.js)
-  - setInterval [src](std/timers.js)
-  - clearInterval [src](std/timers.js)
+- ~~timers~~ builtin gjs 1.72
 - ~~console~~ builtin gjs 1.70
 - ~~TextDecoder/TextEncoder~~ builtin gjs 1.70
 
