@@ -1,3 +1,5 @@
+import GLib from "gi://GLib";
+
 export class TimeoutError extends Error {
   constructor(message) {
     super(message);
@@ -123,4 +125,10 @@ export function once(
   return Promise.race([promise, promise_timeout]).finally(() => {
     clearTimeout(promise_timeout.timeout_id);
   });
+}
+
+export function relativePath(path) {
+  const [filename] = GLib.filename_from_uri(import.meta.url);
+  const dirname = GLib.path_get_dirname(filename);
+  return GLib.canonicalize_filename(path, dirname);
 }

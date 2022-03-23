@@ -8,6 +8,5 @@ lint:
 	./node_modules/.bin/eslint .
 
 test:
-	gjs -m test/base64.test.js
-	gjs -m test/WebSocket.test.js
-	make lint
+	tst/bin.js **/*.test.js
+	./node_modules/.bin/eslint .

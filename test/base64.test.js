@@ -1,15 +1,7 @@
-import "./setup.js";
-
-import { test } from "./uvu.js";
-import * as assert from "./assert.js";
-import GLib from "gi://GLib";
-
+import tst, { assert } from "../tst/tst.js";
 import { atob, btoa } from "../src/std/base64.js";
 
-const loop = GLib.MainLoop.new(null, false);
-test.after(() => {
-  loop.quit();
-});
+const test = tst("base64");
 
 test("btoa", () => {
   assert.is(btoa("foobar"), "Zm9vYmFy");
@@ -28,5 +20,6 @@ test("NUL termination", () => {
   assert.is(decoded, "hello\0world");
 });
 
-test.run();
-loop.run();
+export default test;
+// test.run();
+// loop.run();

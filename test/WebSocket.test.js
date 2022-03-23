@@ -1,18 +1,12 @@
-import "./setup.js";
+import tst, { assert } from "../tst/tst.js";
 
 import WebSocket from "../src/std/WebSocket.js";
 import { once } from "../src/util.js";
 
-import { test } from "./uvu.js";
-import * as assert from "./assert.js";
-import GLib from "gi://GLib";
 import Soup from "gi://Soup";
 import Gio from "gi://Gio";
 
-const loop = GLib.MainLoop.new(null, false);
-test.after(() => {
-  loop.quit();
-});
+const test = tst("WebSocket");
 
 test("open and close", async () => {
   const server = createEchoServer();
@@ -57,12 +51,10 @@ test("send and receive", async () => {
 });
 
 test("protocol", async () => {
-  const server = createEchoServer();
+  const server = createEchoServer(["xmpp"]);
 
   const ws = new WebSocket("ws://127.0.0.1:1234/echo", ["xmpp"]);
   assert.is(ws.protocol, "");
-
-  log("foo");
 
   await once(ws, "open", { timeout: 1000, error: "error" });
 
@@ -75,7 +67,7 @@ test("protocol", async () => {
   server.disconnect();
 });
 
-function createEchoServer() {
+function createEchoServer(protocols = []) {
   const server = new Soup.Server();
 
   function onConnection(self, message, path, connection) {
@@ -87,7 +79,7 @@ function createEchoServer() {
   server.add_websocket_handler(
     "/echo", // path
     null, // origin
-    [], // protocols
+    protocols, // protocols
     onConnection
   );
 
@@ -95,5 +87,4 @@ function createEchoServer() {
   return server;
 }
 
-test.run();
-loop.run();
+export default test;
