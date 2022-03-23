@@ -7,6 +7,7 @@ const Signals = imports.signals;
 const byteArray = imports.byteArray;
 
 const text_decoder = new TextDecoder("utf-8");
+const text_encoder = new TextEncoder("utf-8");
 
 export default class WebSocket {
   constructor(url, protocols = []) {
@@ -14,16 +15,24 @@ export default class WebSocket {
     this._connection = null;
     this.readyState = 0;
 
+    const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+    this.url = uri.to_string();
+    this._uri = uri;
+
     if (typeof protocols === "string") protocols = [protocols];
 
-    this._start(url, protocols);
+    this._connect(protocols);
   }
 
-  async _start(url, protocols) {
+  get protocol() {
+    return this._connection?.get_protocol() || "";
+  }
+
+  async _connect(protocols) {
     const session = new Soup.Session();
     const message = new Soup.Message({
       method: "GET",
-      uri: GLib.Uri.parse(url, GLib.UriFlags.NONE),
+      uri: this._uri,
     });
 
     let connection;
@@ -71,7 +80,14 @@ export default class WebSocket {
   }
 
   send(data) {
-    this._connection.send_text(data);
+    if (typeof data === "string") {
+      this._connection.send_message(
+        Soup.WebsocketDataType.TEXT,
+        byteArray.toGBytes(text_encoder.encode(data))
+      );
+    } else {
+      this._connection.send_message(Soup.WebsocketDataType.BINARY, data);
+    }
   }
 
   close() {

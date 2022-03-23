@@ -15,5 +15,5 @@ export default [
       file: "test/assert.js",
     },
     plugins: [nodeResolve()],
-  }
+  },
 ];
