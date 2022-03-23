@@ -1,7 +1,7 @@
 import GLib from "gi://GLib";
 
 export function atob(data) {
-  return GLib.base64_decode(data);
+  return new TextDecoder().decode(GLib.base64_decode(data));
 }
 
 export function btoa(data) {

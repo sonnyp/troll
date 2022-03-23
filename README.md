@@ -4,7 +4,10 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 
 See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for context.
 
-Requires gjs 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/master/doc/ESModules.md).
+Requires
+
+- gjs >= 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/master/doc/ESModules.md).
+- libsoup 3
 
 ## Status
 
@@ -34,9 +37,10 @@ You can register all globals with
 ```js
 import "./troll/globals.js";
 
-// globalThis.fetch
-// globalThis.WebSocket
-// ...
+// fetch(...)
+// new WebSocket(...)
+// atob(...)
+// btoa(...)
 ```
 
 ## promiseTask(target, method, finish[, ...args])

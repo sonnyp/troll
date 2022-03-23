@@ -1,5 +1,5 @@
 import { promiseTask } from "../util.js";
-import Soup from "gi://Soup";
+import Soup from "gi://Soup?version=3.0";
 
 const ByteArray = imports.byteArray;
 
@@ -23,7 +23,7 @@ export default async function fetch(url, options = {}) {
     "send_async",
     "send_finish",
     message,
-    null,
+    null
   );
 
   const { status_code, response_headers, reason_phrase } = message;
@@ -46,7 +46,7 @@ export default async function fetch(url, options = {}) {
         "read_bytes_finish",
         contentLength,
         null,
-        null,
+        null
       );
       return ByteArray.toString(ByteArray.fromGBytes(bytes));
     },

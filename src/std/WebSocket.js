@@ -1,8 +1,12 @@
 import { promiseTask } from "../util.js";
 
-const { Soup } = imports.gi;
-const ByteArray = imports.byteArray;
+import Soup from "gi://Soup?version=3.0";
+import GLib from "gi://GLib";
+
 const Signals = imports.signals;
+const byteArray = imports.byteArray;
+
+const text_decoder = new TextDecoder("utf-8");
 
 export default class WebSocket {
   constructor(url, protocols = []) {
@@ -19,7 +23,7 @@ export default class WebSocket {
     const session = new Soup.Session();
     const message = new Soup.Message({
       method: "GET",
-      uri: Soup.URI.new(url),
+      uri: GLib.Uri.parse(url, GLib.UriFlags.NONE),
     });
 
     let connection;
@@ -33,9 +37,10 @@ export default class WebSocket {
         "origin",
         protocols,
         null,
+        null
       );
     } catch (err) {
-      this.onerror(err);
+      this._onerror(err);
       return;
     }
 
@@ -57,7 +62,7 @@ export default class WebSocket {
 
     connection.connect("message", (self, type, message) => {
       if (type === Soup.WebsocketDataType.TEXT) {
-        const data = ByteArray.toString(ByteArray.fromGBytes(message));
+        const data = text_decoder.decode(byteArray.fromGBytes(message));
         this._onmessage({ data });
       } else {
         this._onmessage({ data: message });

@@ -1,1 +1,25 @@
-root: false
+env:
+  es2022: true
+extends: 'eslint:recommended'
+globals:
+  ARGV: readonly
+  Debugger: readonly
+  GIRepositoryGType: readonly
+  globalThis: readonly
+  imports: readonly
+  Intl: readonly
+  log: readonly
+  logError: readonly
+  print: readonly
+  printerr: readonly
+  window: readonly
+  TextEncoder: readonly
+  TextDecoder: readonly
+  console: readonly
+  setTimeout: readonly
+  setInterval: readonly
+  clearTimeout: readonly
+  clearInterval: readonly
+parserOptions:
+  ecmaVersion: 2022
+  sourceType: module
