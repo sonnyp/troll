@@ -21,5 +21,3 @@ test("NUL termination", () => {
 });
 
 export default test;
-// test.run();
-// loop.run();

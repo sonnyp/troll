@@ -1,13 +1,8 @@
 # troll
 
-troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gnome.org/GNOME/gjs) and some helpers to make working with GLib easier.
+troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gnome.org/GNOME/gjs) and some helpers.
 
 See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for context.
-
-Requires
-
-- gjs >= 1.68.0 with [ESModules](https://gitlab.gnome.org/GNOME/gjs/-/blob/master/doc/ESModules.md).
-- libsoup 3
 
 ## Status
 
@@ -68,7 +63,7 @@ import Gio from "gi://Gio";
 })().catch(logError);
 ```
 
-## once(target, signal[, errorSignal])
+<!-- ## once(target, signal[, errorSignal])
 
 - `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
 - `signal` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
@@ -91,41 +86,43 @@ import { once } from "./troll/util.js";
   await once(Button, "clicked");
   console.log("clicked!");
 })().catch(logError);
-```
+``` -->
 
 ## gsx
 
 gsx is a small function to write Gtk.
 
-You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) like so:
+You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) or [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory) like so:
 
 ```js
+import Gtk from "gi://Gtk?version=4.0";
 import gsx from "./troll/gsx.js";
 
 /** @jsx gsx */
 
 function Button() {
   return (
-    <button connect-clicked={() => openDir(gid)} halign={Align.END}>
-      <image icon-name="folder-open-symbolic" pixel-size={48} />
-    </button>
+    <Gtk.Button connect-clicked={() => log("clicked")} halign={Gtk.Align.END}>
+      <Gtk.Image icon-name="folder-open-symbolic" pixel-size={48} />
+    </Gtk.Button>
   );
 }
 ```
 
-or without babel
+or without a compiler
 
 ```js
-import gsx, { Align } from "./troll/gsx.js";
+import Gtk from "gi://Gtk?version=4.0";
+import gsx from "./troll/gsx.js";
 
 function Button() {
   return gsx(
-    "button",
+    Gtk.Button,
     {
       "connect-clicked": () => log("clicked"),
-      halign: Align.END,
+      halign: Gtk.Align.END,
     },
-    gsx("image", {
+    gsx(Gtk.Image, {
       "icon-name": "folder-open-synbolic",
       "pixel-size": 48,
     })
@@ -136,8 +133,7 @@ function Button() {
 both are equivalent to
 
 ```js
-const Gtk = imports.gi.Gtk;
-const { Align } = Gtk;
+import Gtk from "gi://Gtk?version=4.0";
 
 function Button() {
   const image = new Gtk.Image({
@@ -146,7 +142,7 @@ function Button() {
   });
 
   const button = new Gtk.Button({
-    halign: Align.END,
+    halign: Gtk.Align.END,
   });
   button.connect("signal", () => {
     log("clicked!");

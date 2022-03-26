@@ -132,3 +132,18 @@ export function relativePath(path) {
   const dirname = GLib.path_get_dirname(filename);
   return GLib.canonicalize_filename(path, dirname);
 }
+
+function noop() {}
+
+export class Deferred extends Promise {
+  constructor(def = noop) {
+    let res, rej;
+    super((resolve, reject) => {
+      def(resolve, reject);
+      res = resolve;
+      rej = reject;
+    });
+    this.resolve = res;
+    this.reject = rej;
+  }
+}
