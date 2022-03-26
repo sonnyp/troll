@@ -1,28 +1,41 @@
 import { promiseTask } from "../util.js";
 import Soup from "gi://Soup?version=3.0";
+import GLib from "gi://GLib";
 
-const ByteArray = imports.byteArray;
+const { byteArray } = imports;
 
 export default async function fetch(url, options = {}) {
+  if (typeof url === "object") {
+    options = url;
+    url = options.url;
+  }
+
   const session = new Soup.Session();
   const method = options.method || "GET";
+
+  const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+
   const message = new Soup.Message({
     method,
-    uri: Soup.URI.new(url),
+    uri,
   });
   const headers = options.headers || {};
 
-  for (const header in headers)
-    message.request_headers.set(header, headers[header]);
+  const request_headers = message.get_request_headers();
+  for (const header in headers) {
+    request_headers.append(header, headers[header]);
+  }
 
-  if (typeof options.body === "string")
-    message.response_body_data = new Uint8Array(options.body);
+  if (typeof options.body === "string") {
+    message.set_request_body_from_bytes(null, new GLib.Bytes(options.body));
+  }
 
   const inputStream = await promiseTask(
     session,
     "send_async",
     "send_finish",
     message,
+    null,
     null
   );
 
@@ -39,7 +52,7 @@ export default async function fetch(url, options = {}) {
       return JSON.parse(text);
     },
     async text() {
-      const contentLength = response_headers.get("content-length");
+      const contentLength = response_headers.get_one("content-length");
       const bytes = await promiseTask(
         inputStream,
         "read_bytes_async",
@@ -48,7 +61,8 @@ export default async function fetch(url, options = {}) {
         null,
         null
       );
-      return ByteArray.toString(ByteArray.fromGBytes(bytes));
+
+      return new TextDecoder().decode(byteArray.fromGBytes(bytes));
     },
   };
 }

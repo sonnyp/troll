@@ -8,6 +8,13 @@ See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for contex
 
 - WebSocket [src](std/WebSocket.js)
 - fetch [src](std/fetch.js)
+  - request
+    - method/url
+    - headers
+    - text body
+  - response
+    - status/statusText/ok
+    - text() / json()
 - base64
   - atob [src](std/base64.js)
   - btoa [src](std/base64.js)
@@ -17,8 +24,9 @@ See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for contex
 
 ## Goals
 
-1. Provide a familiar and simpler environment for building GNOME applications and extensions with JavaScript.
+1. Provide a familiar environment for building GNOME applications
 2. Allow application developers to use third party libraries
+3. Encourage Shell extension developers to make flatpak apps instead
 
 ## Tested with
 
