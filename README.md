@@ -103,7 +103,7 @@ import { once } from "./troll/util.js";
 
 gsx is a small function to write Gtk.
 
-You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx) or [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory) like so:
+You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx), [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory) or [SWC](https://swc.rs/) like so:
 
 ```js
 import Gtk from "gi://Gtk?version=4.0";
