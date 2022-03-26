@@ -4,6 +4,9 @@ troll is an implementation of common JavaScript APIs for [gjs](https://gitlab.gn
 
 See [this gjs issue](https://gitlab.gnome.org/GNOME/gjs/-/issues/265) for context.
 
+This is not API stable and no release were made. Use at your own risk.
+Contributions welcome.
+
 ## Status
 
 - WebSocket [src](std/WebSocket.js)

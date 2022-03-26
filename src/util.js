@@ -1,4 +1,5 @@
 import GLib from "gi://GLib";
+import system from "gi://system";
 
 export class TimeoutError extends Error {
   constructor(message) {
@@ -127,6 +128,8 @@ export function once(
   });
 }
 
+// FIXME: does not work with source loaded from resource
+// import.meta.url is resource:///re/sonny/Workbench/js/util.js
 export function relativePath(path) {
   const [filename] = GLib.filename_from_uri(import.meta.url);
   const dirname = GLib.path_get_dirname(filename);
@@ -146,4 +149,22 @@ export class Deferred extends Promise {
     this.resolve = res;
     this.reject = rej;
   }
+}
+
+export function getGIRepositoryVersion(repo) {
+  const {
+    get_major_version = () => "?",
+    get_minor_version = () => "?",
+    get_micro_version = () => "?",
+  } = repo;
+  return `${get_major_version()}.${get_minor_version()}.${get_micro_version()}`;
+}
+
+export function getGLibVersion() {
+  return `${GLib.MAJOR_VERSION}.${GLib.MINOR_VERSION}.${GLib.MICRO_VERSION}`;
+}
+
+export function getGjsVersion() {
+  const v = system.version.toString();
+  return `${v[0]}.${+(v[1] + v[2])}.${+(v[3] + v[4])}`;
 }
