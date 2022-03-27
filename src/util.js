@@ -1,5 +1,5 @@
 import GLib from "gi://GLib";
-import system from "gi://system";
+import system from "system";
 
 export class TimeoutError extends Error {
   constructor(message) {
