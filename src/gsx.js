@@ -2,7 +2,7 @@
 
 const Fragment = Symbol("Fragment");
 
-function gsx(Widget, attrs, ...children) {
+function h(Widget, attrs, ...children) {
   if (Widget === Fragment) {
     return children;
   }
@@ -18,8 +18,6 @@ function gsx(Widget, attrs, ...children) {
       registerSignal(widget, key, attrs[key]);
     } else if (key === "class") {
       registerClasses(widget, attrs[key]);
-    } else if (key === "id") {
-      widget.set_name(attrs[key]);
     } else {
       properties[key] = attrs[key];
     }
@@ -55,9 +53,7 @@ function registerClasses(widget, classnames) {
     classname = classname.trim();
     if (classname) style_context.add_class(classname);
   });
-  // widget.get_style_context().
 }
 
-const h = gsx;
 export { Fragment, h };
-export default gsx;
+export default { Fragment, h };

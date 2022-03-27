@@ -1,7 +1,7 @@
 import Gtk from "gi://Gtk?version=4.0";
 import tst, { assert } from "../tst/tst.js";
 
-import gsx from "../src/gsx.js";
+import gsx, { Fragment } from "../src/gsx.js";
 import { Deferred } from "../src/util.js";
 
 const signals = imports.signals;
@@ -46,16 +46,16 @@ test("multiple children", () => {
   assert.is([...multiple_children].length, 2);
 });
 
+test("fragment", () => {
+  const fragment = gsx(Fragment, undefined, gsx(Gtk.Image), gsx(Gtk.Image));
+  assert.is([...fragment].length, 2);
+});
+
 test("class names", () => {
   const button = gsx(Gtk.Button, { ["class"]: " abc  123 3j" });
   assert.is(button.get_style_context().has_class("abc"), true);
   assert.is(button.get_style_context().has_class("123"), true);
   assert.is(button.get_style_context().has_class("3j"), true);
-});
-
-test("id", () => {
-  const button = gsx(Gtk.Button, { id: "cool" });
-  assert.is(button.get_name(), "cool");
 });
 
 test("signal", async () => {

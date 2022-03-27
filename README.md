@@ -105,55 +105,37 @@ gsx is a small function to write Gtk.
 
 You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx), [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory) or [SWC](https://swc.rs/) like so:
 
-```js
+```jsx
 import Gtk from "gi://Gtk?version=4.0";
 import gsx from "./troll/gsx.js";
 
-/** @jsx gsx */
+const { Button, Align, Image } = Gtk;
 
-function Button() {
+export default function MyButton() {
   return (
-    <Gtk.Button connect-clicked={() => log("clicked")} halign={Gtk.Align.END}>
-      <Gtk.Image icon-name="folder-open-symbolic" pixel-size={48} />
-    </Gtk.Button>
+    <Button connect-clicked={() => log("clicked")} halign={Align.END}>
+      <Image icon-name="folder-open-symbolic" pixel-size={48} />
+    </Button>
   );
 }
 ```
 
-or without a compiler
-
-```js
-import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/gsx.js";
-
-function Button() {
-  return gsx(
-    Gtk.Button,
-    {
-      "connect-clicked": () => log("clicked"),
-      halign: Gtk.Align.END,
-    },
-    gsx(Gtk.Image, {
-      "icon-name": "folder-open-synbolic",
-      "pixel-size": 48,
-    })
-  );
-}
-```
-
-both are equivalent to
+<details>
+    <summary>Equivalent without gsx</summary>
 
 ```js
 import Gtk from "gi://Gtk?version=4.0";
 
-function Button() {
-  const image = new Gtk.Image({
+const { Button, Align, Image } = Gtk;
+
+export default function MyButton() {
+  const image = new Image({
     "icon-name": "folder-open-synbolic",
     "pixel-size": 48,
   });
 
-  const button = new Gtk.Button({
-    halign: Gtk.Align.END,
+  const button = new Button({
+    halign: Align.END,
   });
   button.connect("signal", () => {
     log("clicked!");
@@ -162,3 +144,64 @@ function Button() {
   button.add(image);
 }
 ```
+
+</details>
+
+<details>
+  <summary>Babel configuration</summary>
+
+```sh
+npm install --save-dev @babel/core @babel-cli @babel/plugin-transform-react-jsx
+```
+
+```js
+// babel.config.cjs
+module.exports = {
+  // gjs does not support source map so this helps
+  // https://babeljs.io/docs/en/options#retainlines
+  // retainLines: true,
+  sourceMaps: "inline",
+  plugins: [
+    [
+      "@babel/plugin-transform-react-jsx",
+      {
+        pragma: "gsx.h",
+        pragmaFrag: "gsx.Fragment",
+        useSpread: true,
+      },
+    ],
+  ],
+};
+```
+
+```
+npx babel MyButton.js
+```
+
+</details>
+
+<details>
+  <summary>Usage without a compiler</summary>
+
+```js
+import Gtk from "gi://Gtk?version=4.0";
+import gsx from "./troll/gsx.js";
+
+const { Button, Align, Image } = Gtk;
+
+export default function MyButton() {
+  return gsx(
+    Button,
+    {
+      "connect-clicked": () => log("clicked"),
+      halign: Align.END,
+    },
+    gsx(Image, {
+      "icon-name": "folder-open-synbolic",
+      "pixel-size": 48,
+    })
+  );
+}
+```
+
+</details>
