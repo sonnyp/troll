@@ -1,7 +1,7 @@
 import Gtk from "gi://Gtk?version=4.0";
 import tst, { assert } from "../tst/tst.js";
 
-import gsx, { Fragment } from "../src/gsx.js";
+import gsx from "../src/gsx.js";
 import { Deferred } from "../src/util.js";
 
 const signals = imports.signals;
@@ -11,48 +11,53 @@ Gtk.init();
 const test = tst("gsx");
 
 test("widget", () => {
-  const box = gsx(Gtk.Box);
+  const box = gsx.h(Gtk.Box);
   assert.ok(box instanceof Gtk.Box);
 });
 
 test("attribute", () => {
-  const box = gsx(Gtk.Box, { orientation: Gtk.Orientation.VERTICAL });
+  const box = gsx.h(Gtk.Box, { orientation: Gtk.Orientation.VERTICAL });
   assert.is(box.orientation, Gtk.Orientation.VERTICAL);
 });
 
 test("attribute enum text", () => {
-  const box = gsx(Gtk.Box, { orientation: Gtk.Orientation.VERTICAL });
+  const box = gsx.h(Gtk.Box, { orientation: Gtk.Orientation.VERTICAL });
   assert.is(box.orientation, Gtk.Orientation.VERTICAL);
 });
 
 test("parent with append method", () => {
-  gsx(Gtk.Box, undefined, gsx(Gtk.Image));
+  gsx.h(Gtk.Box, undefined, gsx.h(Gtk.Image));
 });
 
 test("parent with set_child method", () => {
-  gsx(Gtk.Button, undefined, gsx(Gtk.Image));
+  gsx.h(Gtk.Button, undefined, gsx.h(Gtk.Image));
 });
 
 test("multiple children", () => {
-  const single_child = gsx(Gtk.Box, undefined, gsx(Gtk.Image));
+  const single_child = gsx.h(Gtk.Box, undefined, gsx.h(Gtk.Image));
   assert.is([...single_child].length, 1);
 
-  const multiple_children = gsx(
+  const multiple_children = gsx.h(
     Gtk.Box,
     undefined,
-    gsx(Gtk.Image),
-    gsx(Gtk.Image)
+    gsx.h(Gtk.Image),
+    gsx.h(Gtk.Image)
   );
   assert.is([...multiple_children].length, 2);
 });
 
 test("fragment", () => {
-  const fragment = gsx(Fragment, undefined, gsx(Gtk.Image), gsx(Gtk.Image));
+  const fragment = gsx.h(
+    gsx.Fragment,
+    undefined,
+    gsx.h(Gtk.Image),
+    gsx.h(Gtk.Image)
+  );
   assert.is([...fragment].length, 2);
 });
 
 test("class names", () => {
-  const button = gsx(Gtk.Button, { ["class"]: " abc  123 3j" });
+  const button = gsx.h(Gtk.Button, { ["class"]: " abc  123 3j" });
   assert.is(button.get_style_context().has_class("abc"), true);
   assert.is(button.get_style_context().has_class("123"), true);
   assert.is(button.get_style_context().has_class("3j"), true);
@@ -66,7 +71,7 @@ test("signal", async () => {
     deferred.resolve();
   }
 
-  const button = gsx(Gtk.Button, { "connect-clicked": onClicked });
+  const button = gsx.h(Gtk.Button, { "connect-clicked": onClicked });
 
   button.emit("clicked");
 
@@ -85,7 +90,7 @@ test("signal arguments", async () => {
     deferred.resolve();
   }
 
-  const button = gsx(MyWidget, { "connect-signal": onSignal });
+  const button = gsx.h(MyWidget, { "connect-signal": onSignal });
 
   button.emit("signal", ...values);
 

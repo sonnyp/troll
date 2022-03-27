@@ -1,6 +1,9 @@
 env:
   es2022: true
-extends: 'eslint:recommended'
+parserOptions:
+  ecmaVersion: 2022
+  sourceType: module
+extends: eslint:recommended
 globals:
   ARGV: readonly
   Debugger: readonly
@@ -20,6 +23,3 @@ globals:
   setInterval: readonly
   clearTimeout: readonly
   clearInterval: readonly
-parserOptions:
-  ecmaVersion: 2022
-  sourceType: module
