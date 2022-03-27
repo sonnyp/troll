@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
+    "@babel/plugin-transform-react-jsx": "^7.17.3"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "npx babel src --out-dir js"
+  }
+}
