@@ -115,7 +115,7 @@ export default function MyButton() {
   return (
     <Gtk.Button connect-clicked={() => log("clicked")} halign={Gtk.Align.END}>
       <Gtk.Image icon-name="folder-open-symbolic" pixel-size={48} />
-    </Button>
+    </Gtk.Button>
   );
 }
 ```
