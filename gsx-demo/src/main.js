@@ -35,7 +35,7 @@ const window = (
       />
       <Label label="Welcome to Workbench" margin-bottom={24} class="title-1" />
       <Label
-        label={`A sandbox to learn and prototype with\nGNOME technologies`}
+        label={`Learn and prototype with\nGNOME technologies`}
         margin-bottom={24}
         justify={Justification.CENTER}
         class="title-1"

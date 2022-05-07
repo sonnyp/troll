@@ -36,7 +36,7 @@ function normalizeEmitter(emitter) {
   };
 }
 
-function onceSignal(object, signal, error_signal) {
+function promiseSignal(object, signal, error_signal) {
   return new Promise((resolve, reject) => {
     const handler_id = object.connect(signal, handler);
     let error_handler_id;
@@ -61,10 +61,6 @@ function onceSignal(object, signal, error_signal) {
 }
 
 function promiseEvent(object, signal, error_signal) {
-  if (object.connect && object.disconnect) {
-    return onceSignal(object, signal, error_signal);
-  }
-
   const { addListener, removeListener } = normalizeEmitter(object);
 
   return new Promise((resolve, reject) => {
@@ -116,7 +112,12 @@ export function once(
     timeout: -1,
   }
 ) {
-  const promise = promiseEvent(object, signal, options.error);
+  let promise;
+  if (object.connect && object.disconnect) {
+    promise = promiseSignal(object, signal, options.error);
+  } else {
+    promise = promiseEvent(object, signal, options.error);
+  }
 
   if (options.timeout < 0) {
     return promise;
