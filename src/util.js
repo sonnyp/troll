@@ -169,3 +169,11 @@ export function getGjsVersion() {
   const v = system.version.toString();
   return `${v[0]}.${+(v[1] + v[2])}.${+(v[3] + v[4])}`;
 }
+
+// To use with import.meta.url
+export function resolve(uri, path) {
+  return GLib.build_filenamev([
+    GLib.path_get_dirname(GLib.Uri.parse(uri, null).get_path()),
+    path,
+  ]);
+}
