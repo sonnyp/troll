@@ -1,4 +1,5 @@
 import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 import system from "system";
 
 export class TimeoutError extends Error {
@@ -176,4 +177,9 @@ export function resolve(uri, path) {
     GLib.path_get_dirname(GLib.Uri.parse(uri, null).get_path()),
     path,
   ]);
+}
+
+export function getPid() {
+  const credentials = new Gio.Credentials();
+  return credentials.get_unix_pid();
 }
