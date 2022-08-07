@@ -111,7 +111,7 @@ export function once(
   options = {
     error: "",
     timeout: -1,
-  }
+  },
 ) {
   let promise;
   if (object.connect && object.disconnect) {
@@ -130,12 +130,9 @@ export function once(
   });
 }
 
-// FIXME: does not work with source loaded from resource
-// import.meta.url is resource:///re/sonny/Workbench/js/util.js
 export function relativePath(path) {
-  const [filename] = GLib.filename_from_uri(import.meta.url);
-  const dirname = GLib.path_get_dirname(filename);
-  return GLib.canonicalize_filename(path, dirname);
+  const file = Gio.File.new_for_uri(import.meta.url);
+  return file.get_parent().resolve_relative_path(path).get_path();
 }
 
 function noop() {}
