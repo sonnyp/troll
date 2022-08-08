@@ -14,7 +14,7 @@ export function getPathForResource(
   // The file which imports module_path
   relative_to,
   // glib-compile-resources --sourcedir defaults to current directory
-  source_dir = current_file
+  source_dir = current_file,
 ) {
   const module_file = relative_to
     .get_parent()
@@ -39,7 +39,7 @@ function saveTransformed({ alias, resources, transformed }) {
     null, // etag
     false, // make_backup
     Gio.FileCreateFlags.NONE, // flags
-    null // cancellable
+    null, // cancellable
   );
 
   resources.push({ path: transfomed_file.get_path(), alias });
@@ -174,8 +174,8 @@ function buildGresource({ prefix, resources }) {
     xml(
       "gresource",
       { prefix },
-      ...resources.map(({ path, alias }) => xml("file", { alias }, path))
-    )
+      ...resources.map(({ path, alias }) => xml("file", { alias }, path)),
+    ),
   );
   const gresource_xml = `<?xml version="1.0" encoding="UTF-8" ?>${el.toString()}`;
 
@@ -187,11 +187,11 @@ function buildGresource({ prefix, resources }) {
     null, // etag
     false, // make_backup
     Gio.FileCreateFlags.NONE, // flags
-    null
+    null,
   );
 
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
-    `glib-compile-resources ${file.get_path()}`
+    `glib-compile-resources ${file.get_path()}`,
   );
   if (status !== 0) {
     throw new Error(decode(stderr));
@@ -220,7 +220,7 @@ export function build({ app_id, entry, output }) {
     output.get_child(`${app_id}.gresource`),
     Gio.FileCopyFlags.OVERWRITE,
     null,
-    null
+    null,
   );
 
   return { prefix };
@@ -229,7 +229,7 @@ export function build({ app_id, entry, output }) {
 export function emitExecutable({ app_id, entry, output, prefix }) {
   let template = Gio.resources_lookup_data(
     ExecutableTemplate,
-    Gio.ResourceLookupFlags.NONE
+    Gio.ResourceLookupFlags.NONE,
   );
   template = decode(template.toArray());
 
@@ -247,13 +247,13 @@ export function emitExecutable({ app_id, entry, output, prefix }) {
     null,
     false,
     Gio.FileCreateFlags.NONE,
-    null
+    null,
   );
   // Make file executable
   executable.set_attribute_uint32(
     "unix::mode",
     parseInt("0755", 8),
     Gio.FileQueryInfoFlags.NONE,
-    null
+    null,
   );
 }

@@ -41,7 +41,7 @@ test("multiple children", () => {
     Gtk.Box,
     undefined,
     gsx.h(Gtk.Image),
-    gsx.h(Gtk.Image)
+    gsx.h(Gtk.Image),
   );
   assert.is([...multiple_children].length, 2);
 });
@@ -51,7 +51,7 @@ test("fragment", () => {
     gsx.Fragment,
     undefined,
     gsx.h(Gtk.Image),
-    gsx.h(Gtk.Image)
+    gsx.h(Gtk.Image),
   );
   assert.is([...fragment].length, 2);
 });

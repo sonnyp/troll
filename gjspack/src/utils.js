@@ -5,7 +5,7 @@ export function* readDirSync(file) {
   const enumerator = file.enumerate_children(
     "standard::name",
     Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
-    null
+    null,
   );
 
   while (true) {
@@ -32,7 +32,7 @@ export function writeTextFileSync(file, contents) {
     null, // etag
     false, // make_backup
     Gio.FileCreateFlags.NONE, // flags
-    null // cancellable
+    null, // cancellable
   );
 }
 

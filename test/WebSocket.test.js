@@ -80,7 +80,7 @@ function createEchoServer(protocols = []) {
     "/echo", // path
     null, // origin
     protocols, // protocols
-    onConnection
+    onConnection,
   );
 
   server.listen(Gio.InetSocketAddress.new_from_string("127.0.0.1", 1234), null);

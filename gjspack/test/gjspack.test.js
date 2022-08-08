@@ -67,19 +67,19 @@ test("getPathForResource", () => {
   // in-tree relative module path
   assert.is(
     getPathForResource("../wow.js", relative_to, source_dir),
-    "bar/wow.js"
+    "bar/wow.js",
   );
 
   // in-tree absolute module path
   assert.is(
     getPathForResource("/foo/bar/wow.js", relative_to, source_dir),
-    "bar/wow.js"
+    "bar/wow.js",
   );
 
   // out-tree relative module path
   assert.is(
     getPathForResource("../../../../wow.js", relative_to, source_dir),
-    "/wow.js"
+    "/wow.js",
   );
 
   // out-tree absolute module path
@@ -108,7 +108,7 @@ test("processSourceFile", () => {
         source_file: input_file,
         prefix,
       }),
-      readTextFileSync(output_file)
+      readTextFileSync(output_file),
     );
   }
 });

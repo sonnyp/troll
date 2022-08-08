@@ -27,7 +27,7 @@ app.set_option_context_summary(
 Examples:
   ${GLib.get_prgname()} my-app.js build
   ${GLib.get_prgname()} --app-id=my.app main.js build
-`.trim()
+`.trim(),
 );
 
 app.add_main_option(
@@ -36,7 +36,7 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.NONE,
   "Print version information and exit",
-  null
+  null,
 );
 
 app.add_main_option(
@@ -45,7 +45,7 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.STRING,
   "Identifier to use as resource prefix and executable name (default: name of the entry file)",
-  null
+  null,
 );
 
 app.add_main_option(
@@ -54,7 +54,7 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.NONE,
   "Don't emit executable, you will need to import the gresource yourself",
-  null
+  null,
 );
 
 app.set_option_context_description(
@@ -70,12 +70,12 @@ Run the program
 
 List bundled resources
   gresource list ./build/my.app.gresource
-`.trim()
+`.trim(),
 );
 
 function showHelp() {
   const [, stdout, stderr] = GLib.spawn_command_line_sync(
-    `${system.programInvocationName} --help`
+    `${system.programInvocationName} --help`,
   );
 
   if (stdout) {
