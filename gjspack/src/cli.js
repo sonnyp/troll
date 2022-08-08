@@ -3,8 +3,9 @@
 import system from "system";
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
-import { build, emitExecutable } from "./gjspack.js";
+import { build } from "./gjspack.js";
 import { decode, basename } from "./utils.js";
+import ExecutableTemplate from "./executable.js.tmpl";
 
 GLib.set_prgname("gjspack");
 GLib.set_application_name("re.sonny.gjspack");
@@ -119,6 +120,38 @@ app.connect("handle-local-options", (self, options) => {
 
 status ??= app.run([system.programInvocationName].concat(ARGV));
 if (status > 0) system.exit(status);
+
+function emitExecutable({ app_id, entry, output, prefix }) {
+  let template = Gio.resources_lookup_data(
+    ExecutableTemplate,
+    Gio.ResourceLookupFlags.NONE,
+  );
+  template = decode(template.toArray());
+
+  for (const [key, value] of Object.entries({
+    app_id,
+    prefix,
+    main_script: entry.get_basename(),
+  })) {
+    template = template.replace(`@@${key}@@`, value);
+  }
+
+  const executable = output.get_child(app_id);
+  executable.replace_contents(
+    template,
+    null,
+    false,
+    Gio.FileCreateFlags.NONE,
+    null,
+  );
+  // Make file executable
+  executable.set_attribute_uint32(
+    "unix::mode",
+    parseInt("0755", 8),
+    Gio.FileQueryInfoFlags.NONE,
+    null,
+  );
+}
 
 const { prefix } = build({ app_id, entry, output });
 if (!no_executable) {

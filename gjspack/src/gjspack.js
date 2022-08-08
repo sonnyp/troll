@@ -3,7 +3,6 @@ import GLib from "gi://GLib";
 
 import * as lexer from "../lib/lexer.js";
 import { createElement as xml } from "../lib/ltx.js";
-import ExecutableTemplate from "./executable.js.tmpl";
 import { decode, appIdToPrefix } from "./utils.js";
 
 const current_dir = GLib.get_current_dir();
@@ -140,34 +139,7 @@ export function processSourceFile({ resources, source_file, prefix }) {
   return transformed || "\n";
 }
 
-export function process({ app_id, entry }) {
-  const prefix = appIdToPrefix(app_id);
-  const relative_to = Gio.File.new_for_path(entry.get_path());
-
-  const resources = [];
-
-  const transformed = processSourceFile({
-    resources,
-    relative_to,
-    source_file: entry,
-    prefix,
-  });
-
-  saveTransformed({
-    alias: entry.get_basename(),
-    resources,
-    transformed,
-  });
-
-  const { gresource_path } = buildGresource({
-    prefix,
-    resources,
-  });
-
-  return { gresource_path, prefix };
-}
-
-function buildGresource({ prefix, resources }) {
+function buildGresource({ prefix, resources, output, app_id }) {
   const el = xml(
     "gresources",
     {},
@@ -190,8 +162,10 @@ function buildGresource({ prefix, resources }) {
     null,
   );
 
+  const gresource_path = output.get_child(`${app_id}.gresource`).get_path();
+
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
-    `glib-compile-resources ${file.get_path()}`,
+    `glib-compile-resources --target=${gresource_path} ${file.get_path()}`,
   );
   if (status !== 0) {
     throw new Error(decode(stderr));
@@ -199,61 +173,42 @@ function buildGresource({ prefix, resources }) {
 
   console.debug("stdout: ", decode(stdout));
 
-  const gresource_path = file.get_path().replace(".xml", "");
-
   return { gresource_path };
 }
 
 export function build({ app_id, entry, output }) {
   console.debug({ current_dir });
 
-  const { gresource_path, prefix } = process({ app_id, entry });
+  const prefix = appIdToPrefix(app_id);
+  const relative_to = Gio.File.new_for_path(entry.get_path());
+
+  const resources = [];
+
+  const transformed = processSourceFile({
+    resources,
+    relative_to,
+    source_file: entry,
+    prefix,
+  });
+
+  saveTransformed({
+    alias: entry.get_basename(),
+    resources,
+    transformed,
+  });
 
   try {
     output.make_directory_with_parents(null);
   } catch (err) {
     if (err.code !== Gio.IOErrorEnum.EXISTS) throw err;
   }
-  const gresource_file = Gio.File.new_for_path(gresource_path);
 
-  gresource_file.copy(
-    output.get_child(`${app_id}.gresource`),
-    Gio.FileCopyFlags.OVERWRITE,
-    null,
-    null,
-  );
-
-  return { prefix };
-}
-
-export function emitExecutable({ app_id, entry, output, prefix }) {
-  let template = Gio.resources_lookup_data(
-    ExecutableTemplate,
-    Gio.ResourceLookupFlags.NONE,
-  );
-  template = decode(template.toArray());
-
-  for (const [key, value] of Object.entries({
-    app_id,
+  const { gresource_path } = buildGresource({
     prefix,
-    main_script: entry.get_basename(),
-  })) {
-    template = template.replace(`@@${key}@@`, value);
-  }
+    resources,
+    output,
+    app_id,
+  });
 
-  const executable = output.get_child(app_id);
-  executable.replace_contents(
-    template,
-    null,
-    false,
-    Gio.FileCreateFlags.NONE,
-    null,
-  );
-  // Make file executable
-  executable.set_attribute_uint32(
-    "unix::mode",
-    parseInt("0755", 8),
-    Gio.FileQueryInfoFlags.NONE,
-    null,
-  );
+  return { gresource_path, prefix };
 }
