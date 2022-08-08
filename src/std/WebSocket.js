@@ -4,7 +4,6 @@ import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
 
 const Signals = imports.signals;
-const byteArray = imports.byteArray;
 
 const text_decoder = new TextDecoder("utf-8");
 const text_encoder = new TextEncoder("utf-8");
@@ -71,7 +70,7 @@ export default class WebSocket {
 
     connection.connect("message", (self, type, message) => {
       if (type === Soup.WebsocketDataType.TEXT) {
-        const data = text_decoder.decode(byteArray.fromGBytes(message));
+        const data = text_decoder.decode(message.toArray());
         this._onmessage({ data });
       } else {
         this._onmessage({ data: message });
@@ -83,7 +82,7 @@ export default class WebSocket {
     if (typeof data === "string") {
       this._connection.send_message(
         Soup.WebsocketDataType.TEXT,
-        byteArray.toGBytes(text_encoder.encode(data)),
+        new GLib.Bytes(text_encoder.encode(data)),
       );
     } else {
       this._connection.send_message(Soup.WebsocketDataType.BINARY, data);

@@ -8,10 +8,7 @@
       }
     },
     {
-      "files": [
-        "*.xml.in",
-        "*.doap"
-      ],
+      "files": ["*.xml.in", "*.doap"],
       "options": {
         "parser": "xml"
       }

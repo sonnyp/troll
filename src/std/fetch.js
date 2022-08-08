@@ -2,8 +2,6 @@ import { promiseTask } from "../util.js";
 import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
 
-const { byteArray } = imports;
-
 export default async function fetch(url, options = {}) {
   if (typeof url === "object") {
     options = url;
@@ -62,7 +60,7 @@ export default async function fetch(url, options = {}) {
         null,
       );
 
-      return new TextDecoder().decode(byteArray.fromGBytes(bytes));
+      return new TextDecoder().decode(bytes.toArray());
     },
   };
 }
