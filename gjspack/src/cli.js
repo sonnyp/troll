@@ -3,11 +3,11 @@
 import system from "system";
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
-import { build, emitExecutable } from "./nome.js";
+import { build, emitExecutable } from "./gjspack.js";
 import { decode, basename } from "./utils.js";
 
-GLib.set_prgname("nome");
-GLib.set_application_name("re.sonny.Nome");
+GLib.set_prgname("gjspack");
+GLib.set_application_name("re.sonny.gjspack");
 
 let status;
 let app_id;

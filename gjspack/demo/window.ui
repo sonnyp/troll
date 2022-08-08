@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkWindow" id="window">
-    <property name="title">Nome demo</property>
+    <property name="title">gjspack demo</property>
     <child>
       <object class="GtkVideo" id="video"></object>
     </child>

@@ -7,7 +7,7 @@ import {
   getPathForResource,
   isBundableImport,
   processSourceFile,
-} from "../src/nome.js";
+} from "../src/gjspack.js";
 import { appIdToPrefix } from "../src/utils.js";
 import {
   readDirSync,
@@ -16,7 +16,7 @@ import {
   basename,
 } from "../src/utils.js";
 
-const test = tst("nome");
+const test = tst("gjspack");
 
 test("appIdToPrefix", () => {
   assert.is(appIdToPrefix("my.app"), "/my/app");
@@ -117,8 +117,8 @@ test("processSourceFile duplicate imports", () => {
   const resources = [];
   const prefix = "/hello/world";
 
-  const [foo_file] = Gio.File.new_tmp("nome-test-foo-XXXXXX.js");
-  const [bar_file] = Gio.File.new_tmp("nome-test-bar-XXXXXX.png");
+  const [foo_file] = Gio.File.new_tmp("gjspack-test-foo-XXXXXX.js");
+  const [bar_file] = Gio.File.new_tmp("gjspack-test-bar-XXXXXX.png");
 
   const input = `
 import foo1 from "./${foo_file.get_basename()}";
@@ -128,7 +128,7 @@ import bar1 from "./${bar_file.get_basename()}";
 import bar2 from "./${bar_file.get_basename()}";
 `;
 
-  const [source_file] = Gio.File.new_tmp("nome-test-XXXXXX.js");
+  const [source_file] = Gio.File.new_tmp("gjspack-test-XXXXXX.js");
 
   writeTextFileSync(source_file, input);
 
@@ -140,7 +140,7 @@ import bar2 from "./${bar_file.get_basename()}";
 
   assert.equal(resources.length, 2);
 
-  assert.ok(resources[0].path.startsWith("/tmp/nome-"));
+  assert.ok(resources[0].path.startsWith("/tmp/gjspack-"));
   assert.equal(resources[0].alias, foo_file.get_path());
 
   assert.equal(resources[1], { path: bar_file.get_path(), alias: null });

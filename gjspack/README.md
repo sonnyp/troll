@@ -1,10 +1,10 @@
-# nome
+# gjspack
 
 A bundler for GNOME JavaScript.
 
-nome lets your import anything and will bundle everything for you, think [webpack](https://webpack.js.org/) for GJS.
+gjspack lets your import anything and will bundle everything for you, think [webpack](https://webpack.js.org/) for GJS.
 
-With nome, you can do the following without worrying about packaging or maintaining `*.gresource.xml` files.
+With gjspack, you can do the following without worrying about packaging or maintaining `*.gresource.xml` files.
 
 ## Examples
 

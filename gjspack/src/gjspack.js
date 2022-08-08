@@ -33,7 +33,7 @@ export function getPathForResource(
 // glib-compile-resource require the file to exist on disk
 // so we have to save the transformed source in a temporary file
 function saveTransformed({ alias, resources, transformed }) {
-  const [transfomed_file] = Gio.File.new_tmp("nome-XXXXXX.js");
+  const [transfomed_file] = Gio.File.new_tmp("gjspack-XXXXXX.js");
   transfomed_file.replace_contents(
     transformed, // contents
     null, // etag
@@ -181,7 +181,7 @@ function buildGresource({ prefix, resources }) {
 
   console.debug(`gresource_xml\n${gresource_xml}`);
 
-  const [file] = Gio.File.new_tmp("nome-XXXXXX.gresource.xml");
+  const [file] = Gio.File.new_tmp("gjspack-XXXXXX.gresource.xml");
   file.replace_contents(
     gresource_xml, // contents
     null, // etag
