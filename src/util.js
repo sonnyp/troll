@@ -130,11 +130,6 @@ export function once(
   });
 }
 
-export function relativePath(path) {
-  const file = Gio.File.new_for_uri(import.meta.url);
-  return file.get_parent().resolve_relative_path(path).get_path();
-}
-
 function noop() {}
 
 export class Deferred extends Promise {
