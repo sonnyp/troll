@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkWindow" id="window">
+    <property name="title">Nome demo</property>
+    <child>
+      <object class="GtkVideo" id="video"></object>
+    </child>
+    <child>
+      <object class="GtkPicture" id="picture"></object>
+    </child>
+  </object>
+</interface>

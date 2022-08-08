@@ -1,0 +1,39 @@
+{
+  "app-id": "re.sonny.Nome.Demo",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "42",
+  "sdk": "org.gnome.Sdk",
+  "command": "re.sonny.Nome.Demo",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri"
+  ],
+  "modules": [
+    {
+      "name": "Nome",
+      "buildsystem": "simple",
+      "builddir": true,
+      "build-commands": ["./bin/nome --app-id=nome src/cli.js /app/bin"],
+      "sources": [
+        {
+          "type": "dir",
+          "path": ".."
+        }
+      ]
+    },
+    {
+      "name": "NomeDemo",
+      "buildsystem": "simple",
+      "builddir": true,
+      "build-commands": ["nome --app-id=re.sonny.Nome.Demo main.js /app/bin"],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

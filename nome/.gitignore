@@ -1,0 +1,7 @@
+node_modules/
+demo/build/
+test/compile/dist
+.flatpak
+.flatpak-builder
+flatpak
+test/build/

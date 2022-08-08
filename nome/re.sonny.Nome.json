@@ -1,0 +1,22 @@
+{
+  "app-id": "re.sonny.Nome",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "42",
+  "sdk": "org.gnome.Sdk",
+  "command": "nome",
+  "finish-args": ["--filesystem=home"],
+  "modules": [
+    {
+      "name": "Nome",
+      "buildsystem": "simple",
+      "builddir": true,
+      "build-commands": ["./bin/nome --app-id=nome src/cli.js /app/bin"],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

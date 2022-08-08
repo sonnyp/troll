@@ -1,0 +1,5 @@
+test/compile/dist/
+node_modules/
+lib/
+troll/
+test/fixtures
