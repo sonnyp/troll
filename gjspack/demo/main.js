@@ -6,6 +6,9 @@ import GLib from "gi://GLib";
 import Window from "./window.ui";
 import GtkLogo from "./assets/gtk-logo.webm";
 import Louis from "./assets/louis.jpeg";
+import manifest from "./flatpak.json" assert { type: "json" };
+
+console.log(manifest);
 
 Gtk.init();
 

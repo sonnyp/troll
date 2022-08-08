@@ -76,7 +76,8 @@ export function processSourceFile({ resources, source_file, prefix }) {
     // e is end of module path
     // n is location
     // d > -1 means dynamic import
-    const { ss, se, s, e, n } = imported;
+    // a is for assert
+    const { ss, se, s, e, n, a } = imported;
 
     // GJS supports loading relative js paths
     // when importa.meta.url is a resource: uri
@@ -89,7 +90,19 @@ export function processSourceFile({ resources, source_file, prefix }) {
     let str = "";
     const path = getPathForResource(n, source_file);
 
-    if (n.endsWith(".js") || n.endsWith(".mjs")) {
+    let json = false;
+    if (a > -1) {
+      const assert = source.slice(a, se);
+      if (
+        [`{type:"json"}`, `{type:'json'}`].includes(assert.replace(/\s/g, ""))
+      ) {
+        json = true;
+      } else {
+        throw new Error(`Invalid assert syntax: "${assert}"`);
+      }
+    }
+
+    if (!json && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       str += source.slice(0, s);
       str += `resource://${GLib.build_filenamev([prefix, path])}`;
       str += source.slice(e);
@@ -116,10 +129,13 @@ export function processSourceFile({ resources, source_file, prefix }) {
       const match = statement.match(/^import (\w+) from/);
       const name = match?.[1];
 
+      let from = `"${GLib.build_filenamev([prefix, path])}"`;
+      if (json) {
+        from = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data(${from}, null).toArray()))`;
+      }
+
       str += source.slice(0, ss);
-      str += name
-        ? `const ${name} = "${GLib.build_filenamev([prefix, path])}"`
-        : `// ${GLib.build_filenamev([prefix, path])}`;
+      str += name ? `const ${name} = ${from}` : from;
       str += source.slice(se);
 
       // Not a duplicate import

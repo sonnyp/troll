@@ -45,6 +45,14 @@ const contents = Gio.resources_lookup_data(Notes, null);
 log(new TextDecoder().decode(contents.toArray()));
 ```
 
+### JSON
+
+```js
+import pkg from "./package.json" assert { type: "json" };
+
+console.log(pkg.name);
+```
+
 ### CSS
 
 ```js
@@ -55,7 +63,7 @@ css_provider.load_from_resource(Styles);
 Gtk.StyleContext.add_provider_for_display(
   Gdk.Display.get_default(),
   provider,
-  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
 );
 ```
 
@@ -73,7 +81,7 @@ language_manager.set_search_path([
   GLib.Uri.resolve_relative(
     import.meta.url,
     "language-specs",
-    GLib.UriFlags.NONE
+    GLib.UriFlags.NONE,
   ),
 ]);
 ```

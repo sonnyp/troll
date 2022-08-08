@@ -99,7 +99,7 @@ import { once } from "./troll/util.js";
 })().catch(logError);
 ``` -->
 
-## gs
+## gsx
 
 gsx is a small function to write Gtk.
 
@@ -164,7 +164,7 @@ export default function MyButton() {
     gsx(Image, {
       "icon-name": "folder-open-synbolic",
       "pixel-size": 48,
-    })
+    }),
   );
 }
 ```
