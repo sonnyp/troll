@@ -1,6 +1,7 @@
 {
-  "name": "@sonnyp/troll",
-  "version": "0.0.1",
+  "name": "troll",
+  "version": "alpha",
+  "private": true,
   "homepage": "https://github.com/sonnyp/troll/",
   "license": "ISC",
   "devDependencies": {
