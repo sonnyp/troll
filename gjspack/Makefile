@@ -1,19 +1,16 @@
 
-.PHONY: build lint test test-ci clean demo
+.PHONY: build test test-ci clean demo
 
 build:
 	./bin/gjspack --app-id=gjspack src/cli.js bin/
 
-lint:
-	../node_modules/.bin/eslint --max-warnings=0 src/ src/executable.js.tmpl
-
-test: lint build
+test: build
 	./bin/gjspack --app-id=gjspack-test test/gjspack.test.js test/build/
 	test/build/gjspack-test
 
 test-ci: clean test
 	./bin/gjspack --app-id=gjspack-demo ./demo/main.js ./demo/build
-	cd demo && flatpak-builder --user --force-clean --install flatpak flatpak.json
+	cd demo && flatpak-builder --user --force-clean flatpak flatpak.json
 
 clean:
 	rm -rf demo/.flatpak-builder demo/flatpak demo/build test/build
