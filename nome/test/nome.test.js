@@ -1,7 +1,7 @@
 import system from "system";
 import Gio from "gi://Gio";
 
-import tst, { assert } from "../troll/tst/tst.js";
+import tst, { assert } from "../../tst/tst.js";
 
 import {
   getPathForResource,

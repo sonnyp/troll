@@ -7,7 +7,7 @@ build:
 # cd demo && flatpak-builder --user --force-clean --install flatpak re.sonny.Nome.Demo.json
 
 lint:
-	./node_modules/.bin/eslint --max-warnings=0 src/ src/executable.js.tmpl
+	../node_modules/.bin/eslint --max-warnings=0 src/ src/executable.js.tmpl
 
 test: lint build
 # ./bin/nome --app-id=nome src/cli.js bin/
