@@ -1,4 +1,8 @@
 {
+  "name": "@sonnyp/troll",
+  "version": "0.0.1",
+  "homepage": "https://github.com/sonnyp/troll/",
+  "license": "ISC",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.1.3",
     "eslint": "^8.8.0",
