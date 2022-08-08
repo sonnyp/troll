@@ -1,1 +1,6 @@
 tst/assert.js
+gjspack/test/compile/dist/
+gjspack/lib/
+gjspack/test/fixtures
+gsx-demo/src/main.js
+gsx-demo/js/main.js

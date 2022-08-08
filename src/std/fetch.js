@@ -36,7 +36,7 @@ export default async function fetch(url, options = {}) {
     "send_finish",
     message,
     null,
-    null
+    null,
   );
 
   const { status_code, response_headers, reason_phrase } = message;
@@ -59,7 +59,7 @@ export default async function fetch(url, options = {}) {
         "read_bytes_finish",
         contentLength,
         null,
-        null
+        null,
       );
 
       return new TextDecoder().decode(byteArray.fromGBytes(bytes));

@@ -46,7 +46,7 @@ export default class WebSocket {
         "origin",
         protocols,
         null,
-        null
+        null,
       );
     } catch (err) {
       this._onerror(err);
@@ -83,7 +83,7 @@ export default class WebSocket {
     if (typeof data === "string") {
       this._connection.send_message(
         Soup.WebsocketDataType.TEXT,
-        byteArray.toGBytes(text_encoder.encode(data))
+        byteArray.toGBytes(text_encoder.encode(data)),
       );
     } else {
       this._connection.send_message(Soup.WebsocketDataType.BINARY, data);

@@ -1,0 +1,42 @@
+{
+  "app-id": "re.sonny.gjspack.Demo",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "42",
+  "sdk": "org.gnome.Sdk",
+  "command": "gjspack-demo",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--device=dri"
+  ],
+  "modules": [
+    {
+      "name": "troll",
+      "buildsystem": "simple",
+      "builddir": true,
+      "build-commands": [
+        "cd ./gjspack && ./bin/gjspack --app-id=gjspack src/cli.js /app/bin"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/sonnyp/troll.git",
+          "branch": "gjspack"
+        }
+      ]
+    },
+    {
+      "name": "gjspack-demo",
+      "buildsystem": "simple",
+      "builddir": true,
+      "build-commands": ["gjspack --app-id=gjspack-demo main.js /app/bin"],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}
