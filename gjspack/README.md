@@ -59,81 +59,87 @@ Gtk.StyleContext.add_provider_for_display(
 );
 ```
 
-## How to install
+### Bundling arbitrary files
 
-```sh
-cd nome
-flatpak-builder --user --install-deps-from=flathub --force-clean --install flatpak re.sonny.Nome.json
+This example is taken directly from the [Commit](https://github.com/sonnyp/Commit/) app.
+
+```js
+import "./language-specs/git.lang";
+import "./language-specs/hg.lang";
+
+const language_manager = GtkSource.LanguageManager.get_default();
+language_manager.set_search_path([
+  ...language_manager.get_search_path(),
+  GLib.Uri.resolve_relative(
+    import.meta.url,
+    "language-specs",
+    GLib.UriFlags.NONE
+  ),
+]);
 ```
 
 ## How to use
 
 ```sh
-# build
-flatpak run re.sonny.Nome --app-id=my_app main.js build/
-# run
-./build/my_app
+./bin/gjspack --help
 ```
-
-You can also alias `nome="flatpak run re.sonny.Nome"`.
 
 ## How does it work
 
-Given a ES module file, nome use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, transform your sources and bundle all files appropritely in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
+Given a ES module file, gjspack use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, transform your sources and bundle all files appropritely in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
 
-## Examples
+## Demo
 
-Enable debug logs with `G_MESSAGES_DEBUG=Gjs-Console`.
+This is a demonstration of a simple application using gjspack.
 
+### Host
+
+```sh
+cd demo
+# bundle
+../bin/gjspack --app-id=gjspack-demo ./main.js ./build
+# run
+./build/gjspack-demo
 ```
-gjs -m example.js
-```
 
-```
-G_MESSAGES_DEBUG=Gjs-Console ./src/cli.js --app-id=my.app test/compile/src/main.js test/compile/dist/ && ./test/compile/dist/my.app
+### Flatpak
+
+```sh
+cd demo
+# bundle FIXME - test working
+flatpak-builder --user --force-clean --install flatpak flatpak.json
+# run
+flatpak run re.sonny.gjspack.Demo
 ```
 
 ## Development
 
-Nome is self hosted meaning - that it bundles itself.
+gjspack is self hosted - meaning - it bundles itself.
 
 ```sh
 # make changes
+# then build with
 make
-# test with
-./bin/nome --app-id=nome-demo demo/main.js demo/build
-# or
+
+# pass the test
 make test
+
+# run the demo
+make demo
 ```
 
-## Notes
+## Roadmap and ideas
 
-```sh
-# watchman logs
-tail -f /var/run/watchman/sonny-state/log
-
-# works but require closing app
-watchman-make -p 'test/compile/src/**' --run ./watch.sh
-
-watchman watch-project test/compile/src/
-
-watchman -- trigger test/compile/src/ nome -- ./cli.js my.app ./test/compile/src/main.js ./test/compile/dist/
-```
-
-https://gitlab.gnome.org/GNOME/gnome-builder/-/blob/main/src/plugins/meson-templates/resources/src/hello.js.in
-
-## Roadmap
-
-- [x] bundle JavaScript imports
-- [x] import/bundle any file as resource path
+- [x] import and bundle JavaScript imports
+- [x] import and bundle any file as resource path
 - [x] transform resursively
 - [x] bundle sources files outside of `$PWD`
 - [x] bundle data files outside of `$PWD`
 - [x] deduplicate files imported multiple times
-- [x] unnamed imports
+- [x] support unnamed imports
+- [ ] support dynamic imports
 - [ ] meson subproject
 - [ ] live reload - automatically reload on change
-- [ ] dynamic imports
 - [ ] import from UI and blp files
 - [ ] ~~import any file as gbytes~~
 - [ ] import css, fonts, ...

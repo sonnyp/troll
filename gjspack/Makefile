@@ -13,9 +13,10 @@ test: lint build
 
 test-ci: clean test
 	./bin/gjspack --app-id=gjspack-demo ./demo/main.js ./demo/build
+	cd demo && flatpak-builder --user --force-clean --install flatpak flatpak.json
 
 clean:
-	rm -rf .flatpak .flatpak-builder demo/flatpak flatpak demo/build test/build
+	rm -rf demo/.flatpak-builder demo/flatpak demo/build test/build
 
 demo: build
 	./bin/gjspack --app-id=gjspack-demo ./demo/main.js ./demo/build

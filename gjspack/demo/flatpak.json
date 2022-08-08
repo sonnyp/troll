@@ -1,9 +1,9 @@
 {
-  "app-id": "re.sonny.Nome.Demo",
+  "app-id": "re.sonny.gjspack.Demo",
   "runtime": "org.gnome.Platform",
   "runtime-version": "42",
   "sdk": "org.gnome.Sdk",
-  "command": "re.sonny.Nome.Demo",
+  "command": "gjspack-demo",
   "finish-args": [
     "--share=ipc",
     "--socket=fallback-x11",
@@ -12,22 +12,25 @@
   ],
   "modules": [
     {
-      "name": "Nome",
+      "name": "troll",
       "buildsystem": "simple",
       "builddir": true,
-      "build-commands": ["./bin/nome --app-id=nome src/cli.js /app/bin"],
+      "build-commands": [
+        "cd ./gjspack && ./bin/gjspack --app-id=gjspack src/cli.js /app/bin"
+      ],
       "sources": [
         {
-          "type": "dir",
-          "path": ".."
+          "type": "git",
+          "url": "https://github.com/sonnyp/troll.git",
+          "branch": "gjspack"
         }
       ]
     },
     {
-      "name": "NomeDemo",
+      "name": "gjspack-demo",
       "buildsystem": "simple",
       "builddir": true,
-      "build-commands": ["nome --app-id=re.sonny.Nome.Demo main.js /app/bin"],
+      "build-commands": ["gjspack --app-id=gjspack-demo main.js /app/bin"],
       "sources": [
         {
           "type": "dir",
