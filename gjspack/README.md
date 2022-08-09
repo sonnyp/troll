@@ -2,50 +2,121 @@
 
 A bundler for GNOME JavaScript.
 
+This is in development alpha software, use at your own risk.
+
 gjspack lets your import anything and will bundle everything for you, think [webpack](https://webpack.js.org/) for GJS.
 
-With gjspack, you can do the following without worrying about packaging or maintaining `*.gresource.xml` files.
+Just like that:
+
+```js
+import Pumpkin from "./Pumpkin.png";
+const picture = Gtk.Picture.new_from_resource(Pumpkin);
+
+import manifest from "../flatpak.json" assert { type: "json" };
+console.log(manifest["app-id"]);
+
+import window from "./window.ui" assert { type: "builder" };
+window.get_object("window").present();
+```
+
+See [Examples](#Examples) below.
+
+Features:
+
+- bundle imports into a gresource - no more maintaining `*.gresource.xml` files
+- import and bundle any file as a `resource://` URI
+- assert types to import as
+  - string `assert {type: "string"}`
+  - GBytes with `assert {type: "bytes"}`
+  - JSON with `assert {type: "json"}`
+  - Gtk.Builder with `assert {type: "builder"}`
+  - Gtk.CssProvider with `assert {type: "css"}`
+- deduplicate imports
+- retain source lines (maintain correct stack traces)
+
+Goals:
+
+- Provide a familiar development environment to Web developers
+- Explore ideas to improve GNOME developer experience
+- Integrates with GNOME tooling (flatpak, meson, ...)
+- Avoid Web development dependencies
+- Retain line numbers and usable stack traces
+- Remove boilerplate code to convert data before using them
+- Fast, as in, instantaneous - let's forget gjspack is there
 
 ## Examples
 
-### Image
+<details>
+  <summary>Image</summary>
 
 ```js
 import Porygon from "./Porygon.png";
 
 // GtkPicture displays an image at its natural size
 const picture = Gtk.Picture.new_from_picture(Porygon);
+// or
+picture.set_resource(Porygon);
 
 // GtkImage if you want to display a fixed-size image, such as an icon.
 const image = Gtk.Image.new_from_resource(Porygon);
+// or
+image.set_resource(Porygon);
 ```
 
-### UI
+</details>
+
+<details>
+  <summary>UI</summary>
 
 ```js
-import Window from "./Window.ui";
-
-const builder = Gtk.Builder.new_from_resource(Window);
+import builder from "./Window.ui" assert { type: "builder" };
+const window = builder.get_object("window");
 ```
 
-### Video
+</details>
+
+<details>
+  <summary>Template</summary>
+
+```js
+import Template from "./MyWidget.ui";
+
+GObject.registerClass(
+  {
+    Template,
+  },
+  class X extends GObject.Object {},
+);
+```
+
+</details>
+
+<details>
+  <summary>Video</summary>
 
 ```js
 import AnimatedLogo from "./AnimatedLog.webm";
 
 const video = Gtk.Video.new_from_resource(AnimatedLogo);
+// or
+video.set_resource(AnimatedLogo);
 ```
 
-### Text
+</details>
+
+<details>
+  <summary>Text</summary>
 
 ```js
-import Notes from "./notes.txt";
+import notes from "./notes.txt" assert { type: "string" };
 
-const contents = Gio.resources_lookup_data(Notes, null);
-log(new TextDecoder().decode(contents.toArray()));
+console.log(notes);
 ```
 
-### JSON
+</details>
+
+<details>
+  <summary>JSON</summary>
 
 ```js
 import pkg from "./package.json" assert { type: "json" };
@@ -53,13 +124,14 @@ import pkg from "./package.json" assert { type: "json" };
 console.log(pkg.name);
 ```
 
-### CSS
+</details>
+
+<details>
+  <summary>CSS</summary>
 
 ```js
-import Styles from "./styles.css";
+import provider from "./styles.css" assert { type: "css" };
 
-const css_provider = new Gtk.CssProvider();
-css_provider.load_from_resource(Styles);
 Gtk.StyleContext.add_provider_for_display(
   Gdk.Display.get_default(),
   provider,
@@ -67,7 +139,10 @@ Gtk.StyleContext.add_provider_for_display(
 );
 ```
 
-### Bundling arbitrary files
+</details>
+
+<details>
+  <summary>Arbitrary files</summary>
 
 This example is taken directly from the [Commit](https://github.com/sonnyp/Commit/) app.
 
@@ -86,15 +161,58 @@ language_manager.set_search_path([
 ]);
 ```
 
-## How to use
+</details>
+
+<details>
+  <summary>Arbitrary files</summary>
+
+This example is taken directly from the [Commit](https://github.com/sonnyp/Commit/) app.
+
+```js
+import "./language-specs/git.lang";
+import "./language-specs/hg.lang";
+
+const language_manager = GtkSource.LanguageManager.get_default();
+language_manager.set_search_path([
+  ...language_manager.get_search_path(),
+  GLib.Uri.resolve_relative(
+    import.meta.url,
+    "language-specs",
+    GLib.UriFlags.NONE,
+  ),
+]);
+```
+
+</details>
+
+## CLI
 
 ```sh
 ./bin/gjspack --help
 ```
 
-## How does it work
+## Use with meson
 
-Given a ES module file, gjspack use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, transform your sources and bundle all files appropritely in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
+Add `troll` as a git submodule
+
+In your `src/meson.build`:
+
+```meson
+gjspack = find_program('../troll/gjspack/bin/gjspack')
+run_command(gjspack, '--app-id=' + meson.project_name(), '--no-executable', 'src/main.js', 'src', check: true)
+
+install_data(meson.project_name() + '.gresource',
+  install_dir: pkgdatadir
+)
+```
+
+Test, port your code and once it works properly , you can remove your `*.gresource.xml` file as well as the `gnome.compile_resources` meson instruction.
+
+See [Commit](https://github.com/sonnyp/Commit/tree/main/src) and [`Junction`](https://github.com/sonnyp/Junction/tree/main/src) for examples with custom executables which don't use `imports.package.init`.
+
+## How does it work?
+
+Given a ES module file, gjspack use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, replace them and bundle all files appropritely in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
 
 ## Demo
 
@@ -136,7 +254,35 @@ make test
 make demo
 ```
 
-## Roadmap and ideas
+## Q&A
+
+### Why not a rollup plugin?
+
+GJS doesn't support Source Maps ([yet?](https://gitlab.gnome.org/GNOME/gjs/-/issues/474)).
+Stack traces would be unreadable.
+
+### How to configure ESLint?
+
+ESLint parser doesn't support the import `assert` syntax [yet](https://github.com/eslint/eslint/discussions/15305).
+
+Use the following eslintrc options:
+
+```json
+{
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "requireConfigFile": false,
+    "babelOptions": {
+      "plugins": ["@babel/plugin-syntax-import-assertions"]
+    }
+  }
+}
+```
+
+Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) as well.
+
+## Ideas
 
 - [x] import and bundle JavaScript imports
 - [x] import and bundle any file as resource path
@@ -145,27 +291,27 @@ make demo
 - [x] bundle data files outside of `$PWD`
 - [x] deduplicate files imported multiple times
 - [x] support unnamed imports
+- [x] meson doc
+- [x] import css
+- [x] import from UI
+- [x] JSON modules https://github.com/tc39/proposal-json-modules
+- [x] import any file as gbytes
+- [ ] automatically add files to POTFILES
+- [ ] watch mode
+- [ ] flatpak doc
 - [ ] support dynamic imports
 - [ ] meson subproject
 - [ ] live reload - automatically reload on change
-- [ ] import from UI and blp files
-- [ ] ~~import any file as gbytes~~
-- [ ] import css, fonts, ...
+- [ ] import from blp files
+- [ ] import fonts
 - [ ] support `import foo from 'http://...'` - ala deno
 - [ ] bundle/import as icon-name `/com/example/icons/scalable/actions`
-- [ ] resolve `import foo from 'bar'` from `node_modules`
 - [ ] Import maps https://github.com/WICG/import-maps
-- [ ] JSON modules https://github.com/tc39/proposal-json-modules
 - [ ] gresource preprocess (`xml-stripblanks` and `json-stripblanks`)
 - [ ] gresource compress ?
 - [ ] cache
 - [ ] import blueprint files
-- [ ] json
 - [ ] Support other programming languages? Ping me if there is any interest.
-
-## Q&A
-
-### Why not a rollup plugin?
-
-GJS doesn't support Source Maps ([yet?](https://gitlab.gnome.org/GNOME/gjs/-/issues/474)).
-Stack traces would be unreadable.
+- [ ] `import foo from './foo.ui#object_id' assert {type: "ui"}`
+- [ ] one file mode (gresource inside .js executable)
+- [ ] ~~resolve `import foo from 'bar'` from `node_modules`~~ (import maps and http instead)

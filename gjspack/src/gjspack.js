@@ -62,6 +62,19 @@ function getBundableImport(source) {
   return imports.find(isBundableImport);
 }
 
+export function getAssertType(assert) {
+  const normalized = assert
+    .replace(/\s/g, "")
+    .replace(/"/g, "")
+    .replace(/'/g, "");
+  return normalized.match(/^{type:(.+)}$/)?.[1] || null;
+}
+
+export function getImportName(statement) {
+  const match = statement.match(/^import (\w+) from/);
+  return match?.[1];
+}
+
 export function processSourceFile({ resources, source_file, prefix }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
@@ -72,12 +85,12 @@ export function processSourceFile({ resources, source_file, prefix }) {
 
     // ss is start of import statement
     // se is end of import statement
-    // s is start of moule path
+    // s is start of module path
     // e is end of module path
     // n is location
     // d > -1 means dynamic import
     // a is for assert
-    const { ss, se, s, e, n, a } = imported;
+    const { ss, se, s, e, a, n } = imported;
 
     // GJS supports loading relative js paths
     // when importa.meta.url is a resource: uri
@@ -90,19 +103,16 @@ export function processSourceFile({ resources, source_file, prefix }) {
     let str = "";
     const path = getPathForResource(n, source_file);
 
-    let json = false;
+    let type;
     if (a > -1) {
       const assert = source.slice(a, se);
-      if (
-        [`{type:"json"}`, `{type:'json'}`].includes(assert.replace(/\s/g, ""))
-      ) {
-        json = true;
-      } else {
-        throw new Error(`Invalid assert syntax: "${assert}"`);
+      type = getAssertType(assert);
+      if (!type) {
+        throw new Error(`Invalid assert syntax "${assert}"`);
       }
     }
 
-    if (!json && (n.endsWith(".js") || n.endsWith(".mjs"))) {
+    if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       str += source.slice(0, s);
       str += `resource://${GLib.build_filenamev([prefix, path])}`;
       str += source.slice(e);
@@ -126,16 +136,33 @@ export function processSourceFile({ resources, source_file, prefix }) {
       });
     } else {
       const statement = source.slice(ss, se);
-      const match = statement.match(/^import (\w+) from/);
-      const name = match?.[1];
+      let name = getImportName(statement);
 
-      let from = `"${GLib.build_filenamev([prefix, path])}"`;
-      if (json) {
-        from = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data(${from}, null).toArray()))`;
+      let from = `${GLib.build_filenamev([prefix, path])}`;
+      if (type === "json") {
+        from = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${from}", null).toArray()))`;
+      } else if (type === "builder") {
+        from = `imports.gi.Gtk.Builder.new_from_resource("${from}")`;
+      } else if (type === "string") {
+        from = `new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${from}", null).toArray())`;
+      } else if (type === "bytes") {
+        from = `imports.gi.Gio.resources_lookup_data("${from}", null)`;
+        // Is there a use case for this?
+        // } else if (type === "array") {
+        //   from = `imports.gi.Gio.resources_lookup_data(${from}, null).toArray()`;
+      } else if (type === "css") {
+        from = `new imports.gi.Gtk.CssProvider().load_from_resource("${from}")`;
+      } else if (type === "uri") {
+        from = `"resource://${from}"`;
+        // eslint-disable-next-line no-empty
+      } else if (type === "resource" || !type) {
+        from = `"${from}"`;
+      } else if (type) {
+        throw new Error(`Unsupported assert type "${type}"`);
       }
 
       str += source.slice(0, ss);
-      str += name ? `const ${name} = ${from}` : from;
+      str += name ? `const ${name} = ${from}` : `${from}`;
       str += source.slice(se);
 
       // Not a duplicate import

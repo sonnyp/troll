@@ -8,7 +8,7 @@ test: build
 	./bin/gjspack --app-id=gjspack-test test/gjspack.test.js test/build/
 	test/build/gjspack-test
 
-test-ci: clean test
+ci: clean test
 	./bin/gjspack --app-id=gjspack-demo ./demo/main.js ./demo/build
 	cd demo && flatpak-builder --user --force-clean flatpak flatpak.json
 

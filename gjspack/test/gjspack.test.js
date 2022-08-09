@@ -7,6 +7,8 @@ import {
   getPathForResource,
   isBundableImport,
   processSourceFile,
+  getAssertType,
+  getImportName,
 } from "../src/gjspack.js";
 import { appIdToPrefix } from "../src/utils.js";
 import {
@@ -84,6 +86,16 @@ test("getPathForResource", () => {
 
   // out-tree absolute module path
   assert.is(getPathForResource("/wow.js", relative_to, source_dir), "/wow.js");
+});
+
+test("getAssertType", () => {
+  assert.is(getAssertType(`{type: "json"}`), "json");
+  assert.is(getAssertType(`{type: 'foo'}`), "foo");
+  assert.is(getAssertType(`{ type    : 'foo' }`), "foo");
+});
+
+test("getImportName", () => {
+  assert.is(getImportName(`import foo from "hello`), "foo");
 });
 
 test("processSourceFile", () => {
