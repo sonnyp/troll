@@ -1,6 +1,7 @@
 import { promiseTask } from "../util.js";
 import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
+import Gio from "gi://Gio";
 
 export default async function fetch(url, options = {}) {
   if (typeof url === "object") {
@@ -37,7 +38,7 @@ export default async function fetch(url, options = {}) {
     null,
   );
 
-  const { status_code, response_headers, reason_phrase } = message;
+  const { status_code, reason_phrase } = message;
   const ok = status_code >= 200 && status_code < 300;
 
   return {
@@ -50,15 +51,20 @@ export default async function fetch(url, options = {}) {
       return JSON.parse(text);
     },
     async text() {
-      const contentLength = response_headers.get_one("content-length");
-      const bytes = await promiseTask(
+      const outputStream = Gio.MemoryOutputStream.new_resizable();
+
+      await promiseTask(
+        outputStream,
+        "splice_async",
+        "splice_finish",
         inputStream,
-        "read_bytes_async",
-        "read_bytes_finish",
-        contentLength,
-        null,
+        Gio.OutputStreamSpliceFlags.CLOSE_TARGET |
+          Gio.OutputStreamSpliceFlags.CLOSE_SOURCE,
+        GLib.PRIORITY_DEFAULT,
         null,
       );
+
+      const bytes = outputStream.steal_as_bytes();
 
       return new TextDecoder().decode(bytes.toArray());
     },
