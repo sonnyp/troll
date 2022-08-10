@@ -9,6 +9,7 @@ import {
   processSourceFile,
   getAssertType,
   getImportName,
+  updatePotfiles,
 } from "../src/gjspack.js";
 import { appIdToPrefix } from "../src/utils.js";
 import {
@@ -26,25 +27,13 @@ test("appIdToPrefix", () => {
 });
 
 test("basename", () => {
-  assert.equal(basename(Gio.File.new_for_path("/tmp/foo.js")), [
-    "foo.js",
-    "foo",
-    ".js",
-  ]);
+  assert.equal(basename("/tmp/foo.js"), ["foo.js", "foo", ".js"]);
 
-  assert.equal(basename(Gio.File.new_for_path("/tmp/foo")), ["foo", "foo", ""]);
+  assert.equal(basename("/tmp/foo"), ["foo", "foo", ""]);
 
-  assert.equal(basename(Gio.File.new_for_path("/tmp/foo.js.bar")), [
-    "foo.js.bar",
-    "foo.js",
-    ".bar",
-  ]);
+  assert.equal(basename("/tmp/foo.js.bar"), ["foo.js.bar", "foo.js", ".bar"]);
 
-  assert.equal(basename(Gio.File.new_for_path("/tmp/.foo")), [
-    ".foo",
-    ".foo",
-    "",
-  ]);
+  assert.equal(basename("/tmp/.foo"), [".foo", ".foo", ""]);
 });
 
 test("isBundableImport", () => {
@@ -156,6 +145,57 @@ import bar2 from "./${bar_file.get_basename()}";
   assert.equal(resources[0].alias, foo_file.get_path());
 
   assert.equal(resources[1], { path: bar_file.get_path(), alias: null });
+});
+
+test("updatePotfiles", () => {
+  const [potfiles] = Gio.File.new_tmp("gjspack-test-POTFILES-XXXXXX");
+
+  writeTextFileSync(
+    potfiles,
+    `
+hello
+cool/bar.js
+# also cool
+
+foo/bar/already-here.ui
+
+ok
+  `.trim(),
+  );
+
+  const resources = [
+    {
+      alias: "wow.js",
+      path: "/tmp/whatever.js",
+    },
+    {
+      alias: null,
+      path: "cool-stuff.ui",
+    },
+    {
+      alias: null,
+      path: "nono.png",
+    },
+    { alias: null, path: "foo/bar/already-here.ui" },
+  ];
+
+  updatePotfiles({ potfiles, resources });
+
+  assert.fixture(
+    readTextFileSync(potfiles),
+    `
+hello
+cool/bar.js
+# also cool
+
+foo/bar/already-here.ui
+
+ok
+wow.js
+cool-stuff.ui
+
+  `.trim(),
+  );
 });
 
 // log(test.run());

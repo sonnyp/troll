@@ -1,4 +1,5 @@
 import Gio from "gi://Gio";
+import GLib from "gi://GLib";
 
 // https://gitlab.gnome.org/GNOME/gjs/-/merge_requests/784
 export function* readDirSync(file) {
@@ -40,13 +41,12 @@ export function decode(data) {
   return new TextDecoder().decode(data);
 }
 
-export function appIdToPrefix(app_id) {
-  return `/${app_id.replaceAll(".", "/")}`;
+export function appIdToPrefix(appid) {
+  return `/${appid.replaceAll(".", "/")}`;
 }
 
-export function basename(file) {
-  const [filename, basename, extension] = file
-    .get_basename()
-    .match(/(.+?)(\.[^.]*$|$)/);
-  return [filename, basename, extension];
+export function basename(filename) {
+  const [name, basename, extension] =
+    GLib.path_get_basename(filename).match(/(.+?)(\.[^.]*$|$)/);
+  return [name, basename, extension];
 }

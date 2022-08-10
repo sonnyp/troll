@@ -11,10 +11,11 @@ GLib.set_prgname("gjspack");
 GLib.set_application_name("re.sonny.gjspack");
 
 let status;
-let app_id;
+let appid;
 let entry;
 let output;
 let no_executable;
+let potfiles;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -27,7 +28,7 @@ app.set_option_context_summary(
   `
 Examples:
   ${GLib.get_prgname()} my-app.js build
-  ${GLib.get_prgname()} --app-id=my.app main.js build
+  ${GLib.get_prgname()} --appid=my.app main.js build
 `.trim(),
 );
 
@@ -41,12 +42,21 @@ app.add_main_option(
 );
 
 app.add_main_option(
-  "app-id",
+  "appid",
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.STRING,
   "Identifier to use as resource prefix and executable name (default: name of the entry file)",
   null,
+);
+
+app.add_main_option(
+  "potfiles",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "Location to the POTFILES to add missing imported .js and .ui files",
+  "PATH",
 );
 
 app.add_main_option(
@@ -64,7 +74,7 @@ Given a JavaScript module <entry file>, ${GLib.get_prgname()} will traverse the 
 and output an executable as well as a resource bundle in <output dir>.
 
 Compile
-  ${GLib.get_prgname()} --app-id=my.app main.js build
+  ${GLib.get_prgname()} --appid=my.app main.js build
 
 Run the program
   ./build/my.app
@@ -99,7 +109,7 @@ app.connect("open", (self, files) => {
     return system.exit(1);
   }
 
-  app_id ??= basename(entry)[1];
+  appid ??= basename(entry.get_path)[1];
 });
 
 app.connect("handle-local-options", (self, options) => {
@@ -111,7 +121,15 @@ app.connect("handle-local-options", (self, options) => {
   no_executable = options.contains("no-executable");
 
   try {
-    [app_id] = options.lookup_value("app-id", null).get_string();
+    [appid] = options.lookup_value("appid", null).get_string();
+    // eslint-disable-next-line no-empty
+  } catch {}
+
+  try {
+    potfiles = new TextDecoder().decode(
+      options.lookup_value("potfiles", null).deepUnpack(),
+    );
+    potfiles = Gio.File.new_for_path(potfiles);
     // eslint-disable-next-line no-empty
   } catch {}
 
@@ -121,18 +139,18 @@ app.connect("handle-local-options", (self, options) => {
 status ??= app.run([system.programInvocationName].concat(ARGV));
 if (status > 0) system.exit(status);
 
-function emitExecutable({ app_id, entry, output, prefix }) {
+function emitExecutable({ appid, entry, output, prefix }) {
   let str = ExecutableTemplate;
 
   for (const [key, value] of Object.entries({
-    app_id,
+    appid,
     prefix,
     main_script: entry.get_basename(),
   })) {
     str = str.replace(`@@${key}@@`, value);
   }
 
-  const executable = output.get_child(app_id);
+  const executable = output.get_child(appid);
   executable.replace_contents(str, null, false, Gio.FileCreateFlags.NONE, null);
   // Make file executable
   executable.set_attribute_uint32(
@@ -143,9 +161,14 @@ function emitExecutable({ app_id, entry, output, prefix }) {
   );
 }
 
-const { prefix } = build({ app_id, entry, output });
+const { prefix } = build({
+  appid,
+  entry,
+  output,
+  potfiles,
+});
 if (!no_executable) {
-  emitExecutable({ app_id, entry, output, prefix });
+  emitExecutable({ appid, entry, output, prefix });
 }
 
 system.exit(status);

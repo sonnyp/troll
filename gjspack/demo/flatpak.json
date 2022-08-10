@@ -1,5 +1,5 @@
 {
-  "app-id": "re.sonny.gjspack.Demo",
+  "appid": "re.sonny.gjspack.Demo",
   "runtime": "org.gnome.Platform",
   "runtime-version": "42",
   "sdk": "org.gnome.Sdk",
@@ -16,7 +16,7 @@
       "buildsystem": "simple",
       "builddir": true,
       "build-commands": [
-        "cd ./gjspack && ./bin/gjspack --app-id=gjspack src/cli.js /app/bin"
+        "cd ./gjspack && ./bin/gjspack --appid=gjspack src/cli.js /app/bin"
       ],
       "sources": [
         {
@@ -30,7 +30,7 @@
       "name": "gjspack-demo",
       "buildsystem": "simple",
       "builddir": true,
-      "build-commands": ["gjspack --app-id=gjspack-demo main.js /app/bin"],
+      "build-commands": ["gjspack --appid=gjspack-demo main.js /app/bin"],
       "sources": [
         {
           "type": "dir",

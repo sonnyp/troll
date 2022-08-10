@@ -3,7 +3,13 @@ import GLib from "gi://GLib";
 
 import * as lexer from "../lib/lexer.js";
 import { createElement as xml } from "../lib/ltx.js";
-import { decode, appIdToPrefix } from "./utils.js";
+import {
+  decode,
+  appIdToPrefix,
+  readTextFileSync,
+  writeTextFileSync,
+  basename,
+} from "./utils.js";
 
 const current_dir = GLib.get_current_dir();
 const current_file = Gio.File.new_for_path(current_dir);
@@ -182,7 +188,7 @@ export function processSourceFile({ resources, source_file, prefix }) {
   return transformed || "\n";
 }
 
-function buildGresource({ prefix, resources, output, app_id }) {
+function buildGresource({ prefix, resources, output, appid }) {
   const el = xml(
     "gresources",
     {},
@@ -205,7 +211,7 @@ function buildGresource({ prefix, resources, output, app_id }) {
     null,
   );
 
-  const gresource_path = output.get_child(`${app_id}.gresource`).get_path();
+  const gresource_path = output.get_child(`${appid}.gresource`).get_path();
 
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
     `glib-compile-resources --target=${gresource_path} ${file.get_path()}`,
@@ -219,10 +225,24 @@ function buildGresource({ prefix, resources, output, app_id }) {
   return { gresource_path };
 }
 
-export function build({ app_id, entry, output }) {
+export function updatePotfiles({ potfiles, resources }) {
+  const entries = readTextFileSync(potfiles)
+    .split("\n")
+    .map((entry) => entry.trim());
+  resources.forEach(({ path, alias }) => {
+    const location = alias || path;
+    const [, , extension] = basename(location);
+    if (!entries.includes(location) && [".js", ".ui"].includes(extension)) {
+      entries.push(location);
+    }
+  });
+  writeTextFileSync(potfiles, entries.join("\n"));
+}
+
+export function build({ appid, entry, output, potfiles }) {
   console.debug({ current_dir });
 
-  const prefix = appIdToPrefix(app_id);
+  const prefix = appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
   const resources = [];
@@ -250,8 +270,12 @@ export function build({ app_id, entry, output }) {
     prefix,
     resources,
     output,
-    app_id,
+    appid,
   });
 
-  return { gresource_path, prefix };
+  if (potfiles) {
+    updatePotfiles({ potfiles, resources });
+  }
+
+  return { gresource_path, resources, prefix };
 }

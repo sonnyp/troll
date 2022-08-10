@@ -13,7 +13,7 @@ import Pumpkin from "./Pumpkin.png";
 const picture = Gtk.Picture.new_from_resource(Pumpkin);
 
 import manifest from "../flatpak.json" assert { type: "json" };
-console.log(manifest["app-id"]);
+console.log(manifest["appid"]);
 
 import window from "./window.ui" assert { type: "builder" };
 window.get_object("window").present();
@@ -33,6 +33,7 @@ Features:
   - Gtk.CssProvider with `assert {type: "css"}`
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
+- automatically add missing entries to POTFILES
 
 Goals:
 
@@ -199,7 +200,7 @@ In your `src/meson.build`:
 
 ```meson
 gjspack = find_program('../troll/gjspack/bin/gjspack')
-run_command(gjspack, '--app-id=' + meson.project_name(), '--no-executable', 'src/main.js', 'src', check: true)
+run_command(gjspack, '--appid=' + meson.project_name(), '--no-executable', 'src/main.js', 'src', check: true)
 
 install_data(meson.project_name() + '.gresource',
   install_dir: pkgdatadir
@@ -223,7 +224,7 @@ This is a demonstration of a simple application using gjspack.
 ```sh
 cd demo
 # bundle
-../bin/gjspack --app-id=gjspack-demo ./main.js ./build
+../bin/gjspack --appid=gjspack-demo ./main.js ./build
 # run
 ./build/gjspack-demo
 ```
