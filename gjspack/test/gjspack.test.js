@@ -173,6 +173,10 @@ ok
       path: "cool-stuff.ui",
     },
     {
+      alias: "halo.blp",
+      path: "/tmp/wow",
+    },
+    {
       alias: null,
       path: "nono.png",
     },
@@ -193,6 +197,7 @@ foo/bar/already-here.ui
 ok
 wow.js
 cool-stuff.ui
+halo.blp
 
   `.trim(),
   );

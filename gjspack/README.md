@@ -15,7 +15,10 @@ const picture = Gtk.Picture.new_from_resource(Pumpkin);
 import manifest from "../flatpak.json" assert { type: "json" };
 console.log(manifest["appid"]);
 
+// import XML UI
 import window from "./window.ui" assert { type: "builder" };
+// or Blueprint UI
+import window from "./window.blp" assert { type: "builder" };
 window.get_object("window").present();
 ```
 
@@ -69,9 +72,23 @@ image.set_resource(Porygon);
 <details>
   <summary>UI</summary>
 
+You can import xml `.ui` or [blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler) `blp` files.
+
 ```js
 import builder from "./Window.ui" assert { type: "builder" };
+// or
+import builder from "./Window.blp" assert { type: "builder" };
+
 const window = builder.get_object("window");
+```
+
+For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule.
+
+See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak otherwise you can just close the directory and specify the path to the executable.
+
+```
+git clone https://gitlab.gnome.org/jwestman/blueprint-compiler.git ~/blueprint-compiler
+gjspack --blueprint-compiler=~/blueprint-compiler/blueprint-compiler.py
 ```
 
 </details>
@@ -297,7 +314,8 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [x] import from UI
 - [x] JSON modules https://github.com/tc39/proposal-json-modules
 - [x] import any file as gbytes
-- [ ] automatically add files to POTFILES
+- [x] automatically add files to POTFILES
+- [x] import blueprint files
 - [ ] watch mode
 - [ ] flatpak doc
 - [ ] support dynamic imports
@@ -311,7 +329,6 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] gresource preprocess (`xml-stripblanks` and `json-stripblanks`)
 - [ ] gresource compress ?
 - [ ] cache
-- [ ] import blueprint files
 - [ ] Support other programming languages? Ping me if there is any interest.
 - [ ] `import foo from './foo.ui#object_id' assert {type: "ui"}`
 - [ ] one file mode (gresource inside .js executable)

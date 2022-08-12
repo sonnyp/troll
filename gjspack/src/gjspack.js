@@ -37,7 +37,7 @@ export function getPathForResource(
 
 // glib-compile-resource require the file to exist on disk
 // so we have to save the transformed source in a temporary file
-function saveTransformed({ alias, resources, transformed }) {
+function saveTransformed({ resource_alias, resources, transformed }) {
   const [transfomed_file] = Gio.File.new_tmp("gjspack-XXXXXX.js");
   transfomed_file.replace_contents(
     transformed, // contents
@@ -47,7 +47,7 @@ function saveTransformed({ alias, resources, transformed }) {
     null, // cancellable
   );
 
-  resources.push({ path: transfomed_file.get_path(), alias });
+  resources.push({ path: transfomed_file.get_path(), alias: resource_alias });
 }
 
 export function isBundableImport(imported) {
@@ -81,7 +81,53 @@ export function getImportName(statement) {
   return match?.[1];
 }
 
-export function processSourceFile({ resources, source_file, prefix }) {
+function preprocessBlueprint({
+  imported_file,
+  resource_path,
+  blueprint_compiler = "blueprint-compiler",
+}) {
+  const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
+    `${blueprint_compiler} compile ${imported_file.get_path()}`,
+  );
+  if (status !== 0) {
+    throw new Error(decode(stderr));
+  }
+  const xml_ui = decode(stdout);
+  console.debug(xml_ui);
+  const [transfomed_file] = Gio.File.new_tmp(`gjspack-XXXXXX.ui`);
+  transfomed_file.replace_contents(
+    xml_ui, // contents
+    null, // etag
+    false, // make_backup
+    Gio.FileCreateFlags.NONE, // flags
+    null, // cancellable
+  );
+  return {
+    alias: resource_path.replace(/.blp$/, ".ui"),
+    path: transfomed_file.get_path(),
+  };
+}
+
+function preprocess({ imported_file, resource_path, blueprint_compiler }) {
+  const [, , extension] = basename(imported_file.get_basename());
+
+  if (extension === ".blp") {
+    return preprocessBlueprint({
+      imported_file,
+      resource_path,
+      blueprint_compiler,
+    });
+  }
+
+  return { path: resource_path, alias: null };
+}
+
+export function processSourceFile({
+  resources,
+  source_file,
+  prefix,
+  blueprint_compiler,
+}) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
 
@@ -107,7 +153,8 @@ export function processSourceFile({ resources, source_file, prefix }) {
     // see commit da38c9430cfebdaa0b3e0021ac98eed966f09e9a
 
     let str = "";
-    const path = getPathForResource(n, source_file);
+    let resource_path = getPathForResource(n, source_file);
+    const imported_file = source_file.get_parent().resolve_relative_path(n);
 
     let type;
     if (a > -1) {
@@ -120,23 +167,23 @@ export function processSourceFile({ resources, source_file, prefix }) {
 
     if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       str += source.slice(0, s);
-      str += `resource://${GLib.build_filenamev([prefix, path])}`;
+      str += `resource://${GLib.build_filenamev([prefix, resource_path])}`;
       str += source.slice(e);
 
       // This is a duplicate import, it was already transformed
-      if (resources.find(({ alias }) => alias === path)) {
+      if (resources.find(({ alias }) => alias === resource_path)) {
         return next(str);
       }
 
-      const import_file = source_file.get_parent().resolve_relative_path(n);
       const transformed = processSourceFile({
         resources,
-        source_file: import_file,
+        source_file: imported_file,
         prefix,
+        blueprint_compiler,
       });
 
       saveTransformed({
-        alias: path,
+        resource_alias: resource_path,
         resources,
         transformed,
       });
@@ -144,36 +191,47 @@ export function processSourceFile({ resources, source_file, prefix }) {
       const statement = source.slice(ss, se);
       let name = getImportName(statement);
 
-      let from = `${GLib.build_filenamev([prefix, path])}`;
+      const resource = preprocess({
+        imported_file,
+        resource_path,
+        blueprint_compiler,
+      });
+
+      const import_location = GLib.build_filenamev([
+        prefix,
+        resource.alias || resource.path,
+      ]);
+
+      let substitute;
       if (type === "json") {
-        from = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${from}", null).toArray()))`;
+        substitute = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray()))`;
       } else if (type === "builder") {
-        from = `imports.gi.Gtk.Builder.new_from_resource("${from}")`;
+        substitute = `imports.gi.Gtk.init() || imports.gi.Gtk.Builder.new_from_resource("${import_location}")`;
       } else if (type === "string") {
-        from = `new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${from}", null).toArray())`;
+        substitute = `new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray())`;
       } else if (type === "bytes") {
-        from = `imports.gi.Gio.resources_lookup_data("${from}", null)`;
+        substitute = `imports.gi.Gio.resources_lookup_data("${import_location}", null)`;
         // Is there a use case for this?
         // } else if (type === "array") {
         //   from = `imports.gi.Gio.resources_lookup_data(${from}, null).toArray()`;
       } else if (type === "css") {
-        from = `new imports.gi.Gtk.CssProvider().load_from_resource("${from}")`;
+        substitute = `imports.gi.Gtk.init() || new imports.gi.Gtk.CssProvider().load_from_resource("${import_location}")`;
       } else if (type === "uri") {
-        from = `"resource://${from}"`;
+        substitute = `"resource://${import_location}"`;
         // eslint-disable-next-line no-empty
       } else if (type === "resource" || !type) {
-        from = `"${from}"`;
+        substitute = `"${import_location}"`;
       } else if (type) {
         throw new Error(`Unsupported assert type "${type}"`);
       }
 
       str += source.slice(0, ss);
-      str += name ? `const ${name} = ${from}` : `${from}`;
+      str += name ? `const ${name} = ${substitute}` : substitute;
       str += source.slice(se);
 
       // Not a duplicate import
-      if (!resources.find((resource) => resource.path === path)) {
-        resources.push({ path, alias: null });
+      if (!resources.find(({ path }) => path === resource.path)) {
+        resources.push(resource);
       }
     }
 
@@ -232,14 +290,17 @@ export function updatePotfiles({ potfiles, resources }) {
   resources.forEach(({ path, alias }) => {
     const location = alias || path;
     const [, , extension] = basename(location);
-    if (!entries.includes(location) && [".js", ".ui"].includes(extension)) {
+    if (
+      !entries.includes(location) &&
+      [".js", ".ui", ".blp"].includes(extension)
+    ) {
       entries.push(location);
     }
   });
   writeTextFileSync(potfiles, entries.join("\n"));
 }
 
-export function build({ appid, entry, output, potfiles }) {
+export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
   console.debug({ current_dir });
 
   const prefix = appIdToPrefix(appid);
@@ -252,10 +313,11 @@ export function build({ appid, entry, output, potfiles }) {
     relative_to,
     source_file: entry,
     prefix,
+    blueprint_compiler,
   });
 
   saveTransformed({
-    alias: entry.get_basename(),
+    resource_alias: entry.get_basename(),
     resources,
     transformed,
   });

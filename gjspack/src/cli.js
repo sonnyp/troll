@@ -16,6 +16,7 @@ let entry;
 let output;
 let no_executable;
 let potfiles;
+let blueprint_compiler;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -55,7 +56,7 @@ app.add_main_option(
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
-  "Location to the POTFILES to add missing imported .js and .ui files",
+  "Location of the POTFILES to merge missing imports (.js, .ui, .blp)",
   "PATH",
 );
 
@@ -65,6 +66,15 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.NONE,
   "Don't emit executable, you will need to import the gresource yourself",
+  null,
+);
+
+app.add_main_option(
+  "blueprint-compiler",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "Path to the blueprint-compiler executable",
   null,
 );
 
@@ -133,6 +143,13 @@ app.connect("handle-local-options", (self, options) => {
     // eslint-disable-next-line no-empty
   } catch {}
 
+  try {
+    blueprint_compiler = new TextDecoder().decode(
+      options.lookup_value("blueprint-compiler", null).deepUnpack(),
+    );
+    // eslint-disable-next-line no-empty
+  } catch {}
+
   return -1;
 });
 
@@ -166,6 +183,7 @@ const { prefix } = build({
   entry,
   output,
   potfiles,
+  blueprint_compiler,
 });
 if (!no_executable) {
   emitExecutable({ appid, entry, output, prefix });
