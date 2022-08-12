@@ -4,7 +4,7 @@ A bundler for GNOME JavaScript.
 
 This is in development alpha software, use at your own risk.
 
-gjspack lets your import anything and will bundle everything for you, think [webpack](https://webpack.js.org/) for GJS.
+gjspack lets your import anything and bundles everything for you, think [webpack](https://webpack.js.org/) for GJS.
 
 Just like that:
 
@@ -39,6 +39,7 @@ Features:
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
 - automatically add missing entries to POTFILES
+- suppots Blueprint
 
 Goals:
 
@@ -48,7 +49,7 @@ Goals:
 - Avoid Web development dependencies
 - Retain line numbers and usable stack traces
 - Remove boilerplate code to convert data before using them
-- Fast, as in, instantaneous - let's forget gjspack is there
+- Fast - forget gjspack is even there
 
 ## Examples
 
