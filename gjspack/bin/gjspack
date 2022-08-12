@@ -8,4 +8,4 @@ const resource = Gio.resource_load(
 );
 Gio.resources_register(resource);
 
-import("resource:///gjspack/cli.js").catch(logError);
+import("resource:///gjspack/src/cli.js").catch(logError);

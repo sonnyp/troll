@@ -301,8 +301,6 @@ export function updatePotfiles({ potfiles, resources }) {
 }
 
 export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
-  console.debug({ current_dir });
-
   const prefix = appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
@@ -316,8 +314,9 @@ export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
     blueprint_compiler,
   });
 
+  const entry_alias = current_file.get_relative_path(entry);
   saveTransformed({
-    resource_alias: entry.get_basename(),
+    resource_alias: entry_alias,
     resources,
     transformed,
   });
@@ -339,5 +338,12 @@ export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
     updatePotfiles({ potfiles, resources });
   }
 
-  return { gresource_path, resources, prefix };
+  return {
+    gresource_path,
+    prefix,
+    entry_resource_uri: `resource://${GLib.build_filenamev([
+      prefix,
+      entry_alias,
+    ])}`,
+  };
 }

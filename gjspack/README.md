@@ -9,17 +9,19 @@ gjspack lets your import anything and will bundle everything for you, think [web
 Just like that:
 
 ```js
+// import any file as resource path
 import Pumpkin from "./Pumpkin.png";
 const picture = Gtk.Picture.new_from_resource(Pumpkin);
 
+// import JSON
 import manifest from "../flatpak.json" assert { type: "json" };
 console.log(manifest["appid"]);
 
-// import XML UI
-import window from "./window.ui" assert { type: "builder" };
-// or Blueprint UI
-import window from "./window.blp" assert { type: "builder" };
-window.get_object("window").present();
+// import XML UI as GtkBuilder
+import builder from "./window.ui" assert { type: "builder" };
+// or Blueprint UI as GtkBuilder
+import builder from "./window.blp" assert { type: "builder" };
+builder.get_object("window").present();
 ```
 
 See [Examples](#Examples) below.
@@ -316,12 +318,10 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [x] import any file as gbytes
 - [x] automatically add files to POTFILES
 - [x] import blueprint files
-- [ ] watch mode
+- [ ] watch mode / live reload
 - [ ] flatpak doc
 - [ ] support dynamic imports
 - [ ] meson subproject
-- [ ] live reload - automatically reload on change
-- [ ] import from blp files
 - [ ] import fonts
 - [ ] support `import foo from 'http://...'` - ala deno
 - [ ] bundle/import as icon-name `/com/example/icons/scalable/actions`
@@ -330,6 +330,6 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] gresource compress ?
 - [ ] cache
 - [ ] Support other programming languages? Ping me if there is any interest.
-- [ ] `import foo from './foo.ui#object_id' assert {type: "ui"}`
+- [ ] `import foo from './foo.ui#object_id' assert {type: "builder"}`
 - [ ] one file mode (gresource inside .js executable)
 - [ ] ~~resolve `import foo from 'bar'` from `node_modules`~~ (import maps and http instead)

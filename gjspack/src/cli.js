@@ -156,13 +156,12 @@ app.connect("handle-local-options", (self, options) => {
 status ??= app.run([system.programInvocationName].concat(ARGV));
 if (status > 0) system.exit(status);
 
-function emitExecutable({ appid, entry, output, prefix }) {
+function emitExecutable({ appid, output, entry_resource_uri }) {
   let str = ExecutableTemplate;
 
   for (const [key, value] of Object.entries({
     appid,
-    prefix,
-    main_script: entry.get_basename(),
+    entry_resource_uri,
   })) {
     str = str.replace(`@@${key}@@`, value);
   }
@@ -178,7 +177,7 @@ function emitExecutable({ appid, entry, output, prefix }) {
   );
 }
 
-const { prefix } = build({
+const { entry_resource_uri } = build({
   appid,
   entry,
   output,
@@ -186,7 +185,7 @@ const { prefix } = build({
   blueprint_compiler,
 });
 if (!no_executable) {
-  emitExecutable({ appid, entry, output, prefix });
+  emitExecutable({ appid, output, entry_resource_uri });
 }
 
 system.exit(status);

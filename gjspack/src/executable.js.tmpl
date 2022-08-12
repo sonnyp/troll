@@ -8,4 +8,4 @@ const resource = Gio.resource_load(
 );
 Gio.resources_register(resource);
 
-import("resource://@@prefix@@/@@main_script@@").catch(logError);
+import("@@entry_resource_uri@@").catch(logError);
