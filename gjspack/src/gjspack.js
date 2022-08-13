@@ -11,15 +11,12 @@ import {
   basename,
 } from "./utils.js";
 
-const current_dir = GLib.get_current_dir();
-const current_file = Gio.File.new_for_path(current_dir);
-
 export function getPathForResource(
   module_path,
   // The file which imports module_path
   relative_to,
   // glib-compile-resources --sourcedir defaults to current directory
-  source_dir = current_file,
+  source_dir,
 ) {
   const module_file = relative_to
     .get_parent()
@@ -126,6 +123,7 @@ function preprocess({ imported_file, resource_path, blueprint_compiler }) {
 export function processSourceFile({
   resources,
   source_file,
+  resource_root,
   prefix,
   blueprint_compiler,
 }) {
@@ -154,7 +152,7 @@ export function processSourceFile({
     // see commit da38c9430cfebdaa0b3e0021ac98eed966f09e9a
 
     let str = "";
-    let resource_path = getPathForResource(n, source_file);
+    let resource_path = getPathForResource(n, source_file, resource_root);
     const imported_file = source_file.get_parent().resolve_relative_path(n);
 
     let type;
@@ -180,6 +178,7 @@ export function processSourceFile({
         resources,
         source_file: imported_file,
         prefix,
+        resource_root,
         blueprint_compiler,
       });
 
@@ -248,7 +247,7 @@ export function processSourceFile({
   return transformed || "\n";
 }
 
-function buildGresource({ prefix, resources, output, appid }) {
+function buildGresource({ prefix, resources, resource_root, output, appid }) {
   const el = xml(
     "gresources",
     {},
@@ -274,7 +273,7 @@ function buildGresource({ prefix, resources, output, appid }) {
   const gresource_path = output.get_child(`${appid}.gresource`).get_path();
 
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
-    `glib-compile-resources --target=${gresource_path} ${file.get_path()}`,
+    `glib-compile-resources --target=${gresource_path} --sourcedir=${resource_root.get_path()} ${file.get_path()}`,
   );
   if (status !== 0) {
     throw new Error(decode(stderr));
@@ -304,7 +303,7 @@ export function updatePotfiles({ potfiles, resources }) {
   writeTextFileSync(potfiles, entries.join("\n"));
 }
 
-export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
+export function build({ appid, entry, output, potfiles, resource_root, blueprint_compiler }) {
   const prefix = appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
@@ -313,12 +312,13 @@ export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
   const transformed = processSourceFile({
     resources,
     relative_to,
+    resource_root,
     source_file: entry,
     prefix,
     blueprint_compiler,
   });
 
-  const entry_alias = current_file.get_relative_path(entry);
+  const entry_alias = resource_root.get_relative_path(entry);
   saveTransformed({
     resource_alias: entry_alias,
     resources,
@@ -333,6 +333,7 @@ export function build({ appid, entry, output, potfiles, blueprint_compiler }) {
 
   const { gresource_path } = buildGresource({
     prefix,
+    resource_root,
     resources,
     output,
     appid,

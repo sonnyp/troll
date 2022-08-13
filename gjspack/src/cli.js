@@ -15,6 +15,7 @@ let status;
 let appid;
 let entry;
 let output;
+let resource_root;
 let no_executable;
 let potfiles;
 let blueprint_compiler;
@@ -58,6 +59,15 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
   "Location of the POTFILES to merge missing imports (.js, .ui, .blp)",
+  "PATH",
+);
+
+app.add_main_option(
+  "resource-root",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "Directory to which files in resource are relative",
   "PATH",
 );
 
@@ -136,6 +146,16 @@ app.connect("handle-local-options", (self, options) => {
     // eslint-disable-next-line no-empty
   } catch {}
 
+  let root_path;
+  try {
+    root_path = new TextDecoder().decode(
+      options.lookup_value("resource-root", null).deepUnpack(),
+    );
+  } catch {
+    root_path = GLib.get_current_dir();
+  }
+  resource_root = Gio.File.new_for_path(root_path);
+
   try {
     potfiles = new TextDecoder().decode(
       options.lookup_value("potfiles", null).deepUnpack(),
@@ -189,6 +209,7 @@ const { entry_resource_uri } = build({
   entry,
   output,
   potfiles,
+  resource_root,
   blueprint_compiler,
 });
 if (!no_executable) {
