@@ -5,7 +5,6 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import { build } from "./gjspack.js";
 import { decode, basename } from "./utils.js";
-import ExecutableTemplate from "./executable.js.tmpl" assert { type: "string" };
 import { setConsoleLogDomain } from "console";
 
 GLib.set_prgname("gjspack");
@@ -159,14 +158,20 @@ status ??= app.run([system.programInvocationName].concat(ARGV));
 if (status > 0) system.exit(status);
 
 function emitExecutable({ appid, output, entry_resource_uri }) {
-  let str = ExecutableTemplate;
+  const str = `
+#!/usr/bin/env -S gjs -m
 
-  for (const [key, value] of Object.entries({
-    appid,
-    entry_resource_uri,
-  })) {
-    str = str.replace(`@@${key}@@`, value);
-  }
+import Gio from "gi://Gio";
+
+const file = Gio.File.new_for_uri(import.meta.url);
+const resource = Gio.resource_load(
+  file.get_parent().resolve_relative_path("${appid}.gresource").get_path(),
+);
+Gio.resources_register(resource);
+
+import("${entry_resource_uri}").catch(logError);
+
+`.trim();
 
   const executable = output.get_child(appid);
   executable.replace_contents(str, null, false, Gio.FileCreateFlags.NONE, null);

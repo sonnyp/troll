@@ -240,10 +240,12 @@ flatpak run re.sonny.gjspack.Demo
 
 ## Development
 
-gjspack is self hosted - meaning - it bundles itself.
-
 ```sh
 # make changes
+
+# then test with
+./src/cli.js --help
+
 # then build with
 make
 
@@ -252,6 +254,9 @@ make test
 
 # run the demo
 make demo
+
+# make sure everything is ok
+make ci
 ```
 
 ## Q&A
