@@ -105,6 +105,7 @@ function preprocessBlueprint({
   return {
     alias: resource_path.replace(/.blp$/, ".ui"),
     path: transfomed_file.get_path(),
+    original: resource_path,
   };
 }
 
@@ -215,6 +216,7 @@ export function processSourceFile({
         // } else if (type === "array") {
         //   from = `imports.gi.Gio.resources_lookup_data(${from}, null).toArray()`;
       } else if (type === "css") {
+        // FIXME: does not work - load_from_Resource returns undefined
         substitute = `imports.gi.Gtk.init() || new imports.gi.Gtk.CssProvider().load_from_resource("${import_location}")`;
       } else if (type === "uri") {
         substitute = `"resource://${import_location}"`;
@@ -287,8 +289,9 @@ export function updatePotfiles({ potfiles, resources }) {
   const entries = readTextFileSync(potfiles)
     .split("\n")
     .map((entry) => entry.trim());
-  resources.forEach(({ path, alias }) => {
-    const location = alias || path;
+
+  resources.forEach(({ original, path, alias }) => {
+    const location = original || alias || path;
     const [, , extension] = basename(location);
     if (
       !entries.includes(location) &&
@@ -297,6 +300,7 @@ export function updatePotfiles({ potfiles, resources }) {
       entries.push(location);
     }
   });
+
   writeTextFileSync(potfiles, entries.join("\n"));
 }
 

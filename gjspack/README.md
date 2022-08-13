@@ -36,6 +36,7 @@ Features:
   - JSON with `assert {type: "json"}`
   - Gtk.Builder with `assert {type: "builder"}`
   - Gtk.CssProvider with `assert {type: "css"}`
+  - `resource://` uri with `assert {type: "uri"}`
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
 - automatically add missing entries to POTFILES
@@ -100,7 +101,7 @@ gjspack --blueprint-compiler=~/blueprint-compiler/blueprint-compiler.py
   <summary>Template</summary>
 
 ```js
-import Template from "./MyWidget.ui";
+import Template from "./MyWidget.ui" assert { type: "uri" };
 
 GObject.registerClass(
   {
