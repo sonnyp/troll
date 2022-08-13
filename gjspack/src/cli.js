@@ -6,9 +6,11 @@ import GLib from "gi://GLib";
 import { build } from "./gjspack.js";
 import { decode, basename } from "./utils.js";
 import ExecutableTemplate from "./executable.js.tmpl" assert { type: "string" };
+import { setConsoleLogDomain } from "console";
 
 GLib.set_prgname("gjspack");
 GLib.set_application_name("re.sonny.gjspack");
+setConsoleLogDomain("gjspack");
 
 let status;
 let appid;
