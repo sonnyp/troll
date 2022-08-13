@@ -39,8 +39,8 @@ Features:
   - `resource://` uri with `assert {type: "uri"}`
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
-- automatically add missing entries to POTFILES
-- suppots Blueprint
+- automatically add missing files to `POTFILES`
+- supports [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/)
 
 Goals:
 
@@ -49,7 +49,7 @@ Goals:
 - Integrates with GNOME tooling (flatpak, meson, ...)
 - Avoid Web development dependencies
 - Retain line numbers and usable stack traces
-- Remove boilerplate code to convert data before using them
+- Remove boilerplate code to convert data before using
 - Fast - forget gjspack is even there
 
 ## Examples
@@ -159,28 +159,6 @@ Gtk.StyleContext.add_provider_for_display(
   provider,
   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
 );
-```
-
-</details>
-
-<details>
-  <summary>Arbitrary files</summary>
-
-This example is taken directly from the [Commit](https://github.com/sonnyp/Commit/) app.
-
-```js
-import "./language-specs/git.lang";
-import "./language-specs/hg.lang";
-
-const language_manager = GtkSource.LanguageManager.get_default();
-language_manager.set_search_path([
-  ...language_manager.get_search_path(),
-  GLib.Uri.resolve_relative(
-    import.meta.url,
-    "language-specs",
-    GLib.UriFlags.NONE,
-  ),
-]);
 ```
 
 </details>

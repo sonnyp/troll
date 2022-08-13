@@ -1,5 +1,5 @@
 {
-  "appid": "re.sonny.gjspack.Demo",
+  "app-id": "re.sonny.gjspack.Demo",
   "runtime": "org.gnome.Platform",
   "runtime-version": "42",
   "sdk": "org.gnome.Sdk",
@@ -12,7 +12,18 @@
   ],
   "modules": [
     {
-      "name": "troll",
+      "name": "blueprint-compiler",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
+          "branch": "main"
+        }
+      ]
+    },
+    {
+      "name": "gjspack",
       "buildsystem": "simple",
       "builddir": true,
       "build-commands": [
