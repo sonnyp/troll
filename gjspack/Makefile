@@ -4,9 +4,8 @@
 build:
 	./bin/gjspack --appid=gjspack src/cli.js bin/
 
-test: build
-	./bin/gjspack --appid=gjspack-test test/gjspack.test.js test/build/
-	test/build/gjspack-test
+test:
+	../tst/bin.js **/*.test.js
 
 ci: clean test
 	./bin/gjspack --appid=gjspack-demo ./demo/main.js ./demo/build

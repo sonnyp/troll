@@ -67,7 +67,7 @@ app.add_main_option(
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
-  "Directory to which files in resource are relative",
+  "The directory from which gresource file paths are relative to (default: current directory)",
   "PATH",
 );
 
@@ -146,15 +146,13 @@ app.connect("handle-local-options", (self, options) => {
     // eslint-disable-next-line no-empty
   } catch {}
 
-  let root_path;
   try {
-    root_path = new TextDecoder().decode(
+    const root_path = new TextDecoder().decode(
       options.lookup_value("resource-root", null).deepUnpack(),
     );
-  } catch {
-    root_path = GLib.get_current_dir();
-  }
-  resource_root = Gio.File.new_for_path(root_path);
+    resource_root = Gio.File.new_for_path(root_path);
+    // eslint-disable-next-line no-empty
+  } catch {}
 
   try {
     potfiles = new TextDecoder().decode(

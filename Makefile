@@ -5,8 +5,8 @@ build:
 	./node_modules/.bin/rollup -c rollup.config.js
 
 lint:
-	./node_modules/.bin/eslint --max-warnings=0 . gjspack/src/executable.js.tmpl
+	./node_modules/.bin/eslint --max-warnings=0 .
 
-test:
+test: lint
 	tst/bin.js **/*.test.js
-	./node_modules/.bin/eslint .
+

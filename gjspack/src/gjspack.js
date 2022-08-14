@@ -15,14 +15,13 @@ export function getPathForResource(
   module_path,
   // The file which imports module_path
   relative_to,
-  // glib-compile-resources --sourcedir defaults to current directory
-  source_dir,
+  resource_root,
 ) {
   const module_file = relative_to
     .get_parent()
     .resolve_relative_path(module_path);
 
-  const relative_path = source_dir.get_relative_path(module_file);
+  const relative_path = resource_root.get_relative_path(module_file);
 
   return (
     relative_path ||
@@ -298,7 +297,7 @@ export function updatePotfiles({ potfiles, resources }) {
       [".js", ".ui", ".blp"].includes(extension)
     ) {
       entries.push(location);
-      changes = true;
+      changed = true;
     }
   });
 
@@ -307,7 +306,14 @@ export function updatePotfiles({ potfiles, resources }) {
   }
 }
 
-export function build({ appid, entry, output, potfiles, resource_root, blueprint_compiler }) {
+export function build({
+  appid,
+  entry,
+  output,
+  potfiles,
+  resource_root = Gio.File.new_for_path(GLib.get_current_dir()),
+  blueprint_compiler,
+}) {
   const prefix = appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
