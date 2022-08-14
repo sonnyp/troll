@@ -289,6 +289,7 @@ export function updatePotfiles({ potfiles, resources }) {
     .split("\n")
     .map((entry) => entry.trim());
 
+  let changed = false;
   resources.forEach(({ original, path, alias }) => {
     const location = original || alias || path;
     const [, , extension] = basename(location);
@@ -297,10 +298,13 @@ export function updatePotfiles({ potfiles, resources }) {
       [".js", ".ui", ".blp"].includes(extension)
     ) {
       entries.push(location);
+      changes = true;
     }
   });
 
-  writeTextFileSync(potfiles, entries.join("\n"));
+  if (changed) {
+    writeTextFileSync(potfiles, entries.join("\n"));
+  }
 }
 
 export function build({ appid, entry, output, potfiles, resource_root, blueprint_compiler }) {
