@@ -1,5 +1,5 @@
-import system from "system";
 import Gio from "gi://Gio";
+import GLib from "gi://GLib";
 
 import tst, { assert } from "../../tst/tst.js";
 
@@ -107,6 +107,7 @@ test("processSourceFile", () => {
       processSourceFile({
         resources,
         source_file: input_file,
+        resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
         prefix,
       }),
       readTextFileSync(output_file),
@@ -136,6 +137,7 @@ import bar2 from "./${bar_file.get_basename()}";
   processSourceFile({
     resources,
     source_file,
+    resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
     prefix,
   });
 
@@ -204,6 +206,4 @@ foo/halo.blp
   );
 });
 
-// log(test.run());
-
-system.exit((await test.run()) ? 0 : 1);
+export default test;
