@@ -15,7 +15,7 @@ const picture = Gtk.Picture.new_from_resource(Pumpkin);
 
 // import JSON
 import manifest from "../flatpak.json" assert { type: "json" };
-console.log(manifest["appid"]);
+console.log(manifest["app-id"]);
 
 // import XML UI as GtkBuilder
 import builder from "./window.ui" assert { type: "builder" };
@@ -199,20 +199,30 @@ In your `src/meson.build`:
 
 ```meson
 gjspack = find_program('../troll/gjspack/bin/gjspack')
-run_command(gjspack, '--appid=' + meson.project_name(), '--no-executable', 'src/main.js', 'src', check: true)
-
-install_data(meson.project_name() + '.gresource',
-  install_dir: pkgdatadir
+gresource = custom_target(meson.project_name() + '.gresource',
+  input: ['main.js', '../po/POTFILES'],
+  output: meson.project_name() + '.gresource',
+  command: [
+    gjspack,
+    '--appid=' + meson.project_name(),
+    '--resource-root', meson.project_source_root(),
+    '--no-executable',
+    '@INPUT0@',
+    '--potfiles', '@INPUT1@',
+    '@OUTDIR@',
+  ],
+  install: true,
+  install_dir: pkgdatadir,
 )
 ```
 
 Test, port your code and once it works properly , you can remove your `*.gresource.xml` file as well as the `gnome.compile_resources` meson instruction.
 
-See [Commit](https://github.com/sonnyp/Commit/tree/main/src) and [`Junction`](https://github.com/sonnyp/Junction/tree/main/src) for examples with custom executables which don't use `imports.package.init`.
+See also [Commit](https://github.com/sonnyp/Commit/tree/main/src) and [Junction](https://github.com/sonnyp/Junction/tree/main/src) for examples with custom executables which don't use `imports.package.init`.
 
 ## How does it work?
 
-Given a ES module file, gjspack use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, replace them and bundle all files appropritely in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
+Given a ES module file, gjspack use an [an ES module parser](https://github.com/guybedford/es-module-lexer/) to detect imports recursively, replace them and bundle all files appropriately in a [Gio.Resource](https://docs.gtk.org/gio/struct.Resource.html).
 
 ## Demo
 
@@ -291,7 +301,7 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 
 - [x] import and bundle JavaScript imports
 - [x] import and bundle any file as resource path
-- [x] transform resursively
+- [x] transform recursively
 - [x] bundle sources files outside of `$PWD`
 - [x] bundle data files outside of `$PWD`
 - [x] deduplicate files imported multiple times
