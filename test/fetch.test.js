@@ -50,6 +50,27 @@ test("get json", async () => {
   server.disconnect();
 });
 
+test("get binary (arrayBuffer, gBytes)", async () => {
+  const value = JSON.stringify({ hello: "world" });
+  const uintValue = new Uint8Array(new TextEncoder().encode(value));
+
+  const server = new Soup.Server();
+  server.add_handler("/bin", (self, message) => {
+    message.get_response_body().append(value);
+    message.set_status(200, null);
+  });
+  server.listen(Gio.InetSocketAddress.new_from_string("127.0.0.1", 1234), null);
+
+  let res;
+  res = await fetch("http://127.0.0.1:1234/bin");
+  assert.equal(new Uint8Array(await res.arrayBuffer()), uintValue);
+
+  res = await fetch("http://127.0.0.1:1234/bin");
+  assert.equal((await res.gBytes()).toArray(), uintValue);
+
+  server.disconnect();
+});
+
 test("POST", async () => {
   const server = new Soup.Server();
   const request_body = JSON.stringify({ hello: "world" });

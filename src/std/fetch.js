@@ -51,6 +51,14 @@ export default async function fetch(url, options = {}) {
       return JSON.parse(text);
     },
     async text() {
+      const gBytes = await this.gBytes();
+      return new TextDecoder().decode(gBytes.toArray());
+    },
+    async arrayBuffer() {
+      const gBytes = await this.gBytes();
+      return gBytes.toArray().buffer;
+    },
+    async gBytes() {
       const outputStream = Gio.MemoryOutputStream.new_resizable();
 
       await promiseTask(
@@ -65,8 +73,7 @@ export default async function fetch(url, options = {}) {
       );
 
       const bytes = outputStream.steal_as_bytes();
-
-      return new TextDecoder().decode(bytes.toArray());
+      return bytes;
     },
   };
 }
