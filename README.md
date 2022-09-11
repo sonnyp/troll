@@ -16,8 +16,8 @@ Contributions welcome.
     - headers
     - text body
   - response
-    - status/statusText/ok
-    - text() / json()
+    - status / statusText / ok
+    - text() / json() / arrayBuffer() / gBytes()
 - base64
   - atob [src](std/base64.js)
   - btoa [src](std/base64.js)
