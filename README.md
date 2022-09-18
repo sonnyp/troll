@@ -29,7 +29,7 @@ Contributions welcome.
 
 1. Provide a familiar environment for building GNOME applications
 2. Allow application developers to use third party libraries
-3. Encourage Shell extension developers to make flatpak apps instead
+3. Encourage Shell extension developers to make apps instead
 
 ## Tested with
 
@@ -38,15 +38,46 @@ Contributions welcome.
 
 ## globals
 
-You can register all globals with
+You can register all standard globals with
 
 ```js
-import "./troll/globals.js";
+import "./troll/src/globals.js";
 
 // fetch(...)
 // new WebSocket(...)
 // atob(...)
 // btoa(...)
+```
+
+## runAsync
+
+`runAsync` is a way to run your application outside of the mainloop so that promises are executed as you would expect.
+
+See https://gitlab.gnome.org/GNOME/gjs/-/issues/468
+
+- `modul_location` \<string\> an ES module location
+- `runner` \<Function\> the function to execute - must return an exit code
+
+```js
+#!@GJS@ -m
+
+import GLib from "gi://GLib";
+import System from "system";
+import runAsync "./troll/src/util.js";
+
+imports.package.init({
+  name: "@PACKAGE_NAME@",
+  version: "@PACKAGE_VERSION@",
+  prefix: "@prefix@",
+  libdir: "@libdir@",
+  datadir: "@datadir@",
+});
+imports.package.initGettext();
+
+// replace return imports.package.run(main); with
+runAsync("resource:///com/example/js/main.js", (main) => {
+  return imports.package.run(main);
+});
 ```
 
 ## promiseTask(target, method, finish[, ...args])
@@ -62,7 +93,7 @@ Run a Gio async operation and return a promise that resolve with the result of f
 Examples
 
 ```js
-import { promiseTask } from "./troll/util.js";
+import { promiseTask } from "./troll/src/util.js";
 import Gio from "gi://Gio";
 
 (async () => {
@@ -90,7 +121,7 @@ If `errorSignal` is specified, an handler for it will be registered and the prom
 Examples
 
 ```js
-import { once } from "./troll/util.js";
+import { once } from "./troll/src/util.js";
 
 (async () => {
   const Button = new Gtk.Button({ label: "Click Me" });
@@ -109,7 +140,7 @@ You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plu
 
 ```jsx
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/gsx.js";
+import gsx from "./troll/src/gsx.js";
 
 export default function MyButton() {
   return (
@@ -150,7 +181,7 @@ export default function MyButton() {
 
 ```js
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/gsx.js";
+import gsx from "./troll/src/gsx.js";
 
 const { Button, Align, Image } = Gtk;
 

@@ -175,3 +175,18 @@ export function getPid() {
   const credentials = new Gio.Credentials();
   return credentials.get_unix_pid();
 }
+
+// https://gitlab.gnome.org/GNOME/gjs/-/issues/468
+// inspired by https://gitlab.gnome.org/ptomato/bloatpad/-/blob/75af0d673af439e493ece246f95866f64e1cbd77/src/name.ptomato.Bloatpad.in
+export function runAsync(module_location, run) {
+  const loop = GLib.MainLoop.new(null, false);
+  import(module_location).then((main) => {
+    GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+      loop.quit();
+      const exit_code = run(main);
+      system.exit(exit_code);
+      return GLib.SOURCE_REMOVE;
+    });
+  });
+  loop.run();
+}
