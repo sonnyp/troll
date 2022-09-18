@@ -55,28 +55,24 @@ import "./troll/src/globals.js";
 
 See https://gitlab.gnome.org/GNOME/gjs/-/issues/468
 
-- `modul_location` \<string\> an ES module location
-- `runner` \<Function\> the function to execute - must return an exit code
+- `module_location` \<string\> an ES module location
+- `runner` \<Function\> the function to execute
 
 ```js
-#!@GJS@ -m
-
 import GLib from "gi://GLib";
 import System from "system";
-import runAsync "./troll/src/util.js";
+import { programInvocationName, exit } from "system";
 
-imports.package.init({
-  name: "@PACKAGE_NAME@",
-  version: "@PACKAGE_VERSION@",
-  prefix: "@prefix@",
-  libdir: "@libdir@",
-  datadir: "@datadir@",
+import runAsync from "./troll/src/util.js";
+
+runAsync("./main.js", (module) => {
+  exit(module.main(System.programInvocationName, ...ARGV));
 });
-imports.package.initGettext();
 
-// replace return imports.package.run(main); with
-runAsync("resource:///com/example/js/main.js", (main) => {
-  return imports.package.run(main);
+// or if you use imports.package:
+
+runAsync("resource:///com/example/js/main.js", (module) => {
+  exit(imports.package.run(module));
 });
 ```
 

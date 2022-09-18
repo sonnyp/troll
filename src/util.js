@@ -183,8 +183,7 @@ export function runAsync(module_location, run) {
   import(module_location).then((main) => {
     GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
       loop.quit();
-      const exit_code = run(main);
-      system.exit(exit_code);
+      run(main);
       return GLib.SOURCE_REMOVE;
     });
   });
