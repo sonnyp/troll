@@ -202,16 +202,21 @@ import("${entry_resource_uri}").catch(logError);
   );
 }
 
-const { entry_resource_uri } = build({
-  appid,
-  entry,
-  output,
-  potfiles,
-  resource_root,
-  blueprint_compiler,
-});
-if (!no_executable) {
-  emitExecutable({ appid, output, entry_resource_uri });
+try {
+  const { entry_resource_uri } = build({
+    appid,
+    entry,
+    output,
+    potfiles,
+    resource_root,
+    blueprint_compiler,
+  });
+  if (!no_executable) {
+    emitExecutable({ appid, output, entry_resource_uri });
+  }
+} catch (err) {
+  logError(err);
+  status = 1;
 }
 
 system.exit(status);

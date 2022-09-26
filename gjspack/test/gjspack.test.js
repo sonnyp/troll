@@ -11,8 +11,8 @@ import {
   getImportName,
   updatePotfiles,
 } from "../src/gjspack.js";
-import { appIdToPrefix } from "../src/utils.js";
 import {
+  appIdToPrefix,
   readDirSync,
   readTextFileSync,
   writeTextFileSync,
