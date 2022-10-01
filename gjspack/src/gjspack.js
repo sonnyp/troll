@@ -308,13 +308,14 @@ export function updatePotfiles({ potfiles, resources }) {
 
 export function build({
   appid,
+  prefix,
   entry,
   output,
   potfiles,
   resource_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler,
 }) {
-  const prefix = appIdToPrefix(appid);
+  prefix = prefix || appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
   const resources = [];

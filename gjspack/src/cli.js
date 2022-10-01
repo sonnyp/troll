@@ -19,6 +19,7 @@ let resource_root;
 let no_executable;
 let potfiles;
 let blueprint_compiler;
+let prefix;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -49,7 +50,18 @@ app.add_main_option(
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.STRING,
-  "Identifier to use as resource prefix and executable name (default: name of the entry file)",
+  // TODO: probably not a good idea to default to entry file
+  // doesn't work with pkg.name
+  "Identifier to use as executable name (default: name of the entry file)",
+  null,
+);
+
+app.add_main_option(
+  "prefix",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.STRING,
+  "Path to use as resource prefix (default: guess from appid)",
   null,
 );
 
@@ -147,6 +159,11 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
+    [prefix] = options.lookup_value("prefix", null).get_string();
+    // eslint-disable-next-line no-empty
+  } catch {}
+
+  try {
     const root_path = new TextDecoder().decode(
       options.lookup_value("resource-root", null).deepUnpack(),
     );
@@ -205,6 +222,7 @@ import("${entry_resource_uri}").catch(logError);
 try {
   const { entry_resource_uri } = build({
     appid,
+    prefix,
     entry,
     output,
     potfiles,
