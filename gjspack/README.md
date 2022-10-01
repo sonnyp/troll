@@ -199,9 +199,9 @@ In your `src/meson.build`:
 
 ```meson
 gjspack = find_program('../troll/gjspack/bin/gjspack')
-gresource = custom_target(meson.project_name() + '.gresource',
+gresource = custom_target('gjspack',
   input: ['main.js', '../po/POTFILES'],
-  output: meson.project_name() + '.gresource',
+  output: meson.project_name() + '.src.gresource',
   command: [
     gjspack,
     '--appid=' + meson.project_name(),
@@ -217,7 +217,7 @@ gresource = custom_target(meson.project_name() + '.gresource',
 )
 ```
 
-Test, port your code and once it works properly , you can remove your `*.gresource.xml` file as well as the `gnome.compile_resources` meson instruction.
+Test, port your code and once it works properly , you can remove your `*.gresource.xml` files as well as the `gnome.compile_resources` meson instruction.
 
 See also [Commit](https://github.com/sonnyp/Commit/tree/main/src) and [Junction](https://github.com/sonnyp/Junction/tree/main/src) for examples with custom executables which don't use `imports.package.init`.
 

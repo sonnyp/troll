@@ -101,7 +101,7 @@ Run the program
   ./build/my.app
 
 List bundled resources
-  gresource list ./build/my.app.gresource
+  gresource list ./build/my.app.src.gresource
 `.trim(),
 );
 
@@ -183,7 +183,7 @@ import Gio from "gi://Gio";
 
 const file = Gio.File.new_for_uri(import.meta.url);
 const resource = Gio.resource_load(
-  file.get_parent().resolve_relative_path("${appid}.gresource").get_path(),
+  file.get_parent().resolve_relative_path("${appid}.src.gresource").get_path(),
 );
 Gio.resources_register(resource);
 

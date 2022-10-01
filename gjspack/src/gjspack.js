@@ -269,7 +269,7 @@ function buildGresource({ prefix, resources, resource_root, output, appid }) {
     null,
   );
 
-  const gresource_path = output.get_child(`${appid}.gresource`).get_path();
+  const gresource_path = output.get_child(`${appid}.src.gresource`).get_path();
 
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
     `glib-compile-resources --target=${gresource_path} --sourcedir=${resource_root.get_path()} ${file.get_path()}`,
