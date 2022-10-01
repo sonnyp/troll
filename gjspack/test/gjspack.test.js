@@ -159,6 +159,10 @@ hello
 cool/bar.js
 # also cool
 
+#notme1.js
+# notme2.blp
+#  notme3.ui
+
 foo/bar/already-here.ui
 
 ok
@@ -184,6 +188,9 @@ ok
       path: "nono.png",
     },
     { alias: null, path: "foo/bar/already-here.ui" },
+    { alias: null, path: "notme1.js" },
+    { alias: null, path: "notme2.blp" },
+    { alias: null, path: "notme3.ui" },
   ];
 
   updatePotfiles({ potfiles, resources });
@@ -194,6 +201,10 @@ ok
 hello
 cool/bar.js
 # also cool
+
+#notme1.js
+# notme2.blp
+#  notme3.ui
 
 foo/bar/already-here.ui
 

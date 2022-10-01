@@ -284,21 +284,20 @@ function buildGresource({ prefix, resources, resource_root, output, appid }) {
 }
 
 export function updatePotfiles({ potfiles, resources }) {
-  const entries = readTextFileSync(potfiles)
-    .split("\n")
-    .map((entry) => entry.trim());
+  const str = readTextFileSync(potfiles);
+  const entries = str.split("\n").map((entry) => entry.trim());
 
   let changed = false;
   resources.forEach(({ original, path, alias }) => {
     const location = original || alias || path;
     const [, , extension] = basename(location);
-    if (
-      !entries.includes(location) &&
-      [".js", ".ui", ".blp"].includes(extension)
-    ) {
-      entries.push(location);
-      changed = true;
-    }
+
+    if (![".js", ".ui", ".blp"].includes(extension)) return;
+
+    if (str.match(new RegExp(`^#? *${location}`, "m"))) return;
+
+    entries.push(location);
+    changed = true;
   });
 
   if (changed) {
