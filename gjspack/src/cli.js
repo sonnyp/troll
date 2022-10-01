@@ -164,25 +164,28 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
-    const root_path = new TextDecoder().decode(
-      options.lookup_value("resource-root", null).deepUnpack(),
-    );
+    const root_path = new TextDecoder()
+      .decode(options.lookup_value("resource-root", null).deepUnpack())
+      .trim()
+      .replaceAll("\0", "");
     resource_root = Gio.File.new_for_path(root_path);
     // eslint-disable-next-line no-empty
   } catch {}
 
   try {
-    potfiles = new TextDecoder().decode(
-      options.lookup_value("potfiles", null).deepUnpack(),
-    );
+    potfiles = new TextDecoder()
+      .decode(options.lookup_value("potfiles", null).deepUnpack())
+      .trim()
+      .replaceAll("\0", "");
     potfiles = Gio.File.new_for_path(potfiles);
     // eslint-disable-next-line no-empty
   } catch {}
 
   try {
-    blueprint_compiler = new TextDecoder().decode(
-      options.lookup_value("blueprint-compiler", null).deepUnpack(),
-    );
+    blueprint_compiler = new TextDecoder()
+      .decode(options.lookup_value("blueprint-compiler", null).deepUnpack())
+      .trim()
+      .replaceAll("\0", "");
     // eslint-disable-next-line no-empty
   } catch {}
 

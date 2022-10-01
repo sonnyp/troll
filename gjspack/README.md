@@ -198,6 +198,7 @@ Add `troll` as a git submodule
 In your `src/meson.build`:
 
 ```meson
+blueprint_compiler = find_program('blueprint-compiler')
 gjspack = find_program('../troll/gjspack/bin/gjspack')
 gresource = custom_target('gjspack',
   input: ['main.js', '../po/POTFILES'],
@@ -206,6 +207,7 @@ gresource = custom_target('gjspack',
     gjspack,
     '--appid=' + meson.project_name(),
     '--resource-root', meson.project_source_root(),
+    '--blueprint-compiler', blueprint_compiler,
     '--no-executable',
     '@INPUT0@',
     '--potfiles', '@INPUT1@',
