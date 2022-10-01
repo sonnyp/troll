@@ -837,6 +837,7 @@ function circular() {
 	return function print(key, val) {
 		if (val === void 0) return '[__VOID__]';
 		if (typeof val === 'number' && val !== val) return '[__NAN__]';
+		if (typeof val === 'bigint') return val.toString();
 		if (!val || typeof val !== 'object') return val;
 		if (cache.has(val)) return '[Circular]';
 		cache.add(val); return val;

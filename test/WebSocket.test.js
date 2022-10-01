@@ -38,10 +38,8 @@ test("send and receive", async () => {
 
   await once(ws, "open", { timeout: 1000, error: "error" });
 
-  let message;
-
   ws.send("hello");
-  [message] = await once(ws, "message", {
+  const [message] = await once(ws, "message", {
     timeout: 1000,
     error: "error",
   });

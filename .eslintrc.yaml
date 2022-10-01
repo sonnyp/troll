@@ -1,0 +1,57 @@
+root: true
+
+env:
+  es2022: true
+
+parser: "@babel/eslint-parser"
+parserOptions:
+  sourceType: module
+  requireConfigFile: false
+  babelOptions:
+    plugins: ["@babel/plugin-syntax-import-assertions"]
+
+extends:
+  - "eslint:recommended"
+  - "plugin:import/errors"
+  - "plugin:import/warnings"
+
+globals:
+  pkg: readonly
+  # https://gitlab.gnome.org/GNOME/gjs/-/blob/f4a4572c35a67eb38fef9243f2c34f37ee60d7ff/.eslintrc.yml#L250
+  ARGV: readonly
+  Debugger: readonly
+  GIRepositoryGType: readonly
+  globalThis: readonly
+  imports: readonly
+  Intl: readonly
+  log: readonly
+  logError: readonly
+  print: readonly
+  printerr: readonly
+  window: readonly
+  TextEncoder: readonly
+  TextDecoder: readonly
+  console: readonly
+  setTimeout: readonly
+  setInterval: readonly
+  clearTimeout: readonly
+  clearInterval: readonly
+
+rules:
+  # https://eslint.org/docs/rules/no-unused-vars
+  no-unused-vars: [error, { args: none }]
+  # https://eslint.org/docs/rules/no-restricted-globals
+  no-restricted-globals: [error, window, Intl, Debugger]
+  # https://eslint.org/docs/rules/#strict-mode
+  strict: [error] # https://eslint.org/docs/rules/strict
+  # https://eslint.org/docs/rules/#best-practices
+  eqeqeq: [error, always] # https://eslint.org/docs/rules/eqeqeq
+  no-implicit-globals: error
+  # https://eslint.org/docs/rules/#ecmascript-6
+  no-var: error # https://eslint.org/docs/rules/no-var
+  prefer-arrow-callback: error # https://eslint.org/docs/rules/prefer-arrow-callback
+  prefer-const: error # https://eslint.org/docs/rules/prefer-const
+  # https://github.com/benmosher/eslint-plugin-import/
+  import/extensions: ["error", "ignorePackages"]
+  import/no-unresolved:
+    [2, { ignore: ["gi://*", "cairo", "gettext", "system", "resource://*"] }]

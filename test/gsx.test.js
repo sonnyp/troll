@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default-member */
 import Gtk from "gi://Gtk?version=4.0";
 import tst, { assert } from "../tst/tst.js";
 

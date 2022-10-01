@@ -28,7 +28,7 @@ function log(str) {
 
 const rgb = {};
 
-for (let name in colors) {
+for (const name in colors) {
   const color = colors[name];
 
   const fn = (rgb[name] = function (msg) {

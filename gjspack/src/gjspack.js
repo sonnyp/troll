@@ -151,7 +151,7 @@ export function processSourceFile({
     // see commit da38c9430cfebdaa0b3e0021ac98eed966f09e9a
 
     let str = "";
-    let resource_path = getPathForResource(n, source_file, resource_root);
+    const resource_path = getPathForResource(n, source_file, resource_root);
     const imported_file = source_file.get_parent().resolve_relative_path(n);
 
     let type;
@@ -188,7 +188,7 @@ export function processSourceFile({
       });
     } else {
       const statement = source.slice(ss, se);
-      let name = getImportName(statement);
+      const name = getImportName(statement);
 
       const resource = preprocess({
         imported_file,
