@@ -120,6 +120,7 @@ test("processSourceFile", () => {
         resources,
         source_file: input_file,
         resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
+        project_root: Gio.File.new_for_path(GLib.get_current_dir()),
         prefix,
       }),
       readTextFileSync(output_file),
@@ -150,6 +151,7 @@ import bar2 from "./${bar_file.get_basename()}";
     resources,
     source_file,
     resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
+    project_root: Gio.File.new_for_path("/tmp"),
     prefix,
   });
 
@@ -157,8 +159,13 @@ import bar2 from "./${bar_file.get_basename()}";
 
   assert.ok(resources[0].path.startsWith("/tmp/gjspack-"));
   assert.equal(resources[0].alias, foo_file.get_path());
+  assert.equal(resources[0].project_path, foo_file.get_basename());
 
-  assert.equal(resources[1], { path: bar_file.get_path(), alias: null });
+  assert.equal(resources[1], {
+    path: bar_file.get_path(),
+    alias: null,
+    project_path: bar_file.get_basename(),
+  });
 });
 
 test("updatePotfiles", () => {
@@ -185,24 +192,32 @@ ok
     {
       alias: "wow.js",
       path: "/tmp/whatever.js",
+      project_path: "whatever.js",
     },
     {
       alias: null,
       path: "cool-stuff.ui",
+      project_path: "cool-stuff.ui",
     },
     {
       original: "foo/halo.blp",
       alias: "foo/halo.ui",
       path: "/tmp/wow.ui",
+      project_path: "foo/halo.blp",
     },
     {
       alias: null,
       path: "nono.png",
+      project_path: "nono.png",
     },
-    { alias: null, path: "foo/bar/already-here.ui" },
-    { alias: null, path: "notme1.js" },
-    { alias: null, path: "notme2.blp" },
-    { alias: null, path: "notme3.ui" },
+    {
+      alias: null,
+      path: "foo/bar/already-here.ui",
+      project_path: "foo/bar/already-here.ui",
+    },
+    { alias: null, path: "notme1.js", project_path: "notme1.js" },
+    { alias: null, path: "notme2.blp", project_path: "notme2.blp" },
+    { alias: null, path: "notme3.ui", project_path: "notme3.ui" },
   ];
 
   updatePotfiles({ potfiles, resources });
@@ -221,7 +236,7 @@ cool/bar.js
 foo/bar/already-here.ui
 
 ok
-wow.js
+whatever.js
 cool-stuff.ui
 foo/halo.blp
 

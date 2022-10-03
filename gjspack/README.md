@@ -226,6 +226,7 @@ gresource = custom_target('gjspack',
   command: [
     gjspack,
     '--appid=' + meson.project_name(),
+    '--project-root', meson.source_root(),
     '--resource-root', meson.project_source_root(),
     '--blueprint-compiler', blueprint_compiler,
     '--no-executable',

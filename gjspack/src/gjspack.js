@@ -33,7 +33,7 @@ export function getPathForResource(
 
 // glib-compile-resource require the file to exist on disk
 // so we have to save the transformed source in a temporary file
-function saveTransformed({ resource_alias, resources, transformed }) {
+function saveTransformed({ resource_alias, transformed }) {
   const [transfomed_file] = Gio.File.new_tmp("gjspack-XXXXXX.js");
   transfomed_file.replace_contents(
     transformed, // contents
@@ -43,7 +43,7 @@ function saveTransformed({ resource_alias, resources, transformed }) {
     null, // cancellable
   );
 
-  resources.push({ path: transfomed_file.get_path(), alias: resource_alias });
+  return { path: transfomed_file.get_path(), alias: resource_alias };
 }
 
 export function isBundableImport(imported) {
@@ -123,6 +123,7 @@ export function processSourceFile({
   resources,
   source_file,
   resource_root,
+  project_root,
   prefix,
   blueprint_compiler,
 }) {
@@ -155,6 +156,8 @@ export function processSourceFile({
     const imported_file = source_file.get_parent().resolve_relative_path(n);
 
     let type;
+    let resource;
+
     if (a > -1) {
       const assert = source.slice(a, se);
       type = getAssertType(assert);
@@ -178,10 +181,11 @@ export function processSourceFile({
         source_file: imported_file,
         prefix,
         resource_root,
+        project_root,
         blueprint_compiler,
       });
 
-      saveTransformed({
+      resource = saveTransformed({
         resource_alias: resource_path,
         resources,
         transformed,
@@ -190,9 +194,10 @@ export function processSourceFile({
       const statement = source.slice(ss, se);
       const name = getImportName(statement);
 
-      const resource = preprocess({
+      resource = preprocess({
         imported_file,
         resource_path,
+        project_root,
         blueprint_compiler,
       });
 
@@ -236,11 +241,14 @@ export function processSourceFile({
       str += source.slice(0, ss);
       str += name ? `const ${name} = ${substitute}` : substitute;
       str += source.slice(se);
+    }
 
-      // Not a duplicate import
-      if (!resources.find(({ path }) => path === resource.path)) {
-        resources.push(resource);
-      }
+    const project_path = project_root.get_relative_path(imported_file);
+    resource.project_path = project_path;
+
+    // Not a duplicate import
+    if (!resources.find(({ path }) => path === resource.path)) {
+      resources.push(resource);
     }
 
     return next(str);
@@ -306,15 +314,15 @@ export function updatePotfiles({ potfiles, resources }) {
   const entries = str.split("\n").map((entry) => entry.trim());
 
   let changed = false;
-  resources.forEach(({ original, path, alias }) => {
-    const location = original || alias || path;
-    const [, , extension] = basename(location);
+  resources.forEach(({ project_path }) => {
+    if (!project_path) return;
 
+    const [, , extension] = basename(project_path);
     if (![".js", ".ui", ".blp"].includes(extension)) return;
 
-    if (str.match(new RegExp(`^#? *${location}`, "m"))) return;
+    if (str.match(new RegExp(`^#? *${project_path}`, "m"))) return;
 
-    entries.push(location);
+    entries.push(project_path);
     changed = true;
   });
 
@@ -330,6 +338,7 @@ export function build({
   output,
   potfiles,
   resource_root = Gio.File.new_for_path(GLib.get_current_dir()),
+  project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler,
 }) {
   prefix = prefix || appIdToPrefix(appid);
@@ -341,17 +350,20 @@ export function build({
     resources,
     relative_to,
     resource_root,
+    project_root,
     source_file: entry,
     prefix,
     blueprint_compiler,
   });
 
   const entry_alias = resource_root.get_relative_path(entry);
-  saveTransformed({
+  const resource = saveTransformed({
     resource_alias: entry_alias,
     resources,
     transformed,
   });
+  resource.project_path = project_root.get_relative_path(entry);
+  resources.push(resource);
 
   try {
     output.make_directory_with_parents(null);

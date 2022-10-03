@@ -20,6 +20,7 @@ let no_executable;
 let potfiles;
 let blueprint_compiler;
 let prefix;
+let project_root;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -80,6 +81,15 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
   "The directory from which gresource file paths are relative to (default: current directory)",
+  "PATH",
+);
+
+app.add_main_option(
+  "project-root",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "The directory from which POTFILES entries will be relative to (default: current directory)",
   "PATH",
 );
 
@@ -173,6 +183,15 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
+    const project_path = new TextDecoder()
+      .decode(options.lookup_value("project-root", null).deepUnpack())
+      .trim()
+      .replaceAll("\0", "");
+    project_root = Gio.File.new_for_path(project_path);
+    // eslint-disable-next-line no-empty
+  } catch {}
+
+  try {
     potfiles = new TextDecoder()
       .decode(options.lookup_value("potfiles", null).deepUnpack())
       .trim()
@@ -230,6 +249,7 @@ try {
     output,
     potfiles,
     resource_root,
+    project_root,
     blueprint_compiler,
   });
   if (!no_executable) {
