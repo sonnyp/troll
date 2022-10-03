@@ -34,6 +34,18 @@ test("basename", () => {
   assert.equal(basename("/tmp/foo.js.bar"), ["foo.js.bar", "foo.js", ".bar"]);
 
   assert.equal(basename("/tmp/.foo"), [".foo", ".foo", ""]);
+
+  assert.equal(basename("/tmp/foo-symbolic.svg"), [
+    "foo-symbolic.svg",
+    "foo-symbolic",
+    ".svg",
+  ]);
+
+  assert.equal(basename("/tmp/foo-symbolic"), [
+    "foo-symbolic",
+    "foo-symbolic",
+    "",
+  ]);
 });
 
 test("isBundableImport", () => {

@@ -37,6 +37,7 @@ Features:
   - Gtk.Builder with `assert {type: "builder"}`
   - Gtk.CssProvider with `assert {type: "css"}`
   - `resource://` uri with `assert {type: "uri"}`
+  - registered icons with `assert {type: "icon"}`
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
 - automatically add missing files to `POTFILES`
@@ -159,6 +160,25 @@ Gtk.StyleContext.add_provider_for_display(
   provider,
   Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
 );
+```
+
+</details>
+
+<details>
+  <summary>icon</summary>
+
+```js
+import myicon from "./myicon-symbolic.svg" assert { type: "icon" };
+
+const image = new Gtk.Image({
+  icon_name: myicon,
+});
+```
+
+```blp
+Image {
+  icon-name: "myicon-symbolic";
+}
 ```
 
 </details>
@@ -322,7 +342,7 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] meson subproject
 - [ ] import fonts
 - [ ] support `import foo from 'http://...'` - ala deno
-- [ ] bundle/import as icon-name `/com/example/icons/scalable/actions`
+- [x] bundle/import as icon-name `/com/example/icons/scalable/actions`
 - [ ] Import maps https://github.com/WICG/import-maps
 - [ ] gresource preprocess (`xml-stripblanks` and `json-stripblanks`)
 - [ ] gresource compress ?

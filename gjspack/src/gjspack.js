@@ -221,6 +221,14 @@ export function processSourceFile({
         // eslint-disable-next-line no-empty
       } else if (type === "resource" || !type) {
         substitute = `"${import_location}"`;
+      } else if (type === "icon") {
+        const [file_name, icon_name] = basename(resource.path);
+        substitute = `"${icon_name}"`;
+        resource.prefix = GLib.build_filenamev([
+          prefix,
+          "icons/scalable/actions",
+        ]);
+        resource.alias = file_name;
       } else if (type) {
         throw new Error(`Unsupported assert type "${type}"`);
       }
@@ -246,17 +254,27 @@ export function processSourceFile({
   return transformed || "\n";
 }
 
-function buildGresource({ prefix, resources, resource_root, output, appid }) {
-  const el = xml(
-    "gresources",
-    {},
-    xml(
-      "gresource",
-      { prefix },
-      ...resources.map(({ path, alias }) => xml("file", { alias }, path)),
-    ),
-  );
-  const gresource_xml = `<?xml version="1.0" encoding="UTF-8" ?>${el.toString()}`;
+function buildGresource({
+  prefix: base_prefix,
+  resources,
+  resource_root,
+  output,
+  appid,
+}) {
+  const root = xml("gresources", {});
+
+  resources.forEach((resource) => {
+    const prefix = resource.prefix || base_prefix;
+    let el = root.getChildByAttr("prefix", prefix);
+    if (!el) {
+      el = xml("gresource", { prefix });
+      root.append(el);
+    }
+
+    el.append(xml("file", { alias: resource.alias }, resource.path));
+  });
+
+  const gresource_xml = `<?xml version="1.0" encoding="UTF-8" ?>${root.toString()}`;
 
   console.debug(`gresource_xml\n${gresource_xml}`);
 
