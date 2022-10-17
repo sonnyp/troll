@@ -58,9 +58,9 @@ test("isBundableImport", () => {
   assert.is(isBundableImport({ n: "hello://123", d: -1 }), false);
   assert.is(isBundableImport({ n: "system", d: -1 }), false);
   assert.is(isBundableImport({ n: "./hello", d: -1 }), true);
-  assert.is(isBundableImport({ n: "./hello", d: 0 }), false);
+  assert.is(isBundableImport({ n: "./hello", d: 0 }), true);
   assert.is(isBundableImport({ n: "/hello", d: -1 }), true);
-  assert.is(isBundableImport({ n: "/hello", d: 0 }), false);
+  assert.is(isBundableImport({ n: "/hello", d: 0 }), true);
 });
 
 test("getPathForResource", () => {

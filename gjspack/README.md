@@ -337,13 +337,13 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [x] import any file as gbytes
 - [x] automatically add files to POTFILES
 - [x] import blueprint files
+- [x] support dynamic imports
+- [x] bundle/import as icon-name `/com/example/icons/scalable/actions`
 - [ ] watch mode / live reload
 - [ ] flatpak doc
-- [ ] support dynamic imports
 - [ ] meson subproject
 - [ ] import fonts
 - [ ] support `import foo from 'http://...'` - ala deno
-- [x] bundle/import as icon-name `/com/example/icons/scalable/actions`
 - [ ] Import maps https://github.com/WICG/import-maps
 - [ ] gresource preprocess (`xml-stripblanks` and `json-stripblanks`)
 - [ ] gresource compress ?

@@ -47,15 +47,11 @@ function saveTransformed({ resource_alias, transformed }) {
 }
 
 export function isBundableImport(imported) {
-  const { n: location, d } = imported;
+  const { n: location } = imported;
   if (!location) return false;
   if (location.startsWith("gi:")) return false;
   if (location.startsWith("resource:")) return false;
   if (!location.startsWith(".") && !location.startsWith("/")) return false;
-  // We don't support dyanmic import yet
-  // probably should remain their own file by default
-  // and simply get copied to some DATA_DIR
-  if (d > -1) return false;
   return true;
 }
 
@@ -141,7 +137,7 @@ export function processSourceFile({
     // n is location
     // d > -1 means dynamic import
     // a is for assert
-    const { ss, se, s, e, a, n } = imported;
+    const { ss, se, s, e, a, n, d } = imported;
 
     // GJS supports loading relative js paths
     // when importa.meta.url is a resource: uri
@@ -168,7 +164,9 @@ export function processSourceFile({
 
     if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       str += source.slice(0, s);
+      if (d > -1) str += '"';
       str += `resource://${GLib.build_filenamev([prefix, resource_path])}`;
+      if (d > -1) str += '"';
       str += source.slice(e);
 
       // This is a duplicate import, it was already transformed
