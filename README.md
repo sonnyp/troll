@@ -9,8 +9,8 @@ Contributions welcome.
 
 ## Status
 
-- WebSocket [src](std/WebSocket.js)
-- fetch [src](std/fetch.js)
+- WebSocket [src](src/std/WebSocket.js)
+- fetch [src](src/std/fetch.js)
   - request
     - method/url
     - headers
@@ -19,8 +19,8 @@ Contributions welcome.
     - status/statusText/ok
     - text() / json()
 - base64
-  - atob [src](std/base64.js)
-  - btoa [src](std/base64.js)
+  - atob [src](src/std/base64.js)
+  - btoa [src](src/std/base64.js)
 - ~~timers~~ builtin gjs 1.72
 - ~~console~~ builtin gjs 1.70
 - ~~TextDecoder/TextEncoder~~ builtin gjs 1.70

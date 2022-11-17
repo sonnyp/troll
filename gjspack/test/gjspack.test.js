@@ -93,6 +93,20 @@ test("getAssertType", () => {
   assert.is(getAssertType(`{type: "json"}`), "json");
   assert.is(getAssertType(`{type: 'foo'}`), "foo");
   assert.is(getAssertType(`{ type    : 'foo' }`), "foo");
+  assert.is(getAssertType(`
+    {
+      type: "icon",
+    }
+`.trim()), "icon");
+  assert.is(getAssertType(`{type: "icon", foo: "bar"}`), "icon");
+  assert.is(getAssertType(`{foo: "bar", type: "icon"}`), "icon");
+  assert.is(getAssertType(`
+    {
+      bar: "foo"
+      type: "icon",
+      foo: "bar
+    }
+`.trim()), "icon");
 });
 
 test("getImportName", () => {
