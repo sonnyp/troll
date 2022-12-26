@@ -63,10 +63,8 @@ function getBundableImport(source) {
 export function getAssertType(assert) {
   const normalized = assert
     .replace(/\s/g, "")
-    .replace(/"/g, "")
-    .replace(/'/g, "")
-    .replace(/,/g, "");
-  return normalized.match(/^{type:(.+)}$/)?.[1] || null;
+    .replace(/'/g, '"');
+  return normalized.match(/type:"([^"]+)"/)?.[1] || null;
 }
 
 export function getImportName(statement) {
