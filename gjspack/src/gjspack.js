@@ -11,6 +11,8 @@ import {
   basename,
 } from "./utils.js";
 
+import system from "system";
+
 export function getPathForResource(
   module_path,
   // The file which imports module_path
@@ -79,25 +81,29 @@ function preprocessBlueprint({
   resource_path,
   blueprint_compiler = "blueprint-compiler",
 }) {
-  const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
-    `${blueprint_compiler} compile ${imported_file.get_path()}`,
+  const [file, stream] = Gio.File.new_tmp(`gjspack-XXXXXX.ui`);
+
+  const proc = Gio.Subprocess.new(
+    [blueprint_compiler, "compile", imported_file.get_path()],
+    Gio.SubprocessFlags.STDOUT_PIPE,
   );
-  if (status !== 0) {
-    throw new Error(decode(stderr));
+
+  stream
+    .get_output_stream()
+    .splice(
+      proc.get_stdout_pipe(),
+      Gio.OutputStreamSpliceFlags.CLOSE_TARGET,
+      null,
+    );
+
+  proc.wait(null);
+  if (!proc.get_successful()) {
+    system.exit(1);
   }
-  const xml_ui = decode(stdout);
-  console.debug(xml_ui);
-  const [transfomed_file] = Gio.File.new_tmp(`gjspack-XXXXXX.ui`);
-  transfomed_file.replace_contents(
-    xml_ui, // contents
-    null, // etag
-    false, // make_backup
-    Gio.FileCreateFlags.NONE, // flags
-    null, // cancellable
-  );
+
   return {
     alias: resource_path.replace(/.blp$/, ".ui"),
-    path: transfomed_file.get_path(),
+    path: file.get_path(),
     original: resource_path,
   };
 }
