@@ -17,7 +17,10 @@ import {
   readTextFileSync,
   writeTextFileSync,
   basename,
+  decode,
 } from "../src/utils.js";
+
+const fixtures = Gio.File.new_for_path("test/fixtures");
 
 const test = tst("gjspack");
 
@@ -93,20 +96,30 @@ test("getAssertType", () => {
   assert.is(getAssertType(`{type: "json"}`), "json");
   assert.is(getAssertType(`{type: 'foo'}`), "foo");
   assert.is(getAssertType(`{ type    : 'foo' }`), "foo");
-  assert.is(getAssertType(`
+  assert.is(
+    getAssertType(
+      `
     {
       type: "icon",
     }
-`.trim()), "icon");
+`.trim(),
+    ),
+    "icon",
+  );
   assert.is(getAssertType(`{type: "icon", foo: "bar"}`), "icon");
   assert.is(getAssertType(`{foo: "bar", type: "icon"}`), "icon");
-  assert.is(getAssertType(`
+  assert.is(
+    getAssertType(
+      `
     {
       bar: "foo"
       type: "icon",
       foo: "bar
     }
-`.trim()), "icon");
+`.trim(),
+    ),
+    "icon",
+  );
 });
 
 test("getImportName", () => {
@@ -116,8 +129,6 @@ test("getImportName", () => {
 test("processSourceFile", () => {
   const resources = [];
   const prefix = "/hello/world";
-
-  const fixtures = Gio.File.new_for_path("test/fixtures");
 
   const files = [...readDirSync(fixtures)];
 
@@ -136,6 +147,13 @@ test("processSourceFile", () => {
         resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
         project_root: Gio.File.new_for_path(GLib.get_current_dir()),
         prefix,
+        transforms: [
+          {
+            test: /\.blp$/,
+            command: "blueprint-compiler compile",
+            extension: ".ui",
+          },
+        ],
       }),
       readTextFileSync(output_file),
     );
@@ -255,6 +273,23 @@ cool-stuff.ui
 foo/halo.blp
 
   `.trim(),
+  );
+});
+
+test("transform error", () => {
+  const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
+    [
+      "/home/sonny/Projects/troll/gjspack/bin/gjspack",
+      fixtures.get_child("invalid-blueprint.js").get_path(),
+      "/tmp",
+    ].join(" "),
+  );
+
+  assert.not.equal(status, 0);
+  assert.equal(decode(stdout), "");
+  assert.match(
+    decode(stderr),
+    "Namespace Gtk does not contain a type called FooApplicationWindow",
   );
 });
 

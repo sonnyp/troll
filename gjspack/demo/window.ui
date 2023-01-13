@@ -4,7 +4,10 @@
   <object class="GtkWindow" id="window">
     <property name="title">gjspack demo</property>
     <child>
-      <object class="GtkVideo" id="video"></object>
+      <object class="GtkVideo" id="video">
+        <property name="autoplay">true</property>
+        <property name="loop">true</property>
+      </object>
     </child>
     <child>
       <object class="GtkPicture" id="picture"></object>

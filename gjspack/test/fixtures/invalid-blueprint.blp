@@ -1,0 +1,14 @@
+using Gtk 4.0;
+
+template MyAppWindow : FooApplicationWindow {
+  default-width: 600;
+  default-height: 300;
+  title: _("Hello, Blueprint!");
+
+  [titlebar]
+  HeaderBar {}
+
+  Label {
+    label: bind MyAppWindow.main_text;
+  }
+}

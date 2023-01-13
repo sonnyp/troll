@@ -107,7 +107,7 @@ app.add_main_option(
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
-  "Path to the blueprint-compiler executable",
+  'Path to the blueprint-compiler executable (default: "blueprint-compiler")',
   null,
 );
 
@@ -152,7 +152,7 @@ app.connect("open", (self, files) => {
     return system.exit(1);
   }
 
-  appid ??= basename(entry.get_path)[1];
+  appid ??= basename(entry.get_path())[1];
 });
 
 app.connect("handle-local-options", (self, options) => {
@@ -174,8 +174,9 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
-    const root_path = new TextDecoder()
-      .decode(options.lookup_value("resource-root", null).deepUnpack())
+    const root_path = decode(
+      options.lookup_value("resource-root", null).deepUnpack(),
+    )
       .trim()
       .replaceAll("\0", "");
     resource_root = Gio.File.new_for_path(root_path);
@@ -183,8 +184,9 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
-    const project_path = new TextDecoder()
-      .decode(options.lookup_value("project-root", null).deepUnpack())
+    const project_path = decode(
+      options.lookup_value("project-root", null).deepUnpack(),
+    )
       .trim()
       .replaceAll("\0", "");
     project_root = Gio.File.new_for_path(project_path);
@@ -192,8 +194,7 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
-    potfiles = new TextDecoder()
-      .decode(options.lookup_value("potfiles", null).deepUnpack())
+    potfiles = decode(options.lookup_value("potfiles", null).deepUnpack())
       .trim()
       .replaceAll("\0", "");
     potfiles = Gio.File.new_for_path(potfiles);
@@ -201,8 +202,9 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
-    blueprint_compiler = new TextDecoder()
-      .decode(options.lookup_value("blueprint-compiler", null).deepUnpack())
+    blueprint_compiler = decode(
+      options.lookup_value("blueprint-compiler", null).deepUnpack(),
+    )
       .trim()
       .replaceAll("\0", "");
     // eslint-disable-next-line no-empty

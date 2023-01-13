@@ -17,3 +17,6 @@ clean:
 demo: build
 	./bin/gjspack --appid=gjspack-demo ./demo/main.js ./demo/build
 	./demo/build/gjspack-demo
+
+demo-dev:
+	cd demo && ./dev.js

@@ -11,7 +11,7 @@ import GtkLogo from "./assets/gtk-logo.webm";
 import Louis from "./assets/louis.jpeg";
 import manifest from "./flatpak.json" assert { type: "json" };
 
-console.log(manifest);
+console.log(manifest.id);
 
 const loop = new GLib.MainLoop(null, false);
 

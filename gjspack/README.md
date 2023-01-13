@@ -42,16 +42,7 @@ Features:
 - retain source lines (maintain correct stack traces)
 - automatically add missing files to `POTFILES`
 - supports [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/)
-
-Goals:
-
-- Provide a familiar development environment to Web developers
-- Explore ideas to improve GNOME developer experience
-- Integrates with GNOME tooling (flatpak, meson, ...)
-- Avoid Web development dependencies
-- Retain line numbers and usable stack traces
-- Remove boilerplate code to convert data before using
-- Fast - forget gjspack is even there
+- support custom transformers
 
 ## Examples
 
@@ -87,7 +78,7 @@ import builder from "./Window.blp" assert { type: "builder" };
 const window = builder.get_object("window");
 ```
 
-For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule.
+For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule. For now please make sure to use `blueprint-compiler` >= `40f493b378cf73d1cc3f128895e842e8665a56c3`.
 
 See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak otherwise you can just close the directory and specify the path to the executable.
 
@@ -205,6 +196,15 @@ language_manager.set_search_path([
 
 </details>
 
+<details>
+  <summary>Custom transforms</summary>
+
+Custom transforms are only supposed with the API, not the CLI.
+
+See [example](./demo/dev.js).
+
+</details>
+
 ## CLI
 
 ```sh
@@ -251,6 +251,13 @@ Given a ES module file, gjspack use an [an ES module parser](https://github.com/
 ## Demo
 
 This is a demonstration of a simple application using gjspack.
+
+### Dev
+
+```sh
+cd demo
+./dev.js
+```
 
 ### Host
 
@@ -321,6 +328,16 @@ Use the following eslintrc options:
 
 Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) as well.
 
+## Guidelines:
+
+- Provide a familiar development environment to Web developers
+- Explore ideas to improve GNOME developer experience
+- Integrates with GNOME tooling (flatpak, meson, ...)
+- Avoid Web development dependencies
+- Retain line numbers and usable stack traces
+- Remove boilerplate code to convert data before using
+- Fast - forget gjspack is even there
+
 ## Ideas
 
 - [x] import and bundle JavaScript imports
@@ -350,5 +367,10 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] cache
 - [ ] Support other programming languages? Ping me if there is any interest.
 - [ ] `import foo from './foo.ui#object_id' assert {type: "builder"}`
+- [ ] `import {window, button} from './foo.ui' assert {type: "builder"}`
 - [ ] one file mode (gresource inside .js executable)
 - [ ] ~~resolve `import foo from 'bar'` from `node_modules`~~ (import maps and http instead)
+
+## Credits
+
+[es-module-lexer](https://github.com/guybedford/es-module-lexer)

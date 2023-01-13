@@ -1,0 +1,1 @@
+import "./invalid-blueprint.blp";

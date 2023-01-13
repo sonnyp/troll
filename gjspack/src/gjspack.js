@@ -11,6 +11,8 @@ import {
   basename,
 } from "./utils.js";
 
+import system from "system";
+
 export function getPathForResource(
   module_path,
   // The file which imports module_path
@@ -61,9 +63,7 @@ function getBundableImport(source) {
 }
 
 export function getAssertType(assert) {
-  const normalized = assert
-    .replace(/\s/g, "")
-    .replace(/'/g, '"');
+  const normalized = assert.replace(/\s/g, "").replace(/'/g, '"');
   return normalized.match(/type:"([^"]+)"/)?.[1] || null;
 }
 
@@ -72,46 +72,56 @@ export function getImportName(statement) {
   return match?.[1];
 }
 
-function preprocessBlueprint({
-  imported_file,
-  resource_path,
-  blueprint_compiler = "blueprint-compiler",
-}) {
-  const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
-    `${blueprint_compiler} compile ${imported_file.get_path()}`,
+function transform({ imported_file, resource_path, transformer }) {
+  const { command, extension = "" } = transformer;
+
+  const [file, stream] = Gio.File.new_tmp(`gjspack-XXXXXX.ui`);
+
+  const [, command_argv] = GLib.shell_parse_argv(command);
+
+  const proc = Gio.Subprocess.new(
+    [...command_argv, imported_file.get_path()],
+    Gio.SubprocessFlags.STDOUT_PIPE,
   );
-  if (status !== 0) {
-    throw new Error(decode(stderr));
+
+  stream
+    .get_output_stream()
+    .splice(
+      proc.get_stdout_pipe(),
+      Gio.OutputStreamSpliceFlags.CLOSE_TARGET,
+      null,
+    );
+
+  proc.wait(null);
+  if (!proc.get_successful()) {
+    system.exit(1);
   }
-  const xml_ui = decode(stdout);
-  console.debug(xml_ui);
-  const [transfomed_file] = Gio.File.new_tmp(`gjspack-XXXXXX.ui`);
-  transfomed_file.replace_contents(
-    xml_ui, // contents
-    null, // etag
-    false, // make_backup
-    Gio.FileCreateFlags.NONE, // flags
-    null, // cancellable
-  );
+
   return {
-    alias: resource_path.replace(/.blp$/, ".ui"),
-    path: transfomed_file.get_path(),
+    alias: `${resource_path}${extension}`,
+    path: file.get_path(),
     original: resource_path,
   };
 }
 
-function preprocess({ imported_file, resource_path, blueprint_compiler }) {
-  const [, , extension] = basename(imported_file.get_basename());
+function preprocess({ imported_file, resource_path, transforms = [] }) {
+  const file_name = imported_file.get_basename();
 
-  if (extension === ".blp") {
-    return preprocessBlueprint({
+  let result = {
+    path: resource_path,
+    alias: null,
+  };
+
+  for (const transformer of transforms) {
+    if (!file_name.match(transformer.test)) continue;
+    result = transform({
       imported_file,
-      resource_path,
-      blueprint_compiler,
+      resource_path: result.path,
+      transformer,
     });
   }
 
-  return { path: resource_path, alias: null };
+  return result;
 }
 
 export function processSourceFile({
@@ -120,7 +130,7 @@ export function processSourceFile({
   resource_root,
   project_root,
   prefix,
-  blueprint_compiler,
+  transforms,
 }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
@@ -179,7 +189,7 @@ export function processSourceFile({
         prefix,
         resource_root,
         project_root,
-        blueprint_compiler,
+        transforms,
       });
 
       resource = saveTransformed({
@@ -195,7 +205,7 @@ export function processSourceFile({
         imported_file,
         resource_path,
         project_root,
-        blueprint_compiler,
+        transforms,
       });
 
       const import_location = GLib.build_filenamev([
@@ -337,7 +347,16 @@ export function build({
   resource_root = Gio.File.new_for_path(GLib.get_current_dir()),
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler,
+  transforms,
 }) {
+  transforms ??= [
+    {
+      test: /\.blp$/,
+      command: `${blueprint_compiler || "blueprint-compiler"} compile`,
+      extension: ".ui",
+    },
+  ];
+
   prefix = prefix || appIdToPrefix(appid);
   const relative_to = Gio.File.new_for_path(entry.get_path());
 
@@ -350,7 +369,7 @@ export function build({
     project_root,
     source_file: entry,
     prefix,
-    blueprint_compiler,
+    transforms,
   });
 
   const entry_alias = resource_root.get_relative_path(entry);
