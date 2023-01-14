@@ -197,9 +197,9 @@ language_manager.set_search_path([
 </details>
 
 <details>
-  <summary>Custom transforms</summary>
+  <summary>Sass / custom transforms</summary>
 
-Custom transforms are only supposed with the API, not the CLI.
+Custom transforms are only supported with the API, not the CLI.
 
 See [example](./demo/dev.js).
 

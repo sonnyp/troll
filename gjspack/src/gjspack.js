@@ -217,7 +217,7 @@ export function processSourceFile({
       if (type === "json") {
         substitute = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray()))`;
       } else if (type === "builder") {
-        substitute = `imports.gi.Gtk.init() || imports.gi.Gtk.Builder.new_from_resource("${import_location}")`;
+        substitute = `(() => { imports.gi.Gtk.init(); return imports.gi.Gtk.Builder.new_from_resource("${import_location}") })()`;
       } else if (type === "string") {
         substitute = `new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray())`;
       } else if (type === "bytes") {
@@ -226,8 +226,7 @@ export function processSourceFile({
         // } else if (type === "array") {
         //   from = `imports.gi.Gio.resources_lookup_data(${from}, null).toArray()`;
       } else if (type === "css") {
-        // FIXME: does not work - load_from_Resource returns undefined
-        substitute = `imports.gi.Gtk.init() || new imports.gi.Gtk.CssProvider().load_from_resource("${import_location}")`;
+        substitute = `(() => { imports.gi.Gtk.init(); const provider = new imports.gi.Gtk.CssProvider(); provider.load_from_resource("${import_location}"); return provider; })()`;
       } else if (type === "uri") {
         substitute = `"resource://${import_location}"`;
         // eslint-disable-next-line no-empty
@@ -346,13 +345,13 @@ export function build({
   potfiles,
   resource_root = Gio.File.new_for_path(GLib.get_current_dir()),
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
-  blueprint_compiler,
+  blueprint_compiler = "blueprint-compiler",
   transforms,
 }) {
   transforms ??= [
     {
       test: /\.blp$/,
-      command: `${blueprint_compiler || "blueprint-compiler"} compile`,
+      command: `${blueprint_compiler} compile`,
       extension: ".ui",
     },
   ];

@@ -8,8 +8,8 @@ const { gresource_path, prefix } = gjspack({
   appid: "re.sonny.gjspack.Demo",
   entry: Gio.File.new_for_path("./main.js"),
   output: Gio.File.new_for_path("./build"),
-  // This is the default transforms
   transforms: [
+    // Blueprint transform is enabled by default
     {
       // Regular expression tested against the filename
       test: /\.blp$/,
@@ -17,6 +17,12 @@ const { gresource_path, prefix } = gjspack({
       command: "blueprint-compiler compile",
       // window.blp -> window.blp.ui
       extension: ".ui",
+    },
+    // Let's add a Sass transformer
+    {
+      test: /\.scss$/,
+      command: "sassc",
+      extension: ".css",
     },
   ],
 });
