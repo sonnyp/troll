@@ -1,5 +1,7 @@
 # Widgets
 
+Requires Blueprint >= 0.8
+
 ## ThemeSelector
 
 Adapted to Blueprint and JavaScript from
