@@ -1,3 +1,3 @@
-import "./foo.ui" assert { type: "builder" };
-import bar from "./bar.js" assert { type: "builder" };
-import baz from "./baz.blp" assert { type: "builder" };
+import "./foo.ui" with { type: "builder" };
+import bar from "./bar.js" with { type: "builder" };
+import baz from "./baz.blp" with { type: "builder" };

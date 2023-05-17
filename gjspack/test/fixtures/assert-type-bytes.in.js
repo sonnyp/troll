@@ -1,2 +1,2 @@
-import "./foo.data" assert { type: "bytes" };
-import bar from "./bar.js" assert { type: "bytes" };
+import "./foo.data" with { type: "bytes" };
+import bar from "./bar.js" with { type: "bytes" };

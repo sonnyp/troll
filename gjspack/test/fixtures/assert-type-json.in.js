@@ -1,2 +1,2 @@
-import "./foo.json" assert { type: "json" };
-import bar from "./bar.js" assert { type: "json" };
+import "./foo.json" with { type: "json" };
+import bar from "./bar.js" with { type: "json" };

@@ -1,2 +1,2 @@
-import "./foo.txt" assert { type: "string" };
-import bar from "./bar.js" assert { type: "string" };
+import "./foo.txt" with { type: "string" };
+import bar from "./bar.js" with { type: "string" };

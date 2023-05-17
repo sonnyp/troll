@@ -1,2 +1,2 @@
-import "./foo.ui" assert { type: "resource" };
-import bar from "./bar.js" assert { type: "resource" };
+import "./foo.ui" with { type: "resource" };
+import bar from "./bar.js" with { type: "resource" };

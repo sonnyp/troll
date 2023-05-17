@@ -1,7 +1,7 @@
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 
-import * as lexer from "../lib/lexer.js";
+import * as lexer from "../lib/lexer.asm.js";
 import { createElement as xml } from "../lib/ltx.js";
 import {
   decode,

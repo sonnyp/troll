@@ -14,15 +14,17 @@ import Pumpkin from "./Pumpkin.png";
 const picture = Gtk.Picture.new_from_resource(Pumpkin);
 
 // import JSON
-import manifest from "../flatpak.json" assert { type: "json" };
+import manifest from "../flatpak.json" with { type: "json" };
 console.log(manifest["app-id"]);
 
 // import XML UI as GtkBuilder
-import builder from "./window.ui" assert { type: "builder" };
+import builder from "./window.ui" with { type: "builder" };
 // or Blueprint UI as GtkBuilder
-import builder from "./window.blp" assert { type: "builder" };
+import builder from "./window.blp" with { type: "builder" };
 builder.get_object("window").present();
 ```
+
+It uses the ECMAScript [Import Attributes syntax proposal](https://github.com/tc39/proposal-import-attributes).
 
 See [Examples](#Examples) below.
 
@@ -30,14 +32,14 @@ Features:
 
 - bundle imports into a gresource - no more maintaining `*.gresource.xml` files
 - import and bundle any file as a `resource://` URI
-- assert types to import as
-  - string `assert {type: "string"}`
-  - GBytes with `assert {type: "bytes"}`
-  - JSON with `assert {type: "json"}`
-  - Gtk.Builder with `assert {type: "builder"}`
-  - Gtk.CssProvider with `assert {type: "css"}`
-  - `resource://` uri with `assert {type: "uri"}`
-  - registered icons with `assert {type: "icon"}`
+- transform at build time to
+  - string `with {type: "string"}`
+  - GBytes with `with {type: "bytes"}`
+  - JSON with `with {type: "json"}`
+  - Gtk.Builder with `with {type: "builder"}`
+  - Gtk.CssProvider with `with {type: "css"}`
+  - `resource://` uri with `with {type: "uri"}`
+  - registered icons with `with {type: "icon"}`
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
 - automatically add missing files to `POTFILES`
@@ -71,9 +73,9 @@ image.set_resource(Porygon);
 You can import xml `.ui` or [blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler) `blp` files.
 
 ```js
-import builder from "./Window.ui" assert { type: "builder" };
+import builder from "./Window.ui" with { type: "builder" };
 // or
-import builder from "./Window.blp" assert { type: "builder" };
+import builder from "./Window.blp" with { type: "builder" };
 
 const window = builder.get_object("window");
 ```
@@ -93,7 +95,7 @@ gjspack --blueprint-compiler=~/blueprint-compiler/blueprint-compiler.py
   <summary>Template</summary>
 
 ```js
-import Template from "./MyWidget.ui" assert { type: "uri" };
+import Template from "./MyWidget.ui" with { type: "uri" };
 
 GObject.registerClass(
   {
@@ -122,7 +124,7 @@ video.set_resource(AnimatedLogo);
   <summary>Text</summary>
 
 ```js
-import notes from "./notes.txt" assert { type: "string" };
+import notes from "./notes.txt" with { type: "string" };
 
 console.log(notes);
 ```
@@ -133,7 +135,7 @@ console.log(notes);
   <summary>JSON</summary>
 
 ```js
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 console.log(pkg.name);
 ```
@@ -144,7 +146,7 @@ console.log(pkg.name);
   <summary>CSS</summary>
 
 ```js
-import provider from "./styles.css" assert { type: "css" };
+import provider from "./styles.css" with { type: "css" };
 
 Gtk.StyleContext.add_provider_for_display(
   Gdk.Display.get_default(),
@@ -159,7 +161,7 @@ Gtk.StyleContext.add_provider_for_display(
   <summary>icon</summary>
 
 ```js
-import myicon from "./myicon-symbolic.svg" assert { type: "icon" };
+import myicon from "./myicon-symbolic.svg" with { type: "icon" };
 
 const image = new Gtk.Image({
   icon_name: myicon,
@@ -309,7 +311,7 @@ Stack traces would be unreadable.
 
 ### How to configure ESLint?
 
-ESLint parser doesn't support the import `assert` syntax [yet](https://github.com/eslint/eslint/discussions/15305).
+ESLint parser doesn't support the import attributes syntax [yet](https://github.com/eslint/eslint/discussions/15305).
 
 Use the following eslintrc options:
 
@@ -324,6 +326,15 @@ Use the following eslintrc options:
     }
   }
 }
+```
+
+### TypeScript
+
+TypeScript doesn't support the import attribute syntax [yet](https://github.com/microsoft/TypeScript/issues/53656). Use the deprecated but equivalent import syntax.
+
+```diff
+- import foo from './foo.txt' with {type: "string"}
++ import foo from './foo.txt' assert {type: "string"}
 ```
 
 Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) as well.
@@ -366,8 +377,8 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] gresource compress ?
 - [ ] cache
 - [ ] Support other programming languages? Ping me if there is any interest.
-- [ ] `import foo from './foo.ui#object_id' assert {type: "builder"}`
-- [ ] `import {window, button} from './foo.ui' assert {type: "builder"}`
+- [ ] `import foo from './foo.ui#object_id' with {type: "builder"}`
+- [ ] `import {window, button} from './foo.ui' with {type: "builder"}`
 - [ ] one file mode (gresource inside .js executable)
 - [ ] ~~resolve `import foo from 'bar'` from `node_modules`~~ (import maps and http instead)
 

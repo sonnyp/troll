@@ -1,2 +1,2 @@
-import "./foo.ui" assert { type: "uri" };
-import bar from "./bar.js" assert { type: "uri" };
+import "./foo.ui" with { type: "uri" };
+import bar from "./bar.js" with { type: "uri" };
