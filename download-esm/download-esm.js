@@ -1,8 +1,8 @@
 #!/usr/bin/env -S gjs -m
 
 // This is a simple program to download npm packages as esm modules.
-// Running `gjs -m ./src/download-esm.js solid-js ./js` will download
-// `solid-js` and its dependencies, writing them to the `./js` folder.
+// Running `gjs -m ./src/download-esm.js @observablehq/plot ./js` will download
+// `@observablehq/plot` and its dependencies, writing them to the `./js` folder.
 
 import Gio from "gi://Gio"
 import { download } from "./lib.js"
