@@ -6,6 +6,7 @@ import tst, { assert } from "../../tst/tst.js";
 import {
   getPathForResource,
   isBundableImport,
+  rewriteImports,
   processSourceFile,
   getAssertType,
   getImportName,
@@ -64,6 +65,27 @@ test("isBundableImport", () => {
   assert.is(isBundableImport({ n: "./hello", d: 0 }), true);
   assert.is(isBundableImport({ n: "/hello", d: -1 }), true);
   assert.is(isBundableImport({ n: "/hello", d: 0 }), true);
+});
+
+test("rewriteImports", () => {
+  const source = `import solid from "solid-js";
+  import { render } from "solid-js/web";
+  
+  console.log("hello world");
+  `;
+
+  const res = rewriteImports(source, (imported) => {
+    const { ss, se, s, e, a, n, d } = imported;
+    return `import x from "test"`;
+  });
+
+  const expected = `import x from "test";
+  import x from "test";
+  
+  console.log("hello world");
+  `;
+
+  assert.is(res, expected);
 });
 
 test("getPathForResource", () => {
