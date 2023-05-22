@@ -99,7 +99,7 @@ app.add_main_option(
   null,
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
-  "Filepath of a JSON file containing a map of import names to paths (default: none)",
+  "Path to a JSON file containing an import map (default: none)",
   "PATH",
 );
 

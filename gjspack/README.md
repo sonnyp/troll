@@ -45,7 +45,7 @@ Features:
 - automatically add missing files to `POTFILES`
 - supports [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/)
 - support custom transformers
-- support using an import-map with `--import-map` 
+- support [import maps](https://github.com/WICG/import-maps) with `--import-map` 
 
 ## Examples
 
@@ -206,6 +206,30 @@ Custom transforms are only supported with the API, not the CLI.
 
 See [example](./demo/dev.js).
 
+</details>
+
+<details>
+  <summary>Import maps</summary>
+  
+  main.js
+  ```js
+  import lodash from "lodash";
+  import foo from "foo";
+  import Gtk from "gtk";
+  ```
+  
+  import_map.json
+  ```json
+  {
+    "imports": {
+      "foo": "./src/foo.js",
+      "gtk": "gi://Gtk?version=4.0",
+      "lodash": "./node_modules/lodash-es/lodash.js"
+    }
+  }
+  ```
+
+  pass `--import-map import_map.json` to `gjspack`
 </details>
 
 ## CLI

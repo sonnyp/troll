@@ -134,7 +134,7 @@ export function rewriteImports(source, fun) {
     str += new_statement;
 
     prev_end = se;
-  };
+  }
   str += source.substring(prev_end);
   return str;
 }
@@ -148,7 +148,7 @@ export function rewriteImportWithMap(import_map, source, imported) {
   // n is location
   // d > -1 means dynamic import
   // a is for assert
-  const { ss, se, s, e, a, n: location, d } = imported;
+  const { ss, se, s, e, n: location } = imported;
 
   const stmt = source.substring(ss, se);
   if (!location) return stmt;
@@ -156,16 +156,16 @@ export function rewriteImportWithMap(import_map, source, imported) {
   let new_stmt = "";
   new_stmt += stmt.substring(0, s - ss);
 
-  let proto = location.indexOf("://");
-  let folderEndIndex = location.indexOf("/");
+  const proto = location.indexOf("://");
+  const folder_end_index = location.indexOf("/");
 
-  if (folderEndIndex > proto + 2) {
-    const folderPath = location.substring(0, folderEndIndex + 1);
+  if (folder_end_index > proto + 2) {
+    const folderPath = location.substring(0, folder_end_index + 1);
 
     for (const [from, to] of Object.entries(import_map)) {
-      if (from == folderPath) {
+      if (from === folderPath) {
         new_stmt += to;
-        new_stmt += location.substring(folderEndIndex + 1);
+        new_stmt += location.substring(folder_end_index + 1);
         new_stmt += stmt.substring(e - ss);
         return new_stmt;
       }
@@ -193,9 +193,9 @@ export function processSourceFile({
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
 
-  const mappedSource = rewriteImports(source, (source, imported) =>
+  const mapped_source = rewriteImports(source, (source, imported) =>
     rewriteImportWithMap(import_map, source, imported));
-  const transformed = rewriteImports(mappedSource, (source, imported) => {
+  const transformed = rewriteImports(mapped_source, (source, imported) => {
     // ss is start of import statement
     // se is end of import statement
     // s is start of module path
@@ -205,7 +205,8 @@ export function processSourceFile({
     // a is for assert
     const { ss, se, s, e, a, n, d } = imported;
 
-    let stmt = source.substring(ss, se);
+    // statement
+    const stmt = source.substring(ss, se);
     if (!isBundableImport(imported)) return stmt;
 
 
