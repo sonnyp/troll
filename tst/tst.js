@@ -61,18 +61,20 @@ export default function (headline) {
   self.after = function (fn) {
     after.push(fn);
   };
-  self.skip = function () {};
+  self.skip = function () { };
 
   self.run = async function () {
     const tests = only[0] ? only : suite;
 
-    rgb.cyan(headline + " ");
+    rgb.cyan(headline + "\n");
 
     for (const test of tests) {
       try {
         for (const fn of before) await fn();
+        rgb.gray("test ");
+        rgb.white(test.name + " ");
         await test.fn();
-        rgb.gray("• ");
+        rgb.green("OK\n")
       } catch (e) {
         for (const fn of after) await fn();
         rgb.red(`\n\n! ${test.name} \n\n`);
