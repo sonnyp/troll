@@ -93,18 +93,24 @@ test("rewriteImportWithMap", () => {
       "moment": "https://unpkg.com/moment@2.29.4/moment.js",
       "moment/": "https://unpkg.com/moment@2.29.4/",
       "gi://MyPackage": "gi://MyPackage?version=4.0",
+      "solid-js": "file:///../node_modules/solid-js/dist/solid.js",
+      "lodash/": "file:///../node_modules/lodash/",
     }
   };
   const source = `
   import moment from "moment";
   import localeData from "moment/locale/zh-cn.js";
   import MyPackage from "gi://MyPackage";
+  import solid from "solid-js";
+  import has from "lodash/has";
   `;
 
   const expected = `
   import moment from "https://unpkg.com/moment@2.29.4/moment.js";
   import localeData from "https://unpkg.com/moment@2.29.4/locale/zh-cn.js";
   import MyPackage from "gi://MyPackage?version=4.0";
+  import solid from "file:///../node_modules/solid-js/dist/solid.js";
+  import has from "file:///../node_modules/lodash/has";
   `;
   assert.is(rewriteImports(
     source,
