@@ -3,6 +3,7 @@
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import { build as gjspack } from "../src/gjspack.js";
+import { readTextFileSync } from "../src/utils.js";
 
 const { gresource_path, prefix } = gjspack({
   appid: "re.sonny.gjspack.Demo",
@@ -25,11 +26,7 @@ const { gresource_path, prefix } = gjspack({
       extension: ".css",
     },
   ],
-  import_map: {
-    imports: {
-      "lodash": "./lodash-stub.js"
-    },
-  }
+  import_map: JSON.parse(readTextFileSync(Gio.File.new_for_path("./import_map.json"))),
 });
 
 const resource = Gio.resource_load(gresource_path);

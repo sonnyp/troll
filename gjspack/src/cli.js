@@ -143,15 +143,14 @@ function expand_import_map(import_map, file) {
     scope: {}, // empty for now
   };
 
-
   // relative paths in the import map should be relative to the import map file itself
   // https://deno.com/manual@v1.33.4/basics/import_maps#example---using-project-root-for-absolute-imports
   const parent_folder = file.get_parent() ?? "/";
-  for (const [k, v] of Object.keys(import_map?.imports ?? {})) {
+  for (const [k, v] of Object.entries(import_map?.imports ?? {})) {
     if (v.startsWith("./")) {
-      final_map[k] = parent_folder.get_child(v).get_basename();
+      final_map.imports[k] = parent_folder.get_child(v).get_path();
     } else {
-      final_map[k] = v;
+      final_map.imports[k] = v;
     }
   }
   return final_map
