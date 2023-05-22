@@ -89,9 +89,11 @@ test("rewriteImports", () => {
 
 test("rewriteImportWithMap", () => {
   const import_map = {
-    "moment": "https://unpkg.com/moment@2.29.4/moment.js",
-    "moment/": "https://unpkg.com/moment@2.29.4/",
-    "gi://MyPackage": "gi://MyPackage?version=4.0",
+    imports: {
+      "moment": "https://unpkg.com/moment@2.29.4/moment.js",
+      "moment/": "https://unpkg.com/moment@2.29.4/",
+      "gi://MyPackage": "gi://MyPackage?version=4.0",
+    }
   };
   const source = `
   import moment from "moment";

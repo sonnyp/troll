@@ -162,7 +162,7 @@ export function rewriteImportWithMap(import_map, source, imported) {
   if (folder_end_index > proto + 2) {
     const folderPath = location.substring(0, folder_end_index + 1);
 
-    for (const [from, to] of Object.entries(import_map)) {
+    for (const [from, to] of Object.entries(import_map.imports)) {
       if (from === folderPath) {
         new_stmt += to;
         new_stmt += location.substring(folder_end_index + 1);
@@ -172,7 +172,7 @@ export function rewriteImportWithMap(import_map, source, imported) {
     }
     return stmt;
   } else {
-    const mapped = import_map[location];
+    const mapped = import_map.imports[location];
     if (!mapped) return stmt;
 
     new_stmt += mapped;
@@ -188,7 +188,10 @@ export function processSourceFile({
   project_root,
   prefix,
   transforms,
-  import_map = {},
+  import_map = {
+    imports: {},
+    scope: {}
+  },
 }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
@@ -406,7 +409,7 @@ export function build({
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler = "blueprint-compiler",
   transforms,
-  import_map = {},
+  import_map,
 }) {
   transforms ??= [
     {

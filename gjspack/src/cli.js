@@ -137,6 +137,26 @@ List bundled resources
 `.trim(),
 );
 
+function expand_import_map(import_map, file) {
+  const final_map = {
+    imports: {},
+    scope: {}, // empty for now
+  };
+
+
+  // relative paths in the import map should be relative to the import map file itself
+  // https://deno.com/manual@v1.33.4/basics/import_maps#example---using-project-root-for-absolute-imports
+  const parent_folder = file.get_parent() ?? "/";
+  for (const [k, v] of Object.keys(import_map?.imports ?? {})) {
+    if (v.startsWith("./")) {
+      final_map[k] = parent_folder.get_child(v).get_basename();
+    } else {
+      final_map[k] = v;
+    }
+  }
+  return final_map
+}
+
 function showHelp() {
   const [, stdout, stderr] = GLib.spawn_command_line_sync(
     `${system.programInvocationName} --help`,
@@ -211,7 +231,8 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     const file = Gio.File.new_for_path(import_map_path);
     const [, import_map_text] = file.load_contents(null);
-    import_map = JSON.parse(decode(import_map_text)).imports;
+    import_map = JSON.parse(decode(import_map_text));
+    import_map = expand_import_map(import_map, file);
     // eslint-disable-next-line no-empty
   } catch { }
 
