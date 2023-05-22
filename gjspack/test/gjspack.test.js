@@ -19,6 +19,7 @@ import {
   readTextFileSync,
   writeTextFileSync,
   basename,
+  decode,
 } from "../src/utils.js";
 
 const fixtures = Gio.File.new_for_path("test/fixtures");
@@ -216,11 +217,6 @@ test("getImportName", () => {
   }
 })()
 
-
-/*
-// Broken: It expects the use of specific paths, but not all systems use those paths.
-// Also, for some reason resource[0].project_path is null.
-
 test("processSourceFile duplicate imports", () => {
   const resources = [];
   const prefix = "/hello/world";
@@ -250,8 +246,6 @@ import bar2 from "./${bar_file.get_basename()}";
 
   assert.equal(resources.length, 2);
 
-  // `resources[0].path` could start with `/run/user/.../`, so this will fail
-  // assert.match(resources[0].path, /^\/tmp\/gjspack/);
   assert.equal(resources[0].alias, foo_file.get_path());
   assert.equal(resources[0].project_path, foo_file.get_basename());
 
@@ -260,7 +254,7 @@ import bar2 from "./${bar_file.get_basename()}";
     alias: null,
     project_path: bar_file.get_basename(),
   });
-});*/
+});
 
 test("updatePotfiles", () => {
   const [potfiles] = Gio.File.new_tmp("gjspack-test-POTFILES-XXXXXX");
@@ -338,14 +332,13 @@ foo/halo.blp
   );
 });
 
-/*
-// Broken: It expects a specific output string, but the output also contains
-// `--Gjs-Message:·17:42:49.510:·JS·WARNING:·[resource:///gjspack/lib/lexer.asm.js·0]:·Successfully·compiled·asm.js·code·(total·compilation·time·2ms)`
-
 test("transform error", () => {
+  const [import_filename] = GLib.filename_from_uri(import.meta.url);
+  const dirname = GLib.path_get_dirname(import_filename);
+
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
     [
-      "./bin/gjspack",
+      `${dirname}/../bin/gjspack`,
       fixtures.get_child("invalid-blueprint.js").get_path(),
       "/tmp",
     ].join(" "),
@@ -358,6 +351,6 @@ test("transform error", () => {
     "Namespace Gtk does not contain a type called FooApplicationWindow",
   );
 });
-*/
+
 
 export default test;
