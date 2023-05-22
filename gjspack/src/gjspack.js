@@ -128,7 +128,7 @@ export function rewriteImports(source, fun) {
 
   for (let i = 0; i < imports.length; i++) {
     const { ss, se } = imports[i];
-    const new_statement = fun(imports[i]);
+    const new_statement = fun(source, imports[i]);
 
     str += source.substring(prev_end, ss);
     str += new_statement;
@@ -139,6 +139,48 @@ export function rewriteImports(source, fun) {
   return str;
 }
 
+// https://github.com/WICG/import-maps
+export function rewriteImportWithMap(import_map, source, imported) {
+  // ss is start of import statement
+  // se is end of import statement
+  // s is start of module path
+  // e is end of module path
+  // n is location
+  // d > -1 means dynamic import
+  // a is for assert
+  const { ss, se, s, e, a, n: location, d } = imported;
+
+  const stmt = source.substring(ss, se);
+  if (!location) return stmt;
+
+  let new_stmt = "";
+  new_stmt += stmt.substring(0, s - ss);
+
+  let proto = location.indexOf("://");
+  let folderEndIndex = location.indexOf("/");
+
+  if (folderEndIndex > proto + 2) {
+    const folderPath = location.substring(0, folderEndIndex + 1);
+
+    for (const [from, to] of Object.entries(import_map)) {
+      if (from == folderPath) {
+        new_stmt += to;
+        new_stmt += location.substring(folderEndIndex + 1);
+        new_stmt += stmt.substring(e - ss);
+        return new_stmt;
+      }
+    }
+    return stmt;
+  } else {
+    const mapped = import_map[location];
+    if (!mapped) return stmt;
+
+    new_stmt += mapped;
+    new_stmt += stmt.substring(e - ss);
+    return new_stmt;
+  }
+}
+
 export function processSourceFile({
   resources,
   source_file,
@@ -146,11 +188,14 @@ export function processSourceFile({
   project_root,
   prefix,
   transforms,
+  import_map = {},
 }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
 
-  const transformed = rewriteImports(source, (imported) => {
+  const mappedSource = rewriteImports(source, (source, imported) =>
+    rewriteImportWithMap(import_map, source, imported));
+  const transformed = rewriteImports(mappedSource, (source, imported) => {
     // ss is start of import statement
     // se is end of import statement
     // s is start of module path
@@ -189,9 +234,9 @@ export function processSourceFile({
 
     if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       new_stmt += stmt.slice(0, s - ss);
-      if (d > -1) str += '"';
+      if (d > -1) new_stmt += '"';
       new_stmt += `resource://${GLib.build_filenamev([prefix, resource_path])}`;
-      if (d > -1) str += '"';
+      if (d > -1) new_stmt += '"';
       new_stmt += stmt.slice(e - ss);
 
 
@@ -206,6 +251,7 @@ export function processSourceFile({
         resource_root,
         project_root,
         transforms,
+        import_map,
       });
 
       resource = saveTransformed({
@@ -359,6 +405,7 @@ export function build({
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler = "blueprint-compiler",
   transforms,
+  import_map = {},
 }) {
   transforms ??= [
     {
@@ -381,6 +428,7 @@ export function build({
     source_file: entry,
     prefix,
     transforms,
+    import_map
   });
 
   const entry_alias = resource_root.get_relative_path(entry);

@@ -45,6 +45,7 @@ Features:
 - automatically add missing files to `POTFILES`
 - supports [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/)
 - support custom transformers
+- support using an import-map with `--import-map` 
 
 ## Examples
 
@@ -367,12 +368,12 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [x] import blueprint files
 - [x] support dynamic imports
 - [x] bundle/import as icon-name `/com/example/icons/scalable/actions`
+- [x] Import maps https://github.com/WICG/import-maps
 - [ ] watch mode / live reload
 - [ ] flatpak doc
 - [ ] meson subproject
 - [ ] import fonts
 - [ ] support `import foo from 'http://...'` - ala deno
-- [ ] Import maps https://github.com/WICG/import-maps
 - [ ] gresource preprocess (`xml-stripblanks` and `json-stripblanks`)
 - [ ] gresource compress ?
 - [ ] cache

@@ -21,6 +21,7 @@ let potfiles;
 let blueprint_compiler;
 let prefix;
 let project_root;
+let import_map;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -90,6 +91,15 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
   "The directory from which POTFILES entries will be relative to (default: current directory)",
+  "PATH",
+);
+
+app.add_main_option(
+  "import-map",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "Filepath of a JSON file containing a map of import names to paths (default: none)",
   "PATH",
 );
 
@@ -166,12 +176,12 @@ app.connect("handle-local-options", (self, options) => {
   try {
     [appid] = options.lookup_value("appid", null).get_string();
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
 
   try {
     [prefix] = options.lookup_value("prefix", null).get_string();
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
 
   try {
     const root_path = decode(
@@ -181,7 +191,7 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     resource_root = Gio.File.new_for_path(root_path);
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
 
   try {
     const project_path = decode(
@@ -191,7 +201,19 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     project_root = Gio.File.new_for_path(project_path);
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
+
+  try {
+    const import_map_path = decode(
+      options.lookup_value("import-map", null).deepUnpack(),
+    )
+      .trim()
+      .replaceAll("\0", "");
+    const file = Gio.File.new_for_path(import_map_path);
+    const [, import_map_text] = file.load_contents(null);
+    import_map = JSON.parse(decode(import_map_text)).imports;
+    // eslint-disable-next-line no-empty
+  } catch { }
 
   try {
     potfiles = decode(options.lookup_value("potfiles", null).deepUnpack())
@@ -199,7 +221,7 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     potfiles = Gio.File.new_for_path(potfiles);
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
 
   try {
     blueprint_compiler = decode(
@@ -208,7 +230,7 @@ app.connect("handle-local-options", (self, options) => {
       .trim()
       .replaceAll("\0", "");
     // eslint-disable-next-line no-empty
-  } catch {}
+  } catch { }
 
   return -1;
 });
@@ -253,6 +275,7 @@ try {
     resource_root,
     project_root,
     blueprint_compiler,
+    import_map,
   });
   if (!no_executable) {
     emitExecutable({ appid, output, entry_resource_uri });
