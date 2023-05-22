@@ -89,7 +89,7 @@ function transform({ imported_file, resource_path, transformer }) {
 
   proc.wait(null);
   if (!proc.get_successful()) {
-    system.exit(1);
+    throw new Error(`Failed to transform ${imported_file.get_path()} with ${command}`);
   }
 
   return {
@@ -409,7 +409,10 @@ export function build({
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler = "blueprint-compiler",
   transforms,
-  import_map,
+  import_map = {
+    imports: {},
+    scope: {}
+  },
 }) {
   transforms ??= [
     {

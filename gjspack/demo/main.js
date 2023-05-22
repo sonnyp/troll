@@ -3,6 +3,8 @@
 import Gtk from "gi://Gtk?version=4.0";
 import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
+// eslint-disable-next-line import/no-unresolved
+import "lodash";
 import builder from "./window.blp" assert { type: "builder" };
 // import builder from "./window.ui" with { type: "builder" };
 

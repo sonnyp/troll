@@ -25,6 +25,11 @@ const { gresource_path, prefix } = gjspack({
       extension: ".css",
     },
   ],
+  import_map: {
+    imports: {
+      "lodash": "./lodash-stub.js"
+    },
+  }
 });
 
 const resource = Gio.resource_load(gresource_path);

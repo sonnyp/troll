@@ -185,10 +185,6 @@ test("getImportName", () => {
     .map((file) => file.get_basename().split(".in.js")[0]);
 
   for (const name of tests) {
-    if (name === "assert-type-builder") {
-      print("skipping assert-type-builder")
-      continue
-    }
     test(`processSourceFile fixture ${name}`, () => {
       const input_file = fixtures.get_child(name + ".in.js");
       const output_file = fixtures.get_child(name + ".out.js");
