@@ -195,6 +195,26 @@ function onclicked(button) {
 ```
 </details>
 
+<details>
+  <summary>window.blp</summary>
+
+```css
+using Gtk 4.0;
+
+ApplicationWindow window {
+  title: bind-property app.application-id;
+  application: bind app;
+  default-width: 400;
+  default-height: 400;
+
+  Button button {
+    clicked => $onclicked();
+  }
+}
+```
+
+</details>
+
 
 ---
 
