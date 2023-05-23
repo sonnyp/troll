@@ -1,27 +1,6 @@
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 
-// https://gitlab.gnome.org/GNOME/gjs/-/merge_requests/784
-export function* readDirSync(file) {
-  const enumerator = file.enumerate_children(
-    "standard::name",
-    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
-    null,
-  );
-
-  while (true) {
-    try {
-      const info = enumerator.next_file(null);
-      if (info === null) break;
-      yield enumerator.get_child(info);
-    } catch (err) {
-      enumerator.close(null);
-      throw err;
-    }
-  }
-  enumerator.close(null);
-}
-
 export function readTextFileSync(file) {
   const [, contents] = file.load_contents(null);
   return decode(contents);

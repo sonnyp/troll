@@ -13,7 +13,6 @@ import {
 } from "../src/gjspack.js";
 import {
   appIdToPrefix,
-  readDirSync,
   readTextFileSync,
   writeTextFileSync,
   basename,
@@ -130,7 +129,13 @@ test("processSourceFile", () => {
   const resources = [];
   const prefix = "/hello/world";
 
-  const files = [...readDirSync(fixtures)];
+  const files = [
+    ...fixtures.enumerate_children(
+      "standard::name",
+      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+      null,
+    ),
+  ].map((file_info) => fixtures.get_child(file_info.get_name()));
 
   const tests = files
     .filter((file) => file.get_basename().endsWith(".in.js"))
