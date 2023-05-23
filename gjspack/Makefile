@@ -15,7 +15,7 @@ clean:
 	rm -rf demo/.flatpak-builder demo/flatpak demo/build test/build
 
 demo: build
-	./bin/gjspack --appid=gjspack-demo --import-map ./demo/import_map.json ./demo/main.js ./demo/build
+	./bin/gjspack --appid=gjspack-demo --import-map=./demo/import_map.json ./demo/main.js ./demo/build
 	./demo/build/gjspack-demo
 
 demo-dev:

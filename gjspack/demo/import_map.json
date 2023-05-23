@@ -1,5 +1,5 @@
 {
-    "imports": {
-        "lodash": "./lodash-stub.js"
-    }
+  "imports": {
+    "lodash": "./lodash-stub.js"
+  }
 }

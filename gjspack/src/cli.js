@@ -6,7 +6,6 @@ import GLib from "gi://GLib";
 import { build } from "./gjspack.js";
 import { decode, basename } from "./utils.js";
 import { setConsoleLogDomain } from "console";
-import { makeFromContent } from "./import_map.js";
 
 GLib.set_prgname("gjspack");
 GLib.set_application_name("re.sonny.gjspack");
@@ -177,12 +176,12 @@ app.connect("handle-local-options", (self, options) => {
   try {
     [appid] = options.lookup_value("appid", null).get_string();
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     [prefix] = options.lookup_value("prefix", null).get_string();
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     const root_path = decode(
@@ -192,7 +191,7 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     resource_root = Gio.File.new_for_path(root_path);
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     const project_path = decode(
@@ -202,7 +201,7 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     project_root = Gio.File.new_for_path(project_path);
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     const import_map_path = decode(
@@ -210,11 +209,10 @@ app.connect("handle-local-options", (self, options) => {
     )
       .trim()
       .replaceAll("\0", "");
-    const file = Gio.File.new_for_path(import_map_path);
-    const [, import_map_text] = file.load_contents(null);
-    import_map = makeFromContent(decode(import_map_text), file.get_parent() ?? Gio.File.new_for_path("/"));
+
+    import_map = Gio.File.new_for_path(import_map_path);
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     potfiles = decode(options.lookup_value("potfiles", null).deepUnpack())
@@ -222,7 +220,7 @@ app.connect("handle-local-options", (self, options) => {
       .replaceAll("\0", "");
     potfiles = Gio.File.new_for_path(potfiles);
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   try {
     blueprint_compiler = decode(
@@ -231,7 +229,7 @@ app.connect("handle-local-options", (self, options) => {
       .trim()
       .replaceAll("\0", "");
     // eslint-disable-next-line no-empty
-  } catch { }
+  } catch {}
 
   return -1;
 });

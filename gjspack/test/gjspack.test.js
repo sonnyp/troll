@@ -71,7 +71,7 @@ test("isBundableImport", () => {
 test("rewriteImports", () => {
   const source = `import solid from "solid-js";
   import { render } from "solid-js/web";
-  
+
   console.log("hello world");
   `;
 
@@ -81,7 +81,7 @@ test("rewriteImports", () => {
 
   const expected = `import x from "test";
   import x from "test";
-  
+
   console.log("hello world");
   `;
 
@@ -91,12 +91,12 @@ test("rewriteImports", () => {
 test("immap.rewriteImport", () => {
   const import_map = {
     imports: {
-      "moment": "https://unpkg.com/moment@2.29.4/moment.js",
+      moment: "https://unpkg.com/moment@2.29.4/moment.js",
       "moment/": "https://unpkg.com/moment@2.29.4/",
       "gi://MyPackage": "gi://MyPackage?version=4.0",
       "solid-js": "file:///../node_modules/solid-js/dist/solid.js",
       "lodash/": "file:///../node_modules/lodash/",
-    }
+    },
   };
   const source = `
   import moment from "moment";
@@ -113,20 +113,20 @@ test("immap.rewriteImport", () => {
   import solid from "file:///../node_modules/solid-js/dist/solid.js";
   import has from "file:///../node_modules/lodash/has";
   `;
-  assert.is(rewriteImports(
-    source,
-    (source, imported) => immap.rewriteImport(import_map, source, imported),
-  ),
-    expected
-  )
+  assert.is(
+    rewriteImports(source, (source, imported) =>
+      immap.rewriteImport(import_map, source, imported),
+    ),
+    expected,
+  );
 });
 
 test("immap.makeFromContent empty definition", () => {
   const text = `{}`;
   const expected = {
     imports: {},
-    scopes: {}
-  }
+    scopes: {},
+  };
   const import_map = immap.makeFromContent(text);
   assert.equal(import_map, expected);
 });
@@ -143,13 +143,17 @@ test("immap.makeFromContent with relative paths", () => {
   `;
   const expected = {
     imports: {
-      "moment": "/home/me/Projects/test/node_modules/moment/src/moment.js",
-      "solid-js": "file:///home/me/Projects/test/node_modules/solid-js/dist/solid.js",
+      moment: "/home/me/Projects/test/node_modules/moment/src/moment.js",
+      "solid-js":
+        "file:///home/me/Projects/test/node_modules/solid-js/dist/solid.js",
       "lodash/": "file:///home/me/Projects/node_modules/lodash/",
     },
-    scopes: {}
-  }
-  const import_map = immap.makeFromContent(text, Gio.file_new_for_path("/home/me/Projects/test"));
+    scopes: {},
+  };
+  const import_map = immap.makeFromContent(
+    text,
+    Gio.file_new_for_path("/home/me/Projects/test"),
+  );
   assert.equal(import_map, expected);
 });
 
@@ -248,13 +252,13 @@ test("getImportName", () => {
               extension: ".ui",
             },
           ],
-          import_map: makeImportMap()
+          import_map: makeImportMap(),
         }),
         readTextFileSync(output_file),
       );
     });
   }
-})()
+})();
 
 test("processSourceFile duplicate imports", () => {
   const resources = [];
@@ -281,11 +285,12 @@ import bar2 from "./${bar_file.get_basename()}";
     resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
     project_root: Gio.File.new_for_path("/tmp"),
     prefix,
-    import_map: makeImportMap()
+    import_map: makeImportMap(),
   });
 
   assert.equal(resources.length, 2);
 
+  assert.ok(resources[0].path.startsWith("/tmp/gjspack-"));
   assert.equal(resources[0].alias, foo_file.get_path());
   assert.equal(resources[0].project_path, foo_file.get_basename());
 
@@ -391,6 +396,5 @@ test("transform error", () => {
     "Namespace Gtk does not contain a type called FooApplicationWindow",
   );
 });
-
 
 export default test;

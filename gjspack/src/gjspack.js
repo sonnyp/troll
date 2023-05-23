@@ -89,7 +89,7 @@ function transform({ imported_file, resource_path, transformer }) {
 
   proc.wait(null);
   if (!proc.get_successful()) {
-    throw new Error(`Failed to transform ${imported_file.get_path()} with ${command}`);
+    system.exit(1);
   }
 
   return {
@@ -119,7 +119,7 @@ function preprocess({ imported_file, resource_path, transforms = [] }) {
   return result;
 }
 
-// fun is a function that takes an import statement description, as `{ss, se , s, e, a, n, d}`, 
+// fun is a function that takes an import statement description, as `{ss, se , s, e, a, n, d}`,
 // and returns a new import statement string
 export function rewriteImports(source, fun) {
   const [imports] = lexer.parse(source);
@@ -152,7 +152,8 @@ export function processSourceFile({
   const source = decode(contents);
 
   const mapped_source = rewriteImports(source, (source, imported) =>
-    immap.rewriteImport(import_map, source, imported));
+    immap.rewriteImport(import_map, source, imported),
+  );
   const transformed = rewriteImports(mapped_source, (source, imported) => {
     // ss is start of import statement
     // se is end of import statement
@@ -166,7 +167,6 @@ export function processSourceFile({
     // statement
     const stmt = source.substring(ss, se);
     if (!isBundableImport(imported)) return stmt;
-
 
     // GJS supports loading relative js paths
     // when importa.meta.url is a resource: uri
@@ -198,8 +198,9 @@ export function processSourceFile({
       if (d > -1) new_stmt += '"';
       new_stmt += stmt.slice(e - ss);
 
-
-      const was_transformed = resources.find(({ alias }) => alias === resource_path);
+      const was_transformed = resources.find(
+        ({ alias }) => alias === resource_path,
+      );
       if (was_transformed) {
         return new_stmt;
       }
@@ -364,10 +365,7 @@ export function build({
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler = "blueprint-compiler",
   transforms,
-  import_map = {
-    imports: {},
-    scope: {}
-  },
+  import_map,
 }) {
   transforms ??= [
     {
@@ -390,7 +388,7 @@ export function build({
     source_file: entry,
     prefix,
     transforms,
-    import_map
+    import_map: immap.makeFromFile(import_map),
   });
 
   const entry_alias = resource_root.get_relative_path(entry);
