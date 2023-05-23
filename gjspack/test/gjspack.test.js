@@ -6,11 +6,13 @@ import tst, { assert } from "../../tst/tst.js";
 import {
   getPathForResource,
   isBundableImport,
+  rewriteImports,
   processSourceFile,
   getAssertType,
   getImportName,
   updatePotfiles,
 } from "../src/gjspack.js";
+import * as immap from "../src/import_map.js";
 import {
   appIdToPrefix,
   readTextFileSync,
@@ -18,6 +20,7 @@ import {
   basename,
   decode,
 } from "../src/utils.js";
+import { makeImportMap } from "../src/import_map.js";
 
 const fixtures = Gio.File.new_for_path("test/fixtures");
 
@@ -63,6 +66,95 @@ test("isBundableImport", () => {
   assert.is(isBundableImport({ n: "./hello", d: 0 }), true);
   assert.is(isBundableImport({ n: "/hello", d: -1 }), true);
   assert.is(isBundableImport({ n: "/hello", d: 0 }), true);
+});
+
+test("rewriteImports", () => {
+  const source = `import solid from "solid-js";
+  import { render } from "solid-js/web";
+
+  console.log("hello world");
+  `;
+
+  const res = rewriteImports(source, (_source, _imported) => {
+    return `import x from "test"`;
+  });
+
+  const expected = `import x from "test";
+  import x from "test";
+
+  console.log("hello world");
+  `;
+
+  assert.is(res, expected);
+});
+
+test("immap.rewriteImport", () => {
+  const import_map = {
+    imports: {
+      moment: "https://unpkg.com/moment@2.29.4/moment.js",
+      "moment/": "https://unpkg.com/moment@2.29.4/",
+      "gi://MyPackage": "gi://MyPackage?version=4.0",
+      "solid-js": "file:///../node_modules/solid-js/dist/solid.js",
+      "lodash/": "file:///../node_modules/lodash/",
+    },
+  };
+  const source = `
+  import moment from "moment";
+  import localeData from "moment/locale/zh-cn.js";
+  import MyPackage from "gi://MyPackage";
+  import solid from "solid-js";
+  import has from "lodash/has";
+  `;
+
+  const expected = `
+  import moment from "https://unpkg.com/moment@2.29.4/moment.js";
+  import localeData from "https://unpkg.com/moment@2.29.4/locale/zh-cn.js";
+  import MyPackage from "gi://MyPackage?version=4.0";
+  import solid from "file:///../node_modules/solid-js/dist/solid.js";
+  import has from "file:///../node_modules/lodash/has";
+  `;
+  assert.is(
+    rewriteImports(source, (source, imported) =>
+      immap.rewriteImport(import_map, source, imported),
+    ),
+    expected,
+  );
+});
+
+test("immap.makeFromContent empty definition", () => {
+  const text = `{}`;
+  const expected = {
+    imports: {},
+    scopes: {},
+  };
+  const import_map = immap.makeFromContent(text);
+  assert.equal(import_map, expected);
+});
+
+test("immap.makeFromContent with relative paths", () => {
+  const text = `
+    {
+      "imports": {
+        "moment": "./node_modules/moment/src/moment.js",
+        "solid-js": "file:///./node_modules/solid-js/dist/solid.js",
+        "lodash/": "file:///../node_modules/lodash/"
+      }
+    }
+  `;
+  const expected = {
+    imports: {
+      moment: "/home/me/Projects/test/node_modules/moment/src/moment.js",
+      "solid-js":
+        "file:///home/me/Projects/test/node_modules/solid-js/dist/solid.js",
+      "lodash/": "file:///home/me/Projects/node_modules/lodash/",
+    },
+    scopes: {},
+  };
+  const import_map = immap.makeFromContent(
+    text,
+    Gio.file_new_for_path("/home/me/Projects/test"),
+  );
+  assert.equal(import_map, expected);
 });
 
 test("getPathForResource", () => {
@@ -125,7 +217,7 @@ test("getImportName", () => {
   assert.is(getImportName(`import foo from "hello`), "foo");
 });
 
-test("processSourceFile", () => {
+(function testProcessSourceFiles() {
   const resources = [];
   const prefix = "/hello/world";
 
@@ -141,29 +233,32 @@ test("processSourceFile", () => {
     .filter((file) => file.get_basename().endsWith(".in.js"))
     .map((file) => file.get_basename().split(".in.js")[0]);
 
-  for (const test of tests) {
-    const input_file = fixtures.get_child(test + ".in.js");
-    const output_file = fixtures.get_child(test + ".out.js");
+  for (const name of tests) {
+    test(`processSourceFile fixture ${name}`, () => {
+      const input_file = fixtures.get_child(name + ".in.js");
+      const output_file = fixtures.get_child(name + ".out.js");
 
-    assert.fixture(
-      processSourceFile({
-        resources,
-        source_file: input_file,
-        resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
-        project_root: Gio.File.new_for_path(GLib.get_current_dir()),
-        prefix,
-        transforms: [
-          {
-            test: /\.blp$/,
-            command: "blueprint-compiler compile",
-            extension: ".ui",
-          },
-        ],
-      }),
-      readTextFileSync(output_file),
-    );
+      assert.fixture(
+        processSourceFile({
+          resources,
+          source_file: input_file,
+          resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
+          project_root: Gio.File.new_for_path(GLib.get_current_dir()),
+          prefix,
+          transforms: [
+            {
+              test: /\.blp$/,
+              command: "blueprint-compiler compile",
+              extension: ".ui",
+            },
+          ],
+          import_map: makeImportMap(),
+        }),
+        readTextFileSync(output_file),
+      );
+    });
   }
-});
+})();
 
 test("processSourceFile duplicate imports", () => {
   const resources = [];
@@ -190,6 +285,7 @@ import bar2 from "./${bar_file.get_basename()}";
     resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
     project_root: Gio.File.new_for_path("/tmp"),
     prefix,
+    import_map: makeImportMap(),
   });
 
   assert.equal(resources.length, 2);
@@ -282,9 +378,12 @@ foo/halo.blp
 });
 
 test("transform error", () => {
+  const [import_filename] = GLib.filename_from_uri(import.meta.url);
+  const dirname = GLib.path_get_dirname(import_filename);
+
   const [, stdout, stderr, status] = GLib.spawn_command_line_sync(
     [
-      "/home/sonny/Projects/troll/gjspack/bin/gjspack",
+      `${dirname}/../bin/gjspack`,
       fixtures.get_child("invalid-blueprint.js").get_path(),
       "/tmp",
     ].join(" "),

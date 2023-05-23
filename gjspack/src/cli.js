@@ -21,6 +21,7 @@ let potfiles;
 let blueprint_compiler;
 let prefix;
 let project_root;
+let import_map;
 
 const app = new Gio.Application({
   application_id: GLib.get_application_name(),
@@ -90,6 +91,15 @@ app.add_main_option(
   GLib.OptionFlags.NONE,
   GLib.OptionArg.FILENAME,
   "The directory from which POTFILES entries will be relative to (default: current directory)",
+  "PATH",
+);
+
+app.add_main_option(
+  "import-map",
+  null,
+  GLib.OptionFlags.NONE,
+  GLib.OptionArg.FILENAME,
+  "Path to a JSON file containing an import map (default: none)",
   "PATH",
 );
 
@@ -194,6 +204,17 @@ app.connect("handle-local-options", (self, options) => {
   } catch {}
 
   try {
+    const import_map_path = decode(
+      options.lookup_value("import-map", null).deepUnpack(),
+    )
+      .trim()
+      .replaceAll("\0", "");
+
+    import_map = Gio.File.new_for_path(import_map_path);
+    // eslint-disable-next-line no-empty
+  } catch {}
+
+  try {
     potfiles = decode(options.lookup_value("potfiles", null).deepUnpack())
       .trim()
       .replaceAll("\0", "");
@@ -253,6 +274,7 @@ try {
     resource_root,
     project_root,
     blueprint_compiler,
+    import_map,
   });
   if (!no_executable) {
     emitExecutable({ appid, output, entry_resource_uri });

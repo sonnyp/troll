@@ -11,7 +11,7 @@ import {
   basename,
 } from "./utils.js";
 
-import system from "system";
+import * as immap from "./import_map.js";
 
 export function getPathForResource(
   module_path,
@@ -55,11 +55,6 @@ export function isBundableImport(imported) {
   if (location.startsWith("resource:")) return false;
   if (!location.startsWith(".") && !location.startsWith("/")) return false;
   return true;
-}
-
-function getBundableImport(source) {
-  const [imports] = lexer.parse(source);
-  return imports.find(isBundableImport);
 }
 
 export function getAssertType(assert) {
@@ -124,6 +119,26 @@ function preprocess({ imported_file, resource_path, transforms = [] }) {
   return result;
 }
 
+// fun is a function that takes an import statement description, as `{ss, se , s, e, a, n, d}`,
+// and returns a new import statement string
+export function rewriteImports(source, fun) {
+  const [imports] = lexer.parse(source);
+  let str = "";
+  let prev_end = 0;
+
+  for (let i = 0; i < imports.length; i++) {
+    const { ss, se } = imports[i];
+    const new_statement = fun(source, imports[i]);
+
+    str += source.substring(prev_end, ss);
+    str += new_statement;
+
+    prev_end = se;
+  }
+  str += source.substring(prev_end);
+  return str;
+}
+
 export function processSourceFile({
   resources,
   source_file,
@@ -131,14 +146,15 @@ export function processSourceFile({
   project_root,
   prefix,
   transforms,
+  import_map,
 }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
 
-  function next(source) {
-    const imported = getBundableImport(source);
-    if (!imported) return source;
-
+  const mapped_source = rewriteImports(source, (source, imported) =>
+    immap.rewriteImport(import_map, source, imported),
+  );
+  const transformed = rewriteImports(mapped_source, (source, imported) => {
     // ss is start of import statement
     // se is end of import statement
     // s is start of module path
@@ -148,6 +164,10 @@ export function processSourceFile({
     // a is for assert
     const { ss, se, s, e, a, n, d } = imported;
 
+    // statement
+    const stmt = source.substring(ss, se);
+    if (!isBundableImport(imported)) return stmt;
+
     // GJS supports loading relative js paths
     // when importa.meta.url is a resource: uri
     // if (n.endsWith(".js")) return next(source);
@@ -156,7 +176,7 @@ export function processSourceFile({
     // so we replace them with resource uris anyway
     // see commit da38c9430cfebdaa0b3e0021ac98eed966f09e9a
 
-    let str = "";
+    let new_stmt = "";
     const resource_path = getPathForResource(n, source_file, resource_root);
     const imported_file = source_file.get_parent().resolve_relative_path(n);
 
@@ -172,17 +192,18 @@ export function processSourceFile({
     }
 
     if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
-      str += source.slice(0, s);
-      if (d > -1) str += '"';
-      str += `resource://${GLib.build_filenamev([prefix, resource_path])}`;
-      if (d > -1) str += '"';
-      str += source.slice(e);
+      new_stmt += stmt.slice(0, s - ss);
+      if (d > -1) new_stmt += '"';
+      new_stmt += `resource://${GLib.build_filenamev([prefix, resource_path])}`;
+      if (d > -1) new_stmt += '"';
+      new_stmt += stmt.slice(e - ss);
 
-      // This is a duplicate import, it was already transformed
-      if (resources.find(({ alias }) => alias === resource_path)) {
-        return next(str);
+      const was_transformed = resources.find(
+        ({ alias }) => alias === resource_path,
+      );
+      if (was_transformed) {
+        return new_stmt;
       }
-
       const transformed = processSourceFile({
         resources,
         source_file: imported_file,
@@ -190,6 +211,7 @@ export function processSourceFile({
         resource_root,
         project_root,
         transforms,
+        import_map,
       });
 
       resource = saveTransformed({
@@ -198,8 +220,7 @@ export function processSourceFile({
         transformed,
       });
     } else {
-      const statement = source.slice(ss, se);
-      const name = getImportName(statement);
+      const name = getImportName(stmt);
 
       resource = preprocess({
         imported_file,
@@ -244,9 +265,7 @@ export function processSourceFile({
         throw new Error(`Unsupported assert type "${type}"`);
       }
 
-      str += source.slice(0, ss);
-      str += name ? `const ${name} = ${substitute}` : substitute;
-      str += source.slice(se);
+      new_stmt = name ? `const ${name} = ${substitute}` : substitute;
     }
 
     const project_path = project_root.get_relative_path(imported_file);
@@ -257,10 +276,9 @@ export function processSourceFile({
       resources.push(resource);
     }
 
-    return next(str);
-  }
+    return new_stmt;
+  });
 
-  const transformed = next(source);
   console.debug("transformed\n", transformed);
 
   // Strings are null terminated, if we pass an empty string, we get the following error
@@ -347,6 +365,7 @@ export function build({
   project_root = Gio.File.new_for_path(GLib.get_current_dir()),
   blueprint_compiler = "blueprint-compiler",
   transforms,
+  import_map,
 }) {
   transforms ??= [
     {
@@ -369,6 +388,7 @@ export function build({
     source_file: entry,
     prefix,
     transforms,
+    import_map: immap.makeFromFile(import_map),
   });
 
   const entry_alias = resource_root.get_relative_path(entry);

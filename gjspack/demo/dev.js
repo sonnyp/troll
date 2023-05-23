@@ -25,6 +25,7 @@ const { gresource_path, prefix } = gjspack({
       extension: ".css",
     },
   ],
+  import_map: Gio.File.new_for_path("./import_map.json"),
 });
 
 const resource = Gio.resource_load(gresource_path);
