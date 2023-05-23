@@ -41,13 +41,41 @@ Contributions welcome.
 You can register all globals with
 
 ```js
-import "./troll/globals.js";
+import "./troll/src/globals.js";
 
 // fetch(...)
 // new WebSocket(...)
 // atob(...)
 // btoa(...)
 ```
+
+## resolve(base, uri)
+
+- `base` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a base uri
+- `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a path or uri, can be absolute or relative
+- Returns: [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) the resolved uri
+
+Similar to `import.meta.resolve` or `new URL(url, base)`.
+
+```js
+import { resolve } from "./troll/src/util.js";
+
+console.log(resolve(import.meta.url, './xml.js'));
+// resource:///some/path/xml.js
+// or
+// file:///some/path/xml.js
+
+console.log(resolve('http://foo.example', 'http://bar.example'));
+// http://bar.example
+```
+
+## resolveParse(base, uri)
+
+- `base` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a base uri
+- `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a path or uri, can be absolute or relative
+- Returns: [\<GLib.Uri\>](https://gjs-docs.gnome.org/glib20~2.0/glib.uri) the resolved uri
+
+Same as `resolve` but returns a `GLib.Uri` instead of a `string`.
 
 ## promiseTask(target, method, finish[, ...args])
 
@@ -59,10 +87,12 @@ import "./troll/globals.js";
 
 Run a Gio async operation and return a promise that resolve with the result of finish method or rejects.
 
+See also [Gio._promisify](https://gjs.guide/guides/gjs/asynchronous-programming.html#promisify-helper)
+
 Examples
 
 ```js
-import { promiseTask } from "./troll/util.js";
+import { promiseTask } from "./troll/src/util.js";
 import Gio from "gi://Gio";
 
 (async () => {
@@ -90,7 +120,7 @@ If `errorSignal` is specified, an handler for it will be registered and the prom
 Examples
 
 ```js
-import { once } from "./troll/util.js";
+import { once } from "./troll/src/util.js";
 
 (async () => {
   const Button = new Gtk.Button({ label: "Click Me" });
@@ -99,17 +129,90 @@ import { once } from "./troll/util.js";
 })().catch(logError);
 ``` -->
 
+## build(uri, params)
+
+- `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
+- `params` [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+- Returns: [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+A helper function to easily load, build and bind a GTK XML interface. Here is an example
+
+<details>
+  <summary>window.js</summary>
+
+```js
+#!/usr/bin/env -S gjs -m
+
+import Gtk from "gi://Gtk?version=4.0";
+import { build, resolve } from "./troll/src/util.js";
+
+const app = new Gtk.Application({
+  application_id: "hello.world"
+});
+
+app.connect("activate", () => {
+  const { window, button } = build(
+    resolve(import.meta.url, "./window.xml"),
+    {
+      onclicked,
+      app,
+    }
+  );
+  button.label = "World";
+  window.present();
+});
+
+app.runAsync(null);
+
+function onclicked(button) {
+  console.log("Hello", button.label);
+  app.activeWindow?.close();
+}
+```
+</details>
+
+<details>
+  <summary>window.xml</summary>
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkApplicationWindow" id="window">
+    <property name="title" bind-source="app" bind-property="application-id" bind-flags="sync-create"/>
+    <binding name="application">
+      <constant>app</constant>
+    </binding>
+    <property name="default-width">400</property>
+    <property name="default-height">400</property>
+    <child>
+      <object class="GtkButton" id="button">
+        <signal name="clicked" handler="onclicked"/>
+      </object>
+    </child>
+  </object>
+</interface>
+```
+</details>
+
+
+---
+
+ℹ️ `build` is for `<interface/>` only, for `<template/>`, use [`GObject.registerClass`](https://gjs.guide/guides/gtk/3/14-templates.html#loading-the-template)
+
 ## gsx
 
 gsx is a small function to write Gtk.
 
 See [gsx-demo](./gsx-demo) for setup and instructions with Babel.
 
-You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx), [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory) or [SWC](https://swc.rs/) like so:
+You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plugin-transform-react-jsx), [TypeScript](https://www.typescriptlang.org/tsconfig#jsxFactory), [SWC](https://swc.rs/) or [Rome](https://rome.tools/) like so:
 
 ```jsx
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/gsx.js";
+import gsx from "./troll/src/gsx.js";
+
+/** @jsx gsx */
 
 export default function MyButton() {
   return (
@@ -119,6 +222,8 @@ export default function MyButton() {
   );
 }
 ```
+
+GJS doesn't support source map yet. We recommend babel as it is the only option capable of [retaining line numbers](https://babeljs.io/docs/options#retainlines).
 
 <details>
     <summary>Equivalent without gsx</summary>
@@ -150,7 +255,7 @@ export default function MyButton() {
 
 ```js
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/gsx.js";
+import gsx from "./troll/src/gsx.js";
 
 const { Button, Align, Image } = Gtk;
 
