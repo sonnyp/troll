@@ -11,8 +11,8 @@ import {
   getAssertType,
   getImportName,
   updatePotfiles,
-  rewriteImportWithMap,
 } from "../src/gjspack.js";
+import * as immap from "../src/import_map.js";
 import {
   appIdToPrefix,
   readDirSync,
@@ -21,6 +21,7 @@ import {
   basename,
   decode,
 } from "../src/utils.js";
+import { makeImportMap } from "../src/import_map.js";
 
 const fixtures = Gio.File.new_for_path("test/fixtures");
 
@@ -88,7 +89,7 @@ test("rewriteImports", () => {
   assert.is(res, expected);
 });
 
-test("rewriteImportWithMap", () => {
+test("immap.rewriteImport", () => {
   const import_map = {
     imports: {
       "moment": "https://unpkg.com/moment@2.29.4/moment.js",
@@ -115,10 +116,42 @@ test("rewriteImportWithMap", () => {
   `;
   assert.is(rewriteImports(
     source,
-    (source, imported) => rewriteImportWithMap(import_map, source, imported),
+    (source, imported) => immap.rewriteImport(import_map, source, imported),
   ),
     expected
   )
+});
+
+test("immap.makeFromContent empty definition", () => {
+  const text = `{}`;
+  const expected = {
+    imports: {},
+    scopes: {}
+  }
+  const import_map = immap.makeFromContent(text);
+  assert.equal(import_map, expected);
+});
+
+test("immap.makeFromContent with relative paths", () => {
+  const text = `
+    {
+      "imports": {
+        "moment": "./node_modules/moment/src/moment.js",
+        "solid-js": "file:///./node_modules/solid-js/dist/solid.js",
+        "lodash/": "file:///../node_modules/lodash/"
+      }
+    }
+  `;
+  const expected = {
+    imports: {
+      "moment": "/home/me/Projects/test/node_modules/moment/src/moment.js",
+      "solid-js": "file:///home/me/Projects/test/node_modules/solid-js/dist/solid.js",
+      "lodash/": "file:///home/me/Projects/node_modules/lodash/",
+    },
+    scopes: {}
+  }
+  const import_map = immap.makeFromContent(text, Gio.file_new_for_path("/home/me/Projects/test"));
+  assert.equal(import_map, expected);
 });
 
 test("getPathForResource", () => {
@@ -210,6 +243,7 @@ test("getImportName", () => {
               extension: ".ui",
             },
           ],
+          import_map: makeImportMap()
         }),
         readTextFileSync(output_file),
       );
@@ -242,6 +276,7 @@ import bar2 from "./${bar_file.get_basename()}";
     resource_root: Gio.File.new_for_path(GLib.get_current_dir()),
     project_root: Gio.File.new_for_path("/tmp"),
     prefix,
+    import_map: makeImportMap()
   });
 
   assert.equal(resources.length, 2);

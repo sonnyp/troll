@@ -11,7 +11,7 @@ import {
   basename,
 } from "./utils.js";
 
-import system from "system";
+import * as immap from "./import_map.js";
 
 export function getPathForResource(
   module_path,
@@ -139,48 +139,6 @@ export function rewriteImports(source, fun) {
   return str;
 }
 
-// https://github.com/WICG/import-maps
-export function rewriteImportWithMap(import_map, source, imported) {
-  // ss is start of import statement
-  // se is end of import statement
-  // s is start of module path
-  // e is end of module path
-  // n is location
-  // d > -1 means dynamic import
-  // a is for assert
-  const { ss, se, s, e, n: location } = imported;
-
-  const stmt = source.substring(ss, se);
-  if (!location) return stmt;
-
-  let new_stmt = "";
-  new_stmt += stmt.substring(0, s - ss);
-
-  const proto = location.indexOf("://");
-  const folder_end_index = location.indexOf("/");
-
-  if (folder_end_index > proto + 2) {
-    const folderPath = location.substring(0, folder_end_index + 1);
-
-    for (const [from, to] of Object.entries(import_map.imports)) {
-      if (from === folderPath) {
-        new_stmt += to;
-        new_stmt += location.substring(folder_end_index + 1);
-        new_stmt += stmt.substring(e - ss);
-        return new_stmt;
-      }
-    }
-    return stmt;
-  } else {
-    const mapped = import_map.imports[location];
-    if (!mapped) return stmt;
-
-    new_stmt += mapped;
-    new_stmt += stmt.substring(e - ss);
-    return new_stmt;
-  }
-}
-
 export function processSourceFile({
   resources,
   source_file,
@@ -188,16 +146,13 @@ export function processSourceFile({
   project_root,
   prefix,
   transforms,
-  import_map = {
-    imports: {},
-    scope: {}
-  },
+  import_map,
 }) {
   const [, contents] = source_file.load_contents(null);
   const source = decode(contents);
 
   const mapped_source = rewriteImports(source, (source, imported) =>
-    rewriteImportWithMap(import_map, source, imported));
+    immap.rewriteImport(import_map, source, imported));
   const transformed = rewriteImports(mapped_source, (source, imported) => {
     // ss is start of import statement
     // se is end of import statement
