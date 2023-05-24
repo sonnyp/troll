@@ -9,4 +9,3 @@ lint:
 
 test: lint
 	tst/bin.js **/*.test.js
-

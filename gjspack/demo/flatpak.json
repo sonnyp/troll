@@ -1,7 +1,7 @@
 {
   "id": "re.sonny.gjspack.Demo",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "42",
+  "runtime-version": "44",
   "sdk": "org.gnome.Sdk",
   "command": "gjspack-demo",
   "finish-args": [

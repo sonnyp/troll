@@ -1,9 +1,8 @@
 #!/usr/bin/env -S gjs -m
 
-import Gtk from "gi://Gtk?version=4.0";
+import Gtk from "gi://Gtk";
 import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
-// eslint-disable-next-line import/no-unresolved
 import "lodash";
 import builder from "./window.blp" assert { type: "builder" };
 // import builder from "./window.ui" with { type: "builder" };
@@ -11,7 +10,8 @@ import builder from "./window.blp" assert { type: "builder" };
 import GtkLogo from "./assets/gtk-logo.webm";
 import Louis from "./assets/louis.jpeg";
 import manifest from "./flatpak.json" assert { type: "json" };
-import provider from "./style.scss" assert { type: "css" };
+// import provider from "./style.scss" assert { type: "css" };
+import provider from "./style.css" assert { type: "css" };
 
 console.log(manifest.id);
 

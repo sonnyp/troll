@@ -19,11 +19,11 @@ const { gresource_path, prefix } = gjspack({
       extension: ".ui",
     },
     // Let's add a Sass transformer
-    {
-      test: /\.scss$/,
-      command: "sassc",
-      extension: ".css",
-    },
+    // {
+    //   test: /\.scss$/,
+    //   command: "sassc",
+    //   extension: ".css",
+    // },
   ],
   import_map: Gio.File.new_for_path("./import_map.json"),
 });

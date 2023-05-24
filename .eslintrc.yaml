@@ -53,5 +53,9 @@ rules:
   prefer-const: error # https://eslint.org/docs/rules/prefer-const
   # https://github.com/benmosher/eslint-plugin-import/
   import/extensions: ["error", "ignorePackages"]
+  # No support for import map
   import/no-unresolved:
-    [2, { ignore: ["gi://*", "cairo", "gettext", "system", "resource://*"] }]
+    [
+      "off",
+      { ignore: ["gi://*", "cairo", "gettext", "system", "resource://*"] },
+    ]
