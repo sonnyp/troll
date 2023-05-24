@@ -2,6 +2,7 @@ using Gtk 4.0;
 
 Window window {
   title: "gjspack demo";
+  close-request => $onCloseRequest();
 
   Video video {
     autoplay: true;

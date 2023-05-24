@@ -1,5 +1,6 @@
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
+import system from "system";
 
 import * as lexer from "../lib/lexer.asm.js";
 import { createElement as xml } from "../lib/ltx.js";
@@ -237,8 +238,6 @@ export function processSourceFile({
       let substitute;
       if (type === "json") {
         substitute = `JSON.parse(new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray()))`;
-      } else if (type === "builder") {
-        substitute = `(() => { imports.gi.Gtk.init(); return imports.gi.Gtk.Builder.new_from_resource("${import_location}") })()`;
       } else if (type === "string") {
         substitute = `new TextDecoder().decode(imports.gi.Gio.resources_lookup_data("${import_location}", null).toArray())`;
       } else if (type === "bytes") {

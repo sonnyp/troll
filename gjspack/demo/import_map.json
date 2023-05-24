@@ -1,6 +1,7 @@
 {
   "imports": {
     "gi://Gtk": "gi://Gtk?version=4.0",
-    "lodash": "./lodash-stub.js"
+    "lodash": "./lodash-stub.js",
+    "troll/": "../../"
   }
 }

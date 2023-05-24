@@ -91,13 +91,13 @@ function promiseEvent(object, signal, error_signal) {
 }
 
 export function delay(ms) {
-  let timeout_id;
+  let timeout;
   const promise = new Promise((resolve) => {
-    timeout_id = setTimeout(() => {
+    timeout = setTimeout(() => {
       resolve();
     }, ms);
   });
-  promise.timeout_id = timeout_id;
+  promise.timeout = timeout;
   return promise;
 }
 
@@ -246,7 +246,7 @@ export function build(uri, params = {}) {
   } else if (scheme === "file") {
     builder.add_from_file(path);
   } else {
-    throw new Error(`Unsuported scheme \`${scheme}\`.`);
+    throw new Error(`Unsuported scheme \`${uri}\`.`);
   }
 
   return proxy;

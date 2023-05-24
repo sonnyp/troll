@@ -60,12 +60,12 @@ Similar to `import.meta.resolve` or `new URL(url, base)`.
 ```js
 import { resolve } from "./troll/src/util.js";
 
-console.log(resolve(import.meta.url, './xml.js'));
+console.log(resolve(import.meta.url, "./xml.js"));
 // resource:///some/path/xml.js
 // or
 // file:///some/path/xml.js
 
-console.log(resolve('http://foo.example', 'http://bar.example'));
+console.log(resolve("http://foo.example", "http://bar.example"));
 // http://bar.example
 ```
 
@@ -87,7 +87,7 @@ Same as `resolve` but returns a `GLib.Uri` instead of a `string`.
 
 Run a Gio async operation and return a promise that resolve with the result of finish method or rejects.
 
-See also [Gio._promisify](https://gjs.guide/guides/gjs/asynchronous-programming.html#promisify-helper)
+See also [Gio.\_promisify](https://gjs.guide/guides/gjs/asynchronous-programming.html#promisify-helper)
 
 Examples
 
@@ -129,7 +129,7 @@ import { once } from "./troll/src/util.js";
 })().catch(logError);
 ``` -->
 
-## build(uri, params)
+## build
 
 - `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 - `params` [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
@@ -147,17 +147,14 @@ import Gtk from "gi://Gtk?version=4.0";
 import { build, resolve } from "./troll/src/util.js";
 
 const app = new Gtk.Application({
-  application_id: "hello.world"
+  application_id: "hello.world",
 });
 
 app.connect("activate", () => {
-  const { window, button } = build(
-    resolve(import.meta.url, "./window.xml"),
-    {
-      onclicked,
-      app,
-    }
-  );
+  const { window, button } = build(resolve(import.meta.url, "./window.xml"), {
+    onclicked,
+    app,
+  });
   button.label = "World";
   window.present();
 });
@@ -169,17 +166,23 @@ function onclicked(button) {
   app.activeWindow?.close();
 }
 ```
+
 </details>
 
 <details>
   <summary>window.xml</summary>
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <interface>
-  <requires lib="gtk" version="4.0"/>
+  <requires lib="gtk" version="4.0" />
   <object class="GtkApplicationWindow" id="window">
-    <property name="title" bind-source="app" bind-property="application-id" bind-flags="sync-create"/>
+    <property
+      name="title"
+      bind-source="app"
+      bind-property="application-id"
+      bind-flags="sync-create"
+    />
     <binding name="application">
       <constant>app</constant>
     </binding>
@@ -187,12 +190,13 @@ function onclicked(button) {
     <property name="default-height">400</property>
     <child>
       <object class="GtkButton" id="button">
-        <signal name="clicked" handler="onclicked"/>
+        <signal name="clicked" handler="onclicked" />
       </object>
     </child>
   </object>
 </interface>
 ```
+
 </details>
 
 <details>
@@ -215,7 +219,6 @@ ApplicationWindow window {
 
 </details>
 
-
 ---
 
 ℹ️ `build` is for `<interface/>` only, for `<template/>`, use [`GObject.registerClass`](https://gjs.guide/guides/gtk/3/14-templates.html#loading-the-template)
@@ -232,7 +235,8 @@ You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plu
 import Gtk from "gi://Gtk?version=4.0";
 import gsx from "./troll/src/gsx.js";
 
-/** @jsx gsx */
+/** @jsx gsx.h */
+/** @jsxFrag gsx.Fragment */
 
 export default function MyButton() {
   return (

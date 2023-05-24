@@ -3,6 +3,7 @@
   <requires lib="gtk" version="4.0"/>
   <object class="GtkWindow" id="window">
     <property name="title">gjspack demo</property>
+    <signal name="close-request" handler="onCloseRequest"/>
     <child>
       <object class="GtkVideo" id="video">
         <property name="autoplay">true</property>

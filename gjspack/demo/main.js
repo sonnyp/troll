@@ -4,14 +4,16 @@ import Gtk from "gi://Gtk";
 import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
 import "lodash";
-import builder from "./window.blp" assert { type: "builder" };
-// import builder from "./window.ui" with { type: "builder" };
+import Interface from "./window.blp" assert { type: "uri" };
+// import Interface from "./window.ui" with { type: "uri" };
 
 import GtkLogo from "./assets/gtk-logo.webm";
 import Louis from "./assets/louis.jpeg";
 import manifest from "./flatpak.json" assert { type: "json" };
 // import provider from "./style.scss" assert { type: "css" };
 import provider from "./style.css" assert { type: "css" };
+
+import { build } from "troll/src/util.js";
 
 console.log(manifest.id);
 
@@ -23,12 +25,13 @@ Gtk.StyleContext.add_provider_for_display(
 
 const loop = new GLib.MainLoop(null, false);
 
-const window = builder.get_object("window");
-
-const picture = builder.get_object("picture");
+const { window, picture, video } = build(Interface, {
+  onCloseRequest() {
+    log("bye");
+    loop.quit();
+  },
+});
 picture.set_resource(Louis);
-
-const video = builder.get_object("video");
 video.set_resource(GtkLogo);
 
 window.present();

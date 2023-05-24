@@ -17,11 +17,9 @@ const picture = Gtk.Picture.new_from_resource(Pumpkin);
 import manifest from "../flatpak.json" with { type: "json" };
 console.log(manifest["app-id"]);
 
-// import XML UI as GtkBuilder
-import builder from "./window.ui" with { type: "builder" };
-// or Blueprint UI as GtkBuilder
-import builder from "./window.blp" with { type: "builder" };
-builder.get_object("window").present();
+// import string
+import os_release from "/etc/os-release" with {type: "string"};
+console.log(os_release);
 ```
 
 It uses the ECMAScript [Import Attributes syntax proposal](https://github.com/tc39/proposal-import-attributes).
@@ -36,7 +34,6 @@ Features:
   - string `with {type: "string"}`
   - GBytes with `with {type: "bytes"}`
   - JSON with `with {type: "json"}`
-  - Gtk.Builder with `with {type: "builder"}`
   - Gtk.CssProvider with `with {type: "css"}`
   - `resource://` uri with `with {type: "uri"}`
   - registered icons with `with {type: "icon"}`
@@ -69,21 +66,29 @@ image.set_resource(Porygon);
 </details>
 
 <details>
-  <summary>UI</summary>
+  <summary>Interface</summary>
 
 You can import xml `.ui` or [blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler) `blp` files.
+Combined with troll `build` method, you can load, build and bind interfaces easily.
+
+See [troll build](../README.md#build)
 
 ```js
-import builder from "./Window.ui" with { type: "builder" };
+import Interface from "./Window.ui" with { type: "uri" };
 // or
-import builder from "./Window.blp" with { type: "builder" };
+import Interface from "./Window.blp" with { type: "uri" };
 
-const window = builder.get_object("window");
+import {build} from "./troll/src/util.js";
+
+function Window() {
+  const {window} = build(Interface);
+}
 ```
 
-For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule. For now please make sure to use `blueprint-compiler` >= `40f493b378cf73d1cc3f128895e842e8665a56c3`.
+For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule.
 
-See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak otherwise you can just close the directory and specify the path to the executable.
+See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak.
+Or you can just close the directory and specify the path to the executable.
 
 ```
 git clone https://gitlab.gnome.org/jwestman/blueprint-compiler.git ~/blueprint-compiler
@@ -97,6 +102,8 @@ gjspack --blueprint-compiler=~/blueprint-compiler/blueprint-compiler.py
 
 ```js
 import Template from "./MyWidget.ui" with { type: "uri" };
+// or (see above to setup Blueprint)
+import Template from "./MyWidget.blp" with { type: "uri" };
 
 GObject.registerClass(
   {
@@ -211,25 +218,28 @@ See [example](./demo/dev.js).
 <details>
   <summary>Import maps</summary>
 
-  main.js
-  ```js
-  import lodash from "lodash";
-  import foo from "foo";
-  import Gtk from "gtk";
-  ```
+main.js
 
-  import_map.json
-  ```json
-  {
-    "imports": {
-      "foo": "./src/foo.js",
-      "gtk": "gi://Gtk?version=4.0",
-      "lodash": "./node_modules/lodash-es/lodash.js"
-    }
+```js
+import lodash from "lodash";
+import foo from "foo";
+import Gtk from "gtk";
+```
+
+import_map.json
+
+```json
+{
+  "imports": {
+    "foo": "./src/foo.js",
+    "gtk": "gi://Gtk?version=4.0",
+    "lodash": "./node_modules/lodash-es/lodash.js"
   }
-  ```
+}
+```
 
-  Either pass `--import-map=import_map.json` to `gjspack` CLI or `import_map: GFile` to `gjspack()`
+Either pass `--import-map=import_map.json` to `gjspack` CLI or `import_map: GFile` to `gjspack()`
+
 </details>
 
 ## CLI
@@ -402,9 +412,9 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 - [ ] gresource compress ?
 - [ ] cache
 - [ ] Support other programming languages? Ping me if there is any interest.
-- [ ] `import foo from './foo.ui#object_id' with {type: "builder"}`
-- [ ] `import {window, button} from './foo.ui' with {type: "builder"}`
 - [ ] one file mode (gresource inside .js executable)
+- [ ] ~`import foo from './foo.ui#object_id' with {type: "builder"}`~ use troll build
+- [ ] ~`import {window, button} from './foo.ui' with {type: "builder"}`~ use troll build
 - [ ] ~~resolve `import foo from 'bar'` from `node_modules`~~ (import maps and http instead)
 
 ## Credits

@@ -56,4 +56,4 @@ function registerClasses(widget, classnames) {
 }
 
 export { Fragment, h };
-export default { Fragment, h };
+export default h;
