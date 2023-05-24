@@ -59,3 +59,4 @@ rules:
       "off",
       { ignore: ["gi://*", "cairo", "gettext", "system", "resource://*"] },
     ]
+  import/no-named-as-default: off

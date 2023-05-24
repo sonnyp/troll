@@ -49,16 +49,19 @@ import "./troll/src/globals.js";
 // btoa(...)
 ```
 
-## resolve(base, uri)
+## resolve
+
+Arguments
 
 - `base` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a base uri
 - `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a path or uri, can be absolute or relative
-- Returns: [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) the resolved uri
+
+Returns [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) the resolved uri
 
 Similar to `import.meta.resolve` or `new URL(url, base)`.
 
 ```js
-import { resolve } from "./troll/src/util.js";
+import { resolve } from "./troll/src/main.js";
 
 console.log(resolve(import.meta.url, "./xml.js"));
 // resource:///some/path/xml.js
@@ -69,21 +72,27 @@ console.log(resolve("http://foo.example", "http://bar.example"));
 // http://bar.example
 ```
 
-## resolveParse(base, uri)
+## resolveParse
+
+Arguments
 
 - `base` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a base uri
 - `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type) a path or uri, can be absolute or relative
-- Returns: [\<GLib.Uri\>](https://gjs-docs.gnome.org/glib20~2.0/glib.uri) the resolved uri
+
+Returns [\<GLib.Uri\>](https://gjs-docs.gnome.org/glib20~2.0/glib.uri) the resolved uri
 
 Same as `resolve` but returns a `GLib.Uri` instead of a `string`.
 
-## promiseTask(target, method, finish[, ...args])
+## promiseTask
+
+Arguments
 
 - `target` [\<GObject.object\>](https://gjs-docs.gnome.org/gobject20/gobject.object)
 - `method` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 - `finish` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
-- `args` an array of arguments to pass to `method`
-- Returns: [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- `...args` the list of arguments to pass to `method`
+
+Returns [\<Promise\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) resolves or rejects with the result of the finish function
 
 Run a Gio async operation and return a promise that resolve with the result of finish method or rejects.
 
@@ -92,7 +101,7 @@ See also [Gio.\_promisify](https://gjs.guide/guides/gjs/asynchronous-programming
 Examples
 
 ```js
-import { promiseTask } from "./troll/src/util.js";
+import { promiseTask } from "./troll/src/main.js";
 import Gio from "gi://Gio";
 
 (async () => {
@@ -131,9 +140,12 @@ import { once } from "./troll/src/util.js";
 
 ## build
 
+Arguments
+
 - `uri` [\<string\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type)
 - `params` [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
-- Returns: [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
+
+Returns [\<Object\>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
 A helper function to easily load, build and bind a GTK XML interface. Here is an example
 
@@ -144,7 +156,7 @@ A helper function to easily load, build and bind a GTK XML interface. Here is an
 #!/usr/bin/env -S gjs -m
 
 import Gtk from "gi://Gtk?version=4.0";
-import { build, resolve } from "./troll/src/util.js";
+import { build, resolve } from "./troll/src/main.js";
 
 const app = new Gtk.Application({
   application_id: "hello.world",
@@ -233,7 +245,7 @@ You can use it as a jsx pragma with [babel](https://babeljs.io/docs/en/babel-plu
 
 ```jsx
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/src/gsx.js";
+import gsx from "./troll/src/main.js";
 
 /** @jsx gsx.h */
 /** @jsxFrag gsx.Fragment */
@@ -279,7 +291,7 @@ export default function MyButton() {
 
 ```js
 import Gtk from "gi://Gtk?version=4.0";
-import gsx from "./troll/src/gsx.js";
+import gsx from "./troll/src/main.js";
 
 const { Button, Align, Image } = Gtk;
 

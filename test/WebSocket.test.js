@@ -1,7 +1,7 @@
 import tst, { assert } from "../tst/tst.js";
 
 import WebSocket from "../src/std/WebSocket.js";
-import { once } from "../src/util.js";
+import { once } from "../src/async.js";
 
 import Soup from "gi://Soup";
 import Gio from "gi://Gio";

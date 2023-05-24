@@ -4,7 +4,7 @@ import fetch from "../src/std/fetch.js";
 
 import Soup from "gi://Soup";
 import Gio from "gi://Gio";
-import { Deferred } from "../src/util.js";
+import { Deferred } from "../src/async.js";
 
 const test = tst("fetch");
 

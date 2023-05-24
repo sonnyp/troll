@@ -1,4 +1,4 @@
-import { promiseTask } from "../util.js";
+import { promiseTask } from "../async.js";
 import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";

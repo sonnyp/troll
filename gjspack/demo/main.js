@@ -13,7 +13,7 @@ import manifest from "./flatpak.json" assert { type: "json" };
 // import provider from "./style.scss" assert { type: "css" };
 import provider from "./style.css" assert { type: "css" };
 
-import { build } from "troll/src/util.js";
+import { build } from "troll";
 
 console.log(manifest.id);
 

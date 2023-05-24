@@ -55,5 +55,10 @@ function registerClasses(widget, classnames) {
   });
 }
 
-export { Fragment, h };
-export default h;
+function gsx(...args) {
+  return h(...args);
+}
+Object.assign(gsx, { h, Fragment });
+
+export { gsx, Fragment, h };
+export default gsx;
