@@ -2,33 +2,46 @@ import GObject from "gi://GObject";
 import Gtk from "gi://Gtk";
 import GLib from "gi://GLib";
 
-function noop() {}
+// https://gitlab.gnome.org/GNOME/gjs/-/blob/0c822fb4a794610da8593ecfe4807b7ae5d6e0e4/modules/core/overrides/Gtk.js
 
-const BuilderScope = GObject.registerClass(
+function _createClosure(builder, thisArg, handlerName, swapped, connectObject) {
+  connectObject = connectObject || thisArg;
+
+  if (swapped) {
+    throw new Error('Unsupported template signal flag "swapped"');
+  } else if (typeof thisArg[handlerName] === "undefined") {
+    throw new Error(
+      `A handler called ${handlerName} was not ` + `defined on ${thisArg}`,
+    );
+  }
+
+  return thisArg[handlerName].bind(connectObject);
+}
+
+const BuilderScopeBuild = GObject.registerClass(
   {
     Implements: [Gtk.BuilderScope],
   },
-  class BuilderScope extends GObject.Object {
-    constructor() {
-      super();
-      this.signal_handlers = Object.create(null);
-    }
+  class BuilderScopeBuild extends GObject.Object {
+    #signal_handlers = {};
 
     add_signal_handler(name, fn) {
-      this.signal_handlers[name] = fn;
+      this.#signal_handlers[name] = fn;
     }
 
-    // https://docs.gtk.org/gtk4/vfunc.BuilderScope.create_closure.html
-    vfunc_create_closure(_builder, function_name, flags, _object) {
-      if (flags & Gtk.BuilderClosureFlags.SWAPPED) {
-        throw new Error('Signal flag "swapped" is unsupported in JavaScript.');
-      }
+    vfunc_create_closure(builder, function_name, flags, object) {
+      const swapped = flags & Gtk.BuilderClosureFlags.SWAPPED;
+      return _createClosure(
+        builder,
+        this.#signal_handlers,
+        function_name,
+        swapped,
+        object,
+      );
+    }
 
-      const fn = this.signal_handlers[function_name];
-      // if (!fn) {
-      //   throw new Error(`No function named \`${function_name}\`.`);
-      // }
-      return fn || noop;
+    clear() {
+      this.#signal_handlers = {};
     }
   },
 );
@@ -36,43 +49,38 @@ const BuilderScope = GObject.registerClass(
 export function build(uri, params = {}) {
   const builder = new Gtk.Builder();
 
-  const scope = new BuilderScope();
+  const scope = new BuilderScopeBuild();
   builder.set_scope(scope);
 
-  for (const [k, v] of Object.entries(params)) {
-    // signals
-    if (typeof v === "function") {
-      scope.add_signal_handler(k, v);
-      // objects
-    } else if (v instanceof GObject.Object) {
-      builder.expose_object(k, v);
-    } else {
-      throw new Error("Only function and GObject properties are supported.");
-    }
-  }
-
   const handler = {
-    get(target, prop, receiver) {
+    get(target, prop) {
       return builder.get_object(prop);
     },
   };
 
-  const proxy = new Proxy({}, handler);
-
-  const g_uri = GLib.Uri.parse(uri, GLib.UriFlags.NONE);
-  const scheme = g_uri.get_scheme();
-  const path = g_uri.get_path();
-  if (!scheme || !path) {
-    throw new Error(`Invalud uri \`${uri}\`.`);
+  for (const [k, v] of Object.entries(params)) {
+    if (typeof v === "function") scope.add_signal_handler(k, v);
+    else if (v instanceof GObject.Object) builder.expose_object(k, v);
+    else
+      throw new TypeError(
+        "Only function and GObject are supported properties.",
+      );
   }
 
-  if (scheme === "resource") {
-    builder.add_from_resource(path);
-  } else if (scheme === "file") {
-    builder.add_from_file(path);
+  const scheme = GLib.Uri.peek_scheme(uri);
+  if (!scheme) {
+    builder.add_from_string(uri, -1);
   } else {
-    throw new Error(`Unsuported scheme \`${uri}\`.`);
+    const g_uri = GLib.Uri.parse(uri, GLib.UriFlags.NONE);
+    const path = g_uri.get_path();
+    if (!path) throw new Error(`Invalid URI "${uri}".`);
+
+    if (scheme === "resource") builder.add_from_resource(path);
+    else if (scheme === "file") builder.add_from_file(path);
+    else throw new Error(`Unsupported scheme "${uri}".`);
   }
 
-  return proxy;
+  scope.clear();
+
+  return new Proxy({}, handler);
 }

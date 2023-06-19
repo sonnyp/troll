@@ -3,12 +3,21 @@ using Gtk 4.0;
 Window window {
   title: "gjspack demo";
   close-request => $onCloseRequest();
+  default-width: 800;
+  default-height: 600;
 
-  Video video {
-    autoplay: true;
-    loop: true;
-  }
+  Box {
+    Video video {
+      autoplay: true;
+      loop: true;
+    }
 
-  Picture picture {
+    Picture picture {
+    }
+
+    Button {
+      label: "Cool";
+      clicked => $onButtonClicked();
+    }
   }
 }

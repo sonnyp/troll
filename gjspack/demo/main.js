@@ -30,6 +30,9 @@ const { window, picture, video } = build(Interface, {
     log("bye");
     loop.quit();
   },
+  onButtonClicked() {
+    log("cool");
+  },
 });
 picture.set_resource(Louis);
 video.set_resource(GtkLogo);
