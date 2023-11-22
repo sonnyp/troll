@@ -9,9 +9,8 @@ import Style from "./ThemeSelector.css";
 const style_manager = Adw.StyleManager.get_default();
 let provider;
 
-class ThemeSelector extends Gtk.Widget {
+class ThemeSelector extends Adw.Bin {
   constructor(params = {}) {
-    ThemeSelector.set_layout_manager_type(Gtk.BinLayout);
     super(params);
 
     style_manager.connect(
