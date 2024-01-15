@@ -43,7 +43,7 @@ export default class WebSocket {
         "websocket_connect_finish",
         message,
         "origin",
-        protocols,
+        protocols.length === 0 ? null : protocols,
         null,
         null,
       );
