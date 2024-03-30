@@ -1,13 +1,12 @@
 import Gio from "gi://Gio";
+import GioUnix from "gi://GioUnix";
 import * as assert from "./assert.js";
 
-const { DataOutputStream, UnixOutputStream } = Gio;
-
-const stdout = new DataOutputStream({
-  base_stream: new UnixOutputStream({ fd: 1 }),
+const stdout = new Gio.DataOutputStream({
+  base_stream: new GioUnix.OutputStream({ fd: 1 }),
 });
-// const stderr = new DataOutputStream({
-//   base_stream: new UnixOutputStream({ fd: 2 }),
+// const stderr = new Gio.DataOutputStream({
+//   base_stream: new GioUnix.OutputStream({ fd: 2 }),
 // });
 
 const colors = {
