@@ -33,3 +33,54 @@ export function parseResolve(base, uri_ref) {
 export function resolve(base, uri_ref) {
   return parseResolve(base, uri_ref).to_string();
 }
+
+export function debounce(func, timeout) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, timeout);
+  };
+}
+
+/*
+Requires a gsettings schema with
+<key name="width" type="i">
+  <default>0</default>
+</key>
+<key name="height" type="i">
+  <default>0</default>
+</key>
+<key name="maximized" type="b">
+  <default>false</default>
+</key>
+<key name="fullscreened" type="b">
+  <default>false</default>
+</key>
+*/
+export function persistWindowState({ settings, window }) {
+  settings.bind(
+    "maximized",
+    window,
+    "maximized",
+    Gio.SettingsBindFlags.DEFAULT,
+  );
+  settings.bind(
+    "fullscreened",
+    window,
+    "fullscreened",
+    Gio.SettingsBindFlags.DEFAULT,
+  );
+
+  // Resizing the window triggers a lot of notify signals
+  // so we use a debounced function instead of settings.bind
+  const onSizeChanged = debounce(() => {
+    settings.set_int("width", window.default_width);
+    settings.set_int("height", window.default_height);
+  }, 300);
+  window.connect("notify::default-width", onSizeChanged);
+  window.connect("notify::default-height", onSizeChanged);
+  window.default_width = settings.get_int("width");
+  window.default_height = settings.get_int("height");
+}
