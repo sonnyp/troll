@@ -81,6 +81,11 @@ export function persistWindowState({ settings, window }) {
   }, 300);
   window.connect("notify::default-width", onSizeChanged);
   window.connect("notify::default-height", onSizeChanged);
-  window.default_width = settings.get_int("width");
-  window.default_height = settings.get_int("height");
+  const width = settings.get_int("width")
+  const height = settings.get_int("height")
+  if (width && height) {
+    window.default_width = width;
+    window.default_height = height;
+  }
 }
+
