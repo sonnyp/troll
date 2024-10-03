@@ -5,12 +5,15 @@
   "homepage": "https://github.com/sonnyp/troll/",
   "license": "ISC",
   "devDependencies": {
-    "@babel/eslint-parser": "^7.21.8",
-    "@babel/plugin-syntax-import-assertions": "^7.20.0",
+    "@babel/core": "^7.25.7",
+    "@babel/eslint-parser": "^7.25.7",
+    "@babel/plugin-syntax-import-attributes": "^7.25.7",
     "@rollup/plugin-node-resolve": "^14.1.0",
-    "eslint": "^8.41.0",
-    "eslint-plugin-import": "^2.27.5",
-    "prettier": "2.8.8",
+    "eslint": "^8.48.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "3.0.3",
     "rollup": "^2.79.1",
     "uvu": "^0.5.6"
   }

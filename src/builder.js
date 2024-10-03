@@ -4,7 +4,13 @@ import GLib from "gi://GLib";
 
 // https://gitlab.gnome.org/GNOME/gjs/-/blob/0c822fb4a794610da8593ecfe4807b7ae5d6e0e4/modules/core/overrides/Gtk.js
 
-function _createClosure(builder, thisArg, handlerName, swapped, connectObject) {
+function _createClosure(
+  _builder,
+  thisArg,
+  handlerName,
+  swapped,
+  connectObject,
+) {
   connectObject = connectObject || thisArg;
 
   if (swapped) {
@@ -53,7 +59,7 @@ export function build(uri, params = {}) {
   builder.set_scope(scope);
 
   const handler = {
-    get(target, prop) {
+    get(_target, prop) {
       return builder.get_object(prop);
     },
   };

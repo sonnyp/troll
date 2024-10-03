@@ -7,7 +7,7 @@ export class TimeoutError extends Error {
 
 export function promiseTask(object, method, finish, ...args) {
   return new Promise((resolve, reject) => {
-    object[method](...args, (self, asyncResult) => {
+    object[method](...args, (_self, asyncResult) => {
       try {
         resolve(object[finish](asyncResult));
       } catch (err) {
@@ -106,13 +106,13 @@ function promiseSignal(object, signal, error_signal) {
     }
 
     if (error_signal) {
-      error_handler_id = object.connect(error_signal, (self, error) => {
+      error_handler_id = object.connect(error_signal, (_self, error) => {
         cleanup();
         reject(error);
       });
     }
 
-    function handler(self, ...params) {
+    function handler(_self, ...params) {
       cleanup();
       resolve(params);
     }

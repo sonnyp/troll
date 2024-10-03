@@ -365,7 +365,7 @@ Use the following eslintrc options:
 
 ### TypeScript
 
-TypeScript doesn't support the import attribute syntax [yet](https://github.com/microsoft/TypeScript/issues/53656). Use the deprecated but equivalent import syntax.
+If your TypeScript version doesn't support the import attribute syntax; use the deprecated but equivalent import syntax.
 
 ```diff
 - import foo from './foo.txt' with {type: "string"}
@@ -374,7 +374,7 @@ TypeScript doesn't support the import attribute syntax [yet](https://github.com/
 
 Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) as well.
 
-## Guidelines:
+## Guidelines
 
 - Provide a familiar development environment to Web developers
 - Explore ideas to improve GNOME developer experience

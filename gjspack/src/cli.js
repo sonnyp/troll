@@ -1,4 +1,5 @@
 #!/usr/bin/env -S gjs -m
+/* eslint-disable no-restricted-globals */
 
 import system from "system";
 import Gio from "gi://Gio";
@@ -155,7 +156,7 @@ app.connect("activate", () => {
   system.exit(0);
 });
 
-app.connect("open", (self, files) => {
+app.connect("open", (_self, files) => {
   [entry, output] = files;
   if (!entry || !output) {
     showHelp();
@@ -165,7 +166,7 @@ app.connect("open", (self, files) => {
   appid ??= basename(entry.get_path())[1];
 });
 
-app.connect("handle-local-options", (self, options) => {
+app.connect("handle-local-options", (_self, options) => {
   if (options.contains("version")) {
     print("alpha");
     return 0;
@@ -280,7 +281,7 @@ try {
     emitExecutable({ appid, output, entry_resource_uri });
   }
 } catch (err) {
-  logError(err);
+  console.error(err);
   status = 1;
 }
 

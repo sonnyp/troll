@@ -36,5 +36,5 @@ import(`resource://${prefix}/main.js`)
   .then(() => {
     loop.quit();
   })
-  .catch(logError);
+  .catch(console.error);
 loop.run();

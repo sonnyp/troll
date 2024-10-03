@@ -2,9 +2,10 @@
 import Gtk from "gi://Gtk?version=4.0";
 import tst, { assert } from "../tst/tst.js";
 
-import gsx from "../src/gsx.js";
+import { gsx } from "../src/gsx.js";
 import { Deferred } from "../src/async.js";
 
+// eslint-disable-next-line no-restricted-globals
 const signals = imports.signals;
 
 Gtk.init();

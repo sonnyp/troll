@@ -3,16 +3,16 @@
 import Gtk from "gi://Gtk";
 import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
-import "lodash";
-import Interface from "./window.blp" assert { type: "uri" };
+import Interface from "./window.blp" with { type: "uri" };
 // import Interface from "./window.ui" with { type: "uri" };
 
 import GtkLogo from "./assets/gtk-logo.webm";
 import Louis from "./assets/louis.jpeg";
-import manifest from "./flatpak.json" assert { type: "json" };
-// import provider from "./style.scss" assert { type: "css" };
-import provider from "./style.css" assert { type: "css" };
+import manifest from "./flatpak.json" with { type: "json" };
+// import provider from "./style.scss" with { type: "css" };
+import provider from "./style.css" with { type: "css" };
 
+// eslint-disable-next-line import/no-unresolved
 import { build } from "troll";
 
 console.log(manifest.id);
@@ -27,11 +27,11 @@ const loop = new GLib.MainLoop(null, false);
 
 const { window, picture, video } = build(Interface, {
   onCloseRequest() {
-    log("bye");
+    console.log("bye");
     loop.quit();
   },
   onButtonClicked() {
-    log("cool");
+    console.log("cool");
   },
 });
 picture.set_resource(Louis);

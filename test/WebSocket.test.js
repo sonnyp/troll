@@ -68,8 +68,8 @@ test("protocol", async () => {
 function createEchoServer(protocols = []) {
   const server = new Soup.Server();
 
-  function onConnection(self, message, path, connection) {
-    connection.connect("message", (self, type, message) => {
+  function onConnection(_self, _message, _path, connection) {
+    connection.connect("message", (_self, type, message) => {
       connection.send_message(type, message);
     });
   }

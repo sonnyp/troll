@@ -1,23 +1,22 @@
 root: true
-
 env:
-  es2022: true
-
+  es2023: true
 parser: "@babel/eslint-parser"
 parserOptions:
   sourceType: module
   requireConfigFile: false
   babelOptions:
-    plugins: ["@babel/plugin-syntax-import-assertions"]
-
+    plugins:
+      - "@babel/plugin-syntax-import-attributes"
 extends:
-  - "eslint:recommended"
-  - "plugin:import/errors"
-  - "plugin:import/warnings"
-
+  - eslint:recommended
+  - plugin:import/errors
+  - plugin:import/warnings
+  - plugin:prettier/recommended
 globals:
+  __DEV__: readonly
   pkg: readonly
-  # https://gitlab.gnome.org/GNOME/gjs/-/blob/f4a4572c35a67eb38fef9243f2c34f37ee60d7ff/.eslintrc.yml#L250
+  # gjs
   ARGV: readonly
   Debugger: readonly
   GIRepositoryGType: readonly
@@ -36,27 +35,39 @@ globals:
   setInterval: readonly
   clearTimeout: readonly
   clearInterval: readonly
-
 rules:
-  # https://eslint.org/docs/rules/no-unused-vars
-  no-unused-vars: [error, { args: none }]
-  # https://eslint.org/docs/rules/no-restricted-globals
-  no-restricted-globals: [error, window, Intl, Debugger]
-  # https://eslint.org/docs/rules/#strict-mode
-  strict: [error] # https://eslint.org/docs/rules/strict
-  # https://eslint.org/docs/rules/#best-practices
+  # Possible Problems
+  # https://eslint.org/docs/latest/rules/#possible-problems
+  array-callback-return: [error] # https://eslint.org/docs/latest/rules/array-callback-return
+  no-duplicate-imports: [error] # https://eslint.org/docs/latest/rules/no-duplicate-imports
+  no-new-native-nonconstructor: [error] # https://eslint.org/docs/latest/rules/no-new-native-nonconstructor
+  no-restricted-globals: # https://eslint.org/docs/rules/no-restricted-globals
+    - error
+    - window
+    - printerr
+    - print
+    - imports
+    - logError
+    - log
+  no-unused-vars: # https://eslint.org/docs/latest/rules/no-unused-vars
+    - error
+    - vars: all
+      args: all
+      argsIgnorePattern: "^_"
+
+  # Suggestions
+  # https://eslint.org/docs/latest/rules/#suggestions
   eqeqeq: [error, always] # https://eslint.org/docs/rules/eqeqeq
-  no-implicit-globals: error
-  # https://eslint.org/docs/rules/#ecmascript-6
-  no-var: error # https://eslint.org/docs/rules/no-var
-  prefer-arrow-callback: error # https://eslint.org/docs/rules/prefer-arrow-callback
-  prefer-const: error # https://eslint.org/docs/rules/prefer-const
+  no-implicit-globals: [error] # https://eslint.org/docs/latest/rules/no-implicit-globals
+  no-var: [error] # https://eslint.org/docs/rules/no-var
+  prefer-arrow-callback: [
+      error,
+      { allowNamedFunctions: true, allowUnboundThis: true },
+    ] # https://eslint.org/docs/rules/prefer-arrow-callback
+  prefer-const: [error] # https://eslint.org/docs/rules/prefer-const
+
+  # eslint-plugin-import
   # https://github.com/benmosher/eslint-plugin-import/
   import/extensions: ["error", "ignorePackages"]
-  # No support for import map
   import/no-unresolved:
-    [
-      "off",
-      { ignore: ["gi://*", "cairo", "gettext", "system", "resource://*"] },
-    ]
-  import/no-named-as-default: off
+    [error, { ignore: ["gi://*", "resource://*", "cairo", "gettext", "system"] }]

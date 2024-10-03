@@ -15,7 +15,7 @@ test("simple get", async () => {
   const body = "Hello world!";
 
   const server = new Soup.Server();
-  server.add_handler("/hello-world", (self, message) => {
+  server.add_handler("/hello-world", (_self, message) => {
     message.get_response_headers().set_content_type(content_type, null);
     message.get_response_body().append(body);
 
@@ -37,7 +37,7 @@ test("get json", async () => {
   const value = { hello: "world" };
 
   const server = new Soup.Server();
-  server.add_handler("/json", (self, message) => {
+  server.add_handler("/json", (_self, message) => {
     message.get_response_headers().set_content_type("application/json", null);
     message.get_response_body().append(JSON.stringify(value));
     message.set_status(200, null);
@@ -55,7 +55,7 @@ test("get arrayBuffer", async () => {
   const uintValue = new Uint8Array(new TextEncoder().encode(value));
 
   const server = new Soup.Server();
-  server.add_handler("/bin", (self, message) => {
+  server.add_handler("/bin", (_self, message) => {
     message.get_response_body().append(value);
     message.set_status(200, null);
   });
@@ -72,7 +72,7 @@ test("get gBytes", async () => {
   const uintValue = new Uint8Array(new TextEncoder().encode(value));
 
   const server = new Soup.Server();
-  server.add_handler("/bin", (self, message) => {
+  server.add_handler("/bin", (_self, message) => {
     message.get_response_body().append(value);
     message.set_status(200, null);
   });
@@ -89,7 +89,7 @@ test("POST", async () => {
   const request_body = JSON.stringify({ hello: "world" });
   const deferred = new Deferred();
 
-  server.add_handler("/json", (self, message) => {
+  server.add_handler("/json", (_self, message) => {
     assert.is(message.get_method(), "POST");
 
     const request_headers = message.get_request_headers();

@@ -3,6 +3,7 @@ import { promiseTask } from "../async.js";
 import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
 
+// eslint-disable-next-line no-restricted-globals
 const Signals = imports.signals;
 
 const text_decoder = new TextDecoder("utf-8");
@@ -64,11 +65,11 @@ export default class WebSocket {
       this._onclose();
     });
 
-    connection.connect("error", (self, err) => {
+    connection.connect("error", (_self, err) => {
       this._onerror(err);
     });
 
-    connection.connect("message", (self, type, message) => {
+    connection.connect("message", (_self, type, message) => {
       if (type === Soup.WebsocketDataType.TEXT) {
         const data = text_decoder.decode(message.toArray());
         this._onmessage({ data });
@@ -121,13 +122,13 @@ export default class WebSocket {
   }
 
   addEventListener(name, fn) {
-    const id = this.connect(name, (self, ...args) => {
+    const id = this.connect(name, (_self, ...args) => {
       fn(...args);
     });
     this.eventListeners.set(fn, id);
   }
 
-  removeEventListener(name, fn) {
+  removeEventListener(_name, fn) {
     const id = this.eventListeners.get(fn);
     this.disconnect(id);
     this.eventListeners.delete(fn);

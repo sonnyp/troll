@@ -40,7 +40,7 @@ function h(Widget, attrs, ...children) {
 
 function registerSignal(widget, key, handler) {
   const signal = key.split("connect-")[1];
-  function signalHandler(self, ...args) {
+  function signalHandler(_self, ...args) {
     handler(...args);
   }
   widget.connect(signal, signalHandler);

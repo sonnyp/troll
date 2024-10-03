@@ -1,4 +1,4 @@
-import gsx from "./gsx.js";
+import { gsx } from "./gsx.js";
 import {
   resolve,
   parseResolve,

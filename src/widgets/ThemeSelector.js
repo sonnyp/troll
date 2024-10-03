@@ -3,7 +3,7 @@ import Gtk from "gi://Gtk";
 import Adw from "gi://Adw";
 import Gdk from "gi://Gdk";
 
-import Template from "./ThemeSelector.blp" assert { type: "uri" };
+import Template from "./ThemeSelector.blp" with { type: "uri" };
 import Style from "./ThemeSelector.css";
 
 const style_manager = Adw.StyleManager.get_default();
