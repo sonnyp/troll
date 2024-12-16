@@ -46,28 +46,28 @@ export function debounce(func, timeout) {
 
 /*
 Requires a gsettings schema with
-<key name="width" type="i">
+<key name="window-width" type="i">
   <default>0</default>
 </key>
-<key name="height" type="i">
+<key name="window-height" type="i">
   <default>0</default>
 </key>
-<key name="maximized" type="b">
+<key name="window-maximized" type="b">
   <default>false</default>
 </key>
-<key name="fullscreened" type="b">
+<key name="window-fullscreened" type="b">
   <default>false</default>
 </key>
 */
 export function persistWindowState({ settings, window }) {
   settings.bind(
-    "maximized",
+    "window-maximized",
     window,
     "maximized",
     Gio.SettingsBindFlags.DEFAULT,
   );
   settings.bind(
-    "fullscreened",
+    "window-fullscreened",
     window,
     "fullscreened",
     Gio.SettingsBindFlags.DEFAULT,
@@ -76,13 +76,13 @@ export function persistWindowState({ settings, window }) {
   // Resizing the window triggers a lot of notify signals
   // so we use a debounced function instead of settings.bind
   const onSizeChanged = debounce(() => {
-    settings.set_int("width", window.default_width);
-    settings.set_int("height", window.default_height);
+    settings.set_int("window-width", window.default_width);
+    settings.set_int("window-height", window.default_height);
   }, 300);
   window.connect("notify::default-width", onSizeChanged);
   window.connect("notify::default-height", onSizeChanged);
-  const width = settings.get_int("width");
-  const height = settings.get_int("height");
+  const width = settings.get_int("window-width");
+  const height = settings.get_int("window-height");
   if (width && height) {
     window.default_width = width;
     window.default_height = height;
