@@ -58,7 +58,7 @@ const window = (
         />
         <Label label="Hit" />
         <ShortcutsShortcut
-          accelerator="<Primary>Return"
+          accelerator="<Control>Return"
           margin-start={12}
         ></ShortcutsShortcut>
         <Label label="to format and run Code" />
