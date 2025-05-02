@@ -74,7 +74,7 @@ export default class WebSocket {
         const data = text_decoder.decode(message.toArray());
         this._onmessage({ data });
       } else {
-        this._onmessage({ data: message });
+        this._onmessage({ data: message.toArray() });
       }
     });
   }
