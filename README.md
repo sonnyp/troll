@@ -37,6 +37,7 @@ Contributions welcome.
 
 - [xmpp.js](https://github.com/xmppjs/xmpp.js)
 - [aria2.js](https://github.com/sonnyp/aria2.js)
+- [MQTT.js](https://github.com/mqttjs/MQTT.js/)
 
 ## globals
 

@@ -1,7 +1,7 @@
 {
   "id": "re.sonny.gjspack.Demo",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "44",
+  "runtime-version": "49",
   "sdk": "org.gnome.Sdk",
   "command": "gjspack-demo",
   "finish-args": [
@@ -11,17 +11,6 @@
     "--device=dri"
   ],
   "modules": [
-    {
-      "name": "blueprint-compiler",
-      "buildsystem": "meson",
-      "sources": [
-        {
-          "type": "git",
-          "url": "https://gitlab.gnome.org/jwestman/blueprint-compiler",
-          "branch": "main"
-        }
-      ]
-    },
     {
       "name": "gjspack",
       "buildsystem": "simple",

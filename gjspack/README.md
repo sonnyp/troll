@@ -85,7 +85,9 @@ function Window() {
 }
 ```
 
-For blueprint support, you will need `blueprint-compiler` but you don't need the meson submodule.
+For blueprint support, if you are on GNOME SDK >= 49 you have nothing to do.
+
+Otherwise you will need `blueprint-compiler` but you don't need the meson submodule.
 
 See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak.
 Or you can just close the directory and specify the path to the executable.
