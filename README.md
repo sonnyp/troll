@@ -21,6 +21,8 @@ Contributions welcome.
 - base64
   - atob [src](src/std/base64.js)
   - btoa [src](src/std/base64.js)
+- crypto
+  - getRandomValues [src](src/std/crypto.js)
 - ~~timers~~ builtin gjs 1.72
 - ~~console~~ builtin gjs 1.70
 - ~~TextDecoder/TextEncoder~~ builtin gjs 1.70
