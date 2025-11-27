@@ -37,7 +37,9 @@ class ThemeSelector extends Adw.Bin {
   }
 
   _on_notify_system_supports_color_schemes() {
-    this._follow.set_visible(this.style_manager.get_system_supports_color_schemes());
+    this._follow.set_visible(
+      this.style_manager.get_system_supports_color_schemes(),
+    );
   }
 
   _on_notify_dark() {
