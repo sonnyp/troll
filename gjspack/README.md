@@ -346,11 +346,11 @@ make ci
 GJS doesn't support Source Maps ([yet?](https://gitlab.gnome.org/GNOME/gjs/-/issues/474)).
 Stack traces would be unreadable.
 
+
+
 ### How to configure ESLint?
 
-ESLint parser doesn't support the import attributes syntax [yet](https://github.com/eslint/eslint/discussions/15305).
-
-Use the following eslintrc options:
+Use ESLint >= 9.19.0 or configure ESLint like so
 
 ```json
 {

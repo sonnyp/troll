@@ -17,8 +17,6 @@ export function promiseTask(object, method, finish, ...args) {
   });
 }
 
-function noop() {}
-
 function delay(ms) {
   let timeout;
   const promise = new Promise((resolve) => {

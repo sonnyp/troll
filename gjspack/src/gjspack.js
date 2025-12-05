@@ -249,7 +249,6 @@ export function processSourceFile({
         substitute = `(() => { imports.gi.Gtk.init(); const provider = new imports.gi.Gtk.CssProvider(); provider.load_from_resource("${import_location}"); return provider; })()`;
       } else if (type === "uri") {
         substitute = `"resource://${import_location}"`;
-        // eslint-disable-next-line no-empty
       } else if (type === "resource" || !type) {
         substitute = `"${import_location}"`;
       } else if (type === "icon") {

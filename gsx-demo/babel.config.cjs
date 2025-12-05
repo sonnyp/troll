@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
   // gjs does not support source map so this helps
   // https://babeljs.io/docs/en/options#retainlines

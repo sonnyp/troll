@@ -1,9 +1,9 @@
 {
   "private": true,
   "devDependencies": {
-    "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.8",
-    "@babel/plugin-transform-react-jsx": "^7.17.3"
+    "@babel/cli": "^7.28.3",
+    "@babel/core": "^7.28.5",
+    "@babel/plugin-transform-react-jsx": "^7.27.1"
   },
   "type": "module",
   "scripts": {
