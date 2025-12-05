@@ -4,7 +4,6 @@ import fetch from "../src/std/fetch.js";
 
 import Soup from "gi://Soup";
 import Gio from "gi://Gio";
-import { Deferred } from "../src/async.js";
 
 const test = tst("fetch");
 
@@ -87,7 +86,7 @@ test("get gBytes", async () => {
 test("POST", async () => {
   const server = new Soup.Server();
   const request_body = JSON.stringify({ hello: "world" });
-  const deferred = new Deferred();
+  const deferred = Promise.withResolvers();
 
   server.add_handler("/json", (_self, message) => {
     assert.is(message.get_method(), "POST");
@@ -113,7 +112,7 @@ test("POST", async () => {
     body: request_body,
   });
 
-  await deferred;
+  await deferred.promise;
 
   assert.is(res.status, 200);
 

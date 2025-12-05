@@ -19,19 +19,6 @@ export function promiseTask(object, method, finish, ...args) {
 
 function noop() {}
 
-export class Deferred extends Promise {
-  constructor(def = noop) {
-    let res, rej;
-    super((resolve, reject) => {
-      def(resolve, reject);
-      res = resolve;
-      rej = reject;
-    });
-    this.resolve = res;
-    this.reject = rej;
-  }
-}
-
 function delay(ms) {
   let timeout;
   const promise = new Promise((resolve) => {

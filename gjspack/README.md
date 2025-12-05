@@ -40,7 +40,7 @@ Features:
 - deduplicate imports
 - retain source lines (maintain correct stack traces)
 - automatically add missing files to `POTFILES`
-- supports [Blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/)
+- supports [Blueprint](https://gnome.pages.gitlab.gnome.org/blueprint-compiler/)
 - support custom transformers
 - support [import maps](https://github.com/WICG/import-maps)
 
@@ -68,7 +68,7 @@ image.set_resource(Porygon);
 <details>
   <summary>Interface</summary>
 
-You can import xml `.ui` or [blueprint](https://jwestman.pages.gitlab.gnome.org/blueprint-compiler) `blp` files.
+You can import xml `.ui` or [blueprint](https://gnome.pages.gitlab.gnome.org/blueprint-compiler/) `blp` files.
 Combined with troll `build` method, you can load, build and bind interfaces easily.
 
 See [troll build](../README.md#build)
@@ -89,11 +89,11 @@ For blueprint support, if you are on GNOME SDK >= 49 you have nothing to do.
 
 Otherwise you will need `blueprint-compiler` but you don't need the meson submodule.
 
-See [https://jwestman.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak.
+See [https://gnome.pages.gitlab.gnome.org/blueprint-compiler/flatpak.html](this) for Flatpak.
 Or you can just close the directory and specify the path to the executable.
 
 ```
-git clone https://gitlab.gnome.org/jwestman/blueprint-compiler.git ~/blueprint-compiler
+git clone https://gitlab.gnome.org/GNOME/blueprint-compiler.git ~/blueprint-compiler
 gjspack --blueprint-compiler=~/blueprint-compiler/blueprint-compiler.py
 ```
 

@@ -3,7 +3,6 @@ import Gtk from "gi://Gtk?version=4.0";
 import tst, { assert } from "../tst/tst.js";
 
 import { gsx } from "../src/gsx.js";
-import { Deferred } from "../src/async.js";
 
 // eslint-disable-next-line no-restricted-globals
 const signals = imports.signals;
@@ -66,7 +65,7 @@ test("class names", () => {
 });
 
 test("signal", async () => {
-  const deferred = new Deferred();
+  const deferred = Promise.withResolvers();
 
   function onClicked(self) {
     assert.is.not(self, button);
@@ -77,14 +76,14 @@ test("signal", async () => {
 
   button.emit("clicked");
 
-  await deferred;
+  await deferred.promise;
 });
 
 test("signal arguments", async () => {
   class MyWidget {}
   signals.addSignalMethods(MyWidget.prototype);
 
-  const deferred = new Deferred();
+  const deferred = Promise.withResolvers();
 
   const values = [1, 2, 3];
   function onSignal(...args) {
@@ -96,7 +95,7 @@ test("signal arguments", async () => {
 
   button.emit("signal", ...values);
 
-  await deferred;
+  await deferred.promise;
 });
 
 export default test;
