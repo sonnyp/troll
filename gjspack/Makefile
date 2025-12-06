@@ -2,6 +2,7 @@
 .PHONY: build test test-ci clean demo
 
 build:
+	npm install
 	./bin/gjspack --appid=gjspack src/cli.js bin/
 
 test:

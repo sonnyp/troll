@@ -2,8 +2,8 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import system from "system";
 
-import * as lexer from "../lib/lexer.asm.js";
-import { createElement as xml } from "../lib/ltx.js";
+import * as lexer from "../node_modules/es-module-lexer/dist/lexer.asm.js";
+import xml from "../node_modules/ltx/src/createElement.js";
 import {
   decode,
   appIdToPrefix,
@@ -13,6 +13,9 @@ import {
 } from "./utils.js";
 
 import * as immap from "./import_map.js";
+
+// https://github.com/guybedford/es-module-lexer/issues/192
+globalThis.global = globalThis;
 
 export function getPathForResource(
   module_path,

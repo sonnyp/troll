@@ -22,8 +22,6 @@ import os_release from "/etc/os-release" with {type: "string"};
 console.log(os_release);
 ```
 
-It uses the ECMAScript [Import Attributes syntax proposal](https://github.com/tc39/proposal-import-attributes).
-
 See [Examples](#Examples) below.
 
 Features:
@@ -346,36 +344,6 @@ make ci
 GJS doesn't support Source Maps ([yet?](https://gitlab.gnome.org/GNOME/gjs/-/issues/474)).
 Stack traces would be unreadable.
 
-
-
-### How to configure ESLint?
-
-Use ESLint >= 9.19.0 or configure ESLint like so
-
-```json
-{
-  "parser": "@babel/eslint-parser",
-  "parserOptions": {
-    "sourceType": "module",
-    "requireConfigFile": false,
-    "babelOptions": {
-      "plugins": ["@babel/plugin-syntax-import-assertions"]
-    }
-  }
-}
-```
-
-### TypeScript
-
-If your TypeScript version doesn't support the import attribute syntax; use the deprecated but equivalent import syntax.
-
-```diff
-- import foo from './foo.txt' with {type: "string"}
-+ import foo from './foo.txt' assert {type: "string"}
-```
-
-Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin-import) as well.
-
 ## Guidelines
 
 - Provide a familiar development environment to Web developers
@@ -421,4 +389,5 @@ Consider using [eslint-plugin-import](https://github.com/import-js/eslint-plugin
 
 ## Credits
 
-[es-module-lexer](https://github.com/guybedford/es-module-lexer)
+* [es-module-lexer](https://github.com/guybedford/es-module-lexer)
+* [ltx](https://github.com/xmppjs/ltx/)
