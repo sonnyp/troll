@@ -2,7 +2,7 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import system from "system";
 
-import * as lexer from "../node_modules/es-module-lexer/dist/lexer.asm.js";
+import { parse } from "../node_modules/es-module-lexer/dist/lexer.asm.js";
 import xml from "../node_modules/ltx/src/createElement.js";
 import {
   decode,
@@ -13,9 +13,6 @@ import {
 } from "./utils.js";
 
 import * as immap from "./import_map.js";
-
-// https://github.com/guybedford/es-module-lexer/issues/192
-globalThis.global = globalThis;
 
 export function getPathForResource(
   module_path,
@@ -126,7 +123,7 @@ function preprocess({ imported_file, resource_path, transforms = [] }) {
 // fun is a function that takes an import statement description, as `{ss, se , s, e, a, n, d}`,
 // and returns a new import statement string
 export function rewriteImports(source, fun) {
-  const [imports] = lexer.parse(source);
+  const [imports] = parse(source);
   let str = "";
   let prev_end = 0;
 
@@ -165,8 +162,9 @@ export function processSourceFile({
     // e is end of module path
     // n is location
     // d > -1 means dynamic import
-    // a is for assert
-    const { ss, se, s, e, a, n, d } = imported;
+    // a is for with statement
+    // at is for attributes like [['type', 'json']]
+    const { ss, se, s, e, n, d, at } = imported;
 
     // statement
     const stmt = source.substring(ss, se);
@@ -184,16 +182,9 @@ export function processSourceFile({
     const resource_path = getPathForResource(n, source_file, resource_root);
     const imported_file = source_file.get_parent().resolve_relative_path(n);
 
-    let type;
     let resource;
 
-    if (a > -1) {
-      const assert = source.slice(a, se);
-      type = getAssertType(assert);
-      if (!type) {
-        throw new Error(`Invalid assert syntax "${assert}"`);
-      }
-    }
+    const type = at?.find((attribute) => attribute[0] === "type")?.[1];
 
     if (!type && (n.endsWith(".js") || n.endsWith(".mjs"))) {
       new_stmt += stmt.slice(0, s - ss);
