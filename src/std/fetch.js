@@ -10,6 +10,11 @@ export default async function fetch(url, options = {}) {
   }
 
   const session = new Soup.Session();
+
+  options?.signal?.addEventListener("abort", () => {
+    session.abort();
+  });
+
   const method = options.method || "GET";
 
   const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
@@ -29,14 +34,22 @@ export default async function fetch(url, options = {}) {
     message.set_request_body_from_bytes(null, new GLib.Bytes(options.body));
   }
 
-  const inputStream = await promiseTask(
-    session,
-    "send_async",
-    "send_finish",
-    message,
-    null,
-    null,
-  );
+  let inputStream;
+  try {
+    inputStream = await promiseTask(
+      session,
+      "send_async",
+      "send_finish",
+      message,
+      null,
+      null,
+    );
+  } catch (err) {
+    if (err.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+      throw new AbortError("Request canceled.");
+    }
+    throw err;
+  }
 
   const { status_code, reason_phrase } = message;
   const ok = status_code >= 200 && status_code < 300;
@@ -76,4 +89,11 @@ export default async function fetch(url, options = {}) {
       return bytes;
     },
   };
+}
+
+class AbortError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "AbortError";
+  }
 }

@@ -2,15 +2,15 @@ import { promiseTask } from "../async.js";
 
 import Soup from "gi://Soup?version=3.0";
 import GLib from "gi://GLib";
-
-// eslint-disable-next-line no-restricted-globals
-const Signals = imports.signals;
+import { EventTarget, Event } from "./event-target.js";
 
 const text_decoder = new TextDecoder("utf-8");
 const text_encoder = new TextEncoder("utf-8");
 
-export default class WebSocket {
+export default class WebSocket extends EventTarget {
   constructor(url, protocols = []) {
+    super();
+
     this.eventListeners = new WeakMap();
     this._connection = null;
     this.readyState = 0;
@@ -72,9 +72,9 @@ export default class WebSocket {
     connection.connect("message", (_self, type, message) => {
       if (type === Soup.WebsocketDataType.TEXT) {
         const data = text_decoder.decode(message.toArray());
-        this._onmessage({ data });
+        this._onmessage(data);
       } else {
-        this._onmessage({ data: message.toArray() });
+        this._onmessage(message.toArray());
       }
     });
   }
@@ -99,39 +99,29 @@ export default class WebSocket {
     this.readyState = 1;
     if (typeof this.onopen === "function") this.onopen();
 
-    this.emit("open");
+    this.dispatchEvent(new Event("open"));
   }
 
   _onmessage(message) {
     if (typeof this.onmessage === "function") this.onmessage(message);
 
-    this.emit("message", message);
+    const event = new Event("message");
+    event.data = message;
+    this.dispatchEvent(event);
   }
 
   _onclose() {
     this.readyState = 3;
     if (typeof this.onclose === "function") this.onclose();
 
-    this.emit("close");
+    this.dispatchEvent(new Event("close"));
   }
 
   _onerror(error) {
     if (typeof this.onerror === "function") this.onerror(error);
 
-    this.emit("error", error);
-  }
-
-  addEventListener(name, fn) {
-    const id = this.connect(name, (_self, ...args) => {
-      fn(...args);
-    });
-    this.eventListeners.set(fn, id);
-  }
-
-  removeEventListener(_name, fn) {
-    const id = this.eventListeners.get(fn);
-    this.disconnect(id);
-    this.eventListeners.delete(fn);
+    const event = new Event("error");
+    event.detail = error;
+    this.emit("error", event);
   }
 }
-Signals.addSignalMethods(WebSocket.prototype);

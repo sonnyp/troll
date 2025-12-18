@@ -1,6 +1,7 @@
 import tst, { assert } from "../tst/tst.js";
 
 import fetch from "../src/std/fetch.js";
+import { AbortController } from "../src/std/abort-controller.js";
 
 import Soup from "gi://Soup";
 import Gio from "gi://Gio";
@@ -117,6 +118,23 @@ test("POST", async () => {
   assert.is(res.status, 200);
 
   server.disconnect();
+});
+
+test("abort", async () => {
+  const controller = new AbortController();
+
+  const promise = fetch("http://127.0.0.1:1234/hello-world", {
+    signal: controller.signal,
+  });
+  controller.abort();
+
+  let err;
+  await promise.catch((e) => {
+    err = e;
+  });
+
+  assert.is(err.name, "AbortError");
+  assert.is(err.message, "Request canceled.");
 });
 
 export default test;

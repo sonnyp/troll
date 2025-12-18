@@ -37,10 +37,10 @@ export function once(
   },
 ) {
   let promise;
-  if (object.connect && object.disconnect) {
-    promise = promiseSignal(object, signal, options.error);
-  } else {
+  if (object.addEventListener && object.removeEventListener) {
     promise = promiseEvent(object, signal, options.error);
+  } else {
+    promise = promiseSignal(object, signal, options.error);
   }
 
   if (options.timeout < 0) {

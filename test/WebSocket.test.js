@@ -39,11 +39,11 @@ test("send and receive", async () => {
   await once(ws, "open", { timeout: 1000, error: "error" });
 
   ws.send("hello");
-  const [message] = await once(ws, "message", {
+  const [event] = await once(ws, "message", {
     timeout: 1000,
     error: "error",
   });
-  assert.is(message.data, "hello");
+  assert.is(event.data, "hello");
 
   server.disconnect();
 });
