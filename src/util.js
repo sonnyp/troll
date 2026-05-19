@@ -88,3 +88,49 @@ export function persistWindowState({ settings, window }) {
     window.default_height = height;
   }
 }
+
+export async function rmrf(file) {
+  Gio._promisify(Gio.File.prototype, "query_info_async");
+  Gio._promisify(Gio.File.prototype, "enumerate_children_async");
+  Gio._promisify(Gio.File.prototype, "delete_async");
+  Gio._promisify(Gio.FileEnumerator.prototype, "close_async");
+
+  const cancellable = null;
+  const priority = GLib.PRIORITY_DEFAULT;
+
+  const info = await file.query_info_async(
+    "standard::type",
+    Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+    priority,
+    cancellable,
+  );
+
+  if (info.get_file_type() === Gio.FileType.DIRECTORY) {
+    const iter = await file.enumerate_children_async(
+      "standard::name",
+      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+      priority,
+      cancellable,
+    );
+
+    try {
+      for await (const info of iter) {
+        const child = iter.get_child(info);
+        await rmrf(child);
+      }
+    } finally {
+      try {
+        await iter.close_async(priority, cancellable);
+        // eslint-disable-next-line no-empty
+      } catch {}
+    }
+  }
+
+  try {
+    await file.delete_async(priority, cancellable);
+  } catch (err) {
+    if (err.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)) return;
+
+    throw err;
+  }
+}
