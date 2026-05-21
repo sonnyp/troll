@@ -21,6 +21,7 @@ import {
   decode,
 } from "../src/utils.js";
 import { makeImportMap } from "../src/import_map.js";
+import { checksum, urlToFilepath } from "../src/downloader.js";
 
 const fixtures = Gio.File.new_for_path("test/fixtures");
 
@@ -396,5 +397,40 @@ test("transform error", () => {
     "Namespace Gtk does not contain a type called FooApplicationWindow",
   );
 });
+
+
+test("downloader checksum", () => {
+  const actual = checksum("hello world");
+  assert.equal(actual, "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9")
+})
+
+
+test("downloader urlToFilepath", () => {
+  // taken directly from deno
+  const test_cases = [
+    ["https://deno.land/x/foo.ts", "https/deno.land/2c0a064891b9e3fbe386f5d4a833bce5076543f5404613656042107213a7bbc8"],
+    [
+      "https://deno.land:8080/x/foo.ts",
+      "https/deno.land_PORT8080/2c0a064891b9e3fbe386f5d4a833bce5076543f5404613656042107213a7bbc8",
+    ],
+    ["https://deno.land/", "https/deno.land/8a5edab282632443219e051e4ade2d1d5bbc671c781051bf1437897cbdfea0f1"],
+    [
+      "https://deno.land/?asdf=qwer",
+      "https/deno.land/e4edd1f433165141015db6a823094e6bd8f24dd16fe33f2abd99d34a0a21a3c0",
+    ],
+    // should be the same as case above, fragment (#qwer) is ignored
+    // when hashing
+    [
+      "https://deno.land/?asdf=qwer#qwer",
+      "https/deno.land/e4edd1f433165141015db6a823094e6bd8f24dd16fe33f2abd99d34a0a21a3c0",
+    ],
+  ];
+
+  for (const [url, expected] of test_cases) {
+    const u = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+    const p = urlToFilepath(u);
+    assert.equal(p, expected);
+  }
+})
 
 export default test;
