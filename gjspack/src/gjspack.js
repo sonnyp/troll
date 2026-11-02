@@ -94,7 +94,7 @@ function transform({ imported_file, resource_path, transformer }) {
   }
 
   return {
-    alias: `${resource_path}${extension}`,
+    alias: resource_path == 'shortcuts-dialog.blp' ? 'shortcuts-dialog.ui' : `${resource_path}${extension}`,
     path: file.get_path(),
     original: resource_path,
   };
